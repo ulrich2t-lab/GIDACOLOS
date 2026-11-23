@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dossier de Projet & Business Plan - Qolock Maradi</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        serif: ['Merriweather', 'serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            900: '#14532d',
+                        },
+                        accent: {
+                            500: '#f97316',
+                            600: '#ea580c',
+                        },
+                        navy: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background-color: #ffffff !important;
+                color: #000000 !important;
+                font-size: 11pt !important;
+                line-height: 1.5 !important;
+            }
+            .print-container {
+                box-shadow: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                max-width: 100% !important;
+                width: 100% !important;
+            }
+            .page-break {
+                page-break-before: always;
+                break-before: page;
+            }
+            .avoid-break {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+            a {
+                text-decoration: underline;
+                color: #000000 !important;
+            }
+            .bg-slate-50, .bg-emerald-50, .bg-amber-50, .bg-blue-50 {
+                background-color: #f8fafc !important;
+                border: 1px solid #cbd5e1 !important;
+            }
+            .border-l-4 {
+                border-left-width: 4px !important;
+            }
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Custom scrollbar for web viewing */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen">
+
+    <!-- Top Action Bar (Screen Only) -->
+    <div class="no-print sticky top-0 z-50 bg-navy-900/95 backdrop-blur text-white border-b border-slate-700 shadow-lg">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 bg-brand-600 rounded-lg flex items-center justify-center font-bold text-white shadow">
+                    <i class="fa-solid fa-building-user text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-sm md:text-base leading-tight">QOLOCK MARADI — Business Plan</h1>
+                    <p class="text-xs text-slate-400">Dossier Officiel de Lancement (Niger)</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-2">
+                <button onclick="scrollToSection('table-matieres')" class="px-3 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-md transition flex items-center space-x-1">
+                    <i class="fa-solid fa-list-ul"></i>
+                    <span class="hidden sm:inline">Sommaire</span>
+                </button>
+                <button onclick="window.print()" class="px-4 py-1.5 text-xs font-semibold bg-brand-600 hover:bg-brand-700 text-white rounded-md shadow transition flex items-center space-x-2">
+                    <i class="fa-solid fa-file-pdf text-sm"></i>
+                    <span>Imprimer / Sauvegarder en PDF</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Printable Document Area -->
+    <main class="max-w-5xl mx-auto my-6 p-6 sm:p-10 md:p-14 bg-white shadow-xl rounded-xl border border-slate-200 print-container">
+        
+        <!-- Document Cover Header -->
+        <header class="border-b-2 border-slate-900 pb-8 mb-8">
+            <div class="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                    <span class="inline-block px-3 py-1 bg-brand-100 text-brand-900 text-xs font-bold uppercase tracking-wider rounded-full mb-3">
+                        DOCUMENT STRATÉGIQUE & OPÉRATIONNEL
+                    </span>
+                    <h1 class="text-3xl sm:text-4xl font-extrabold text-navy-900 tracking-tight leading-tight">
+                        DOSSIER DE PROJET & BUSINESS PLAN
+                    </h1>
+                    <p class="text-xl font-medium text-brand-700 mt-1">
+                        Plateforme Collaborative de Colocation & Logement Étudiant à Maradi
+                    </p>
+                </div>
+                <div class="text-left sm:text-right text-xs text-slate-500 space-y-1 bg-slate-50 p-3 rounded-lg border border-slate-200">
+                    <p><strong class="text-slate-700">Projet :</strong> Qolock Maradi</p>
+                    <p><strong class="text-slate-700">Zone d'Action :</strong> Maradi, Niger (UDM)</p>
+                    <p><strong class="text-slate-700">Date :</strong> Septembre 2026</p>
+                    <p><strong class="text-slate-700">Statut :</strong> Prêt pour Déploiement</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Table of Contents Section -->
+        <section id="table-matieres" class="mb-10 bg-slate-50 p-6 rounded-lg border border-slate-200 avoid-break">
+            <h2 class="text-lg font-bold text-navy-900 uppercase tracking-wider mb-4 flex items-center">
+                <i class="fa-solid fa-bookmark text-brand-600 mr-2"></i> Sommaire du Dossier
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 text-sm">
+                <a href="#sec-1" class="text-slate-700 hover:text-brand-700 hover:underline flex items-center justify-between py-1 border-b border-slate-200">
+                    <span>1. Résumé Exécutif & Vision</span> <span class="text-xs text-slate-400">Page 02</span>
+                </a>
+                <a href="#sec-2" class="text-slate-700 hover:text-brand-700 hover:underline flex items-center justify-between py-1 border-b border-slate-200">
+                    <span>2. Étude de Marché & Ciblage Maradi</span> <span class="text-xs text-slate-400">Page 02</span>
+                </a>
+                <a href="#sec-3" class="text-slate-700 hover:text-brand-700 hover:underline flex items-center justify-between py-1 border-b border-slate-200">
+                    <span>3. Stratégie Opérationnelle & Confiance</span> <span class="text-xs text-slate-400">Page 03</span>
+                </a>
+                <a href="#sec-4" class="text-slate-700 hover:text-brand-700 hover:underline flex items-center justify-between py-1 border-b border-slate-200">
+                    <span>4. Modèle Économique & Rentrabilité</span> <span class="text-xs text-slate-400">Page 03</span>
+                </a>
+                <a href="#sec-5" class="text-slate-700 hover:text-brand-700 hover:underline flex items-center justify-between py-1 border-b border-slate-200">
+                    <span>5. Architecture Technique & PWA/APK</span> <span class="text-xs text-slate-400">Page 04</span>
+                </a>
+                <a href="#sec-6" class="text-slate-700 hover:text-brand-700 hover:underline flex items-center justify-between py-1 border-b border-slate-200">
+                    <span>6. Feuille de Route Étape par Étape</span> <span class="text-xs text-slate-400">Page 04</span>
+                </a>
+                <a href="#sec-7" class="text-slate-700 hover:text-brand-700 hover:underline flex items-center justify-between py-1 border-b border-slate-200">
+                    <span>7. Prompts Masters pour Claude IA</span> <span class="text-xs text-slate-400">Page 05</span>
+                </a>
+                <a href="#sec-8" class="text-slate-700 hover:text-brand-700 hover:underline flex items-center justify-between py-1 border-b border-slate-200">
+                    <span>8. Juridique, Sécurité & Conseils</span> <span class="text-xs text-slate-400">Page 06</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- SECTION 1 -->
+        <section id="sec-1" class="mb-10 avoid-break">
+            <div class="flex items-center space-x-3 border-b-2 border-brand-600 pb-2 mb-4">
+                <span class="w-7 h-7 bg-brand-600 text-white font-bold rounded-full flex items-center justify-center text-sm">1</span>
+                <h2 class="text-xl font-bold text-navy-900">Résumé Exécutif & Vision du Projet</h2>
+            </div>
+            
+            <p class="text-slate-700 mb-4 leading-relaxed">
+                <strong>Qolock Maradi</strong> est une initiative technologique et sociale conçue pour structurer et démocratiser le marché du logement étudiant et de la colocation dans la ville de Maradi (Niger). Inspiré du modèle à succès de l'application <em>Qolock</em> en Côte d'Ivoire, ce projet résout les barrières financières majeures rencontrées par les jeunes à leur arrivée en ville.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
+                <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
+                    <h3 class="font-bold text-red-900 text-sm uppercase flex items-center">
+                        <i class="fa-solid fa-triangle-exclamation mr-2"></i> Le Problème à Maradi
+                    </h3>
+                    <ul class="text-xs text-red-800 mt-2 space-y-1.5 list-disc list-inside">
+                        <li>Loyers individuels trop élevés pour un étudiant isolé (25 000 à 45 000 FCFA/mois).</li>
+                        <li>Avances et cautions abusives exigées par certains bailleurs (3 à 6 mois).</li>
+                        <li>Arnaques et manque de confiance envers les démarcheurs informels.</li>
+                        <li>Difficulté pour les nouveaux arrivants de trouver un colocataire fiable.</li>
+                    </ul>
+                </div>
+
+                <div class="bg-emerald-50 border-l-4 border-brand-600 p-4 rounded-r-lg">
+                    <h3 class="font-bold text-brand-900 text-sm uppercase flex items-center">
+                        <i class="fa-solid fa-circle-check mr-2"></i> La Solution Qolock Maradi
+                    </h3>
+                    <ul class="text-xs text-brand-800 mt-2 space-y-1.5 list-disc list-inside">
+                        <li>Division des coûts par 2 ou par 3 grâce à la colocation partagée.</li>
+                        <li>Mise en relation directe avec les bailleurs ou occupants via WhatsApp.</li>
+                        <li>Vérification préalable des logements et badges de confiance sur l'app.</li>
+                        <li>Accès simple par Mobile Money (Moov, Airtel, Nita, Amana).</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2 -->
+        <section id="sec-2" class="mb-10 avoid-break">
+            <div class="flex items-center space-x-3 border-b-2 border-brand-600 pb-2 mb-4">
+                <span class="w-7 h-7 bg-brand-600 text-white font-bold rounded-full flex items-center justify-center text-sm">2</span>
+                <h2 class="text-xl font-bold text-navy-900">Étude de Marché & Ciblage Local</h2>
+            </div>
+
+            <p class="text-slate-700 mb-4 leading-relaxed">
+                Maradi constitue le pôle universitaire et économique majeur du centre du Niger. Le démarrage ciblé exclusivement sur cette ville garantit un monopole rapide et une gestion de proximité efficace.
+            </p>
+
+            <div class="bg-slate-50 p-5 rounded-lg border border-slate-200 mb-4">
+                <h3 class="font-bold text-slate-800 mb-3 text-sm uppercase">Cœur de Cible : L'Université Dan Dicko Dankoulodo (UDM)</h3>
+                <p class="text-sm text-slate-600 leading-relaxed">
+                    Chaque année, des milliers d'étudiants quittent leurs familles dans d'autres régions du Niger pour s'inscrire à l'UDM de Maradi. Ne disposant pas tous de logements universitaires publics, ils cherchent urgemment des chambres à louer dans les quartiers environnants dès le mois de septembre/octobre.
+                </p>
+            </div>
+
+            <h3 class="font-bold text-slate-800 mb-2 text-sm">Quartiers Stratégiques d'Implantation à Maradi :</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+                <div class="p-3 bg-white border border-slate-200 rounded-lg shadow-sm">
+                    <span class="font-bold text-brand-700 block text-sm">Ali Dan Sofo</span>
+                    <span class="text-slate-500">Proximité directe UDM. Très forte demande étudiante.</span>
+                </div>
+                <div class="p-3 bg-white border border-slate-200 rounded-lg shadow-sm">
+                    <span class="font-bold text-brand-700 block text-sm">Sabon Gari</span>
+                    <span class="text-slate-500">Centre vivant, accessible et abordable.</span>
+                </div>
+                <div class="p-3 bg-white border border-slate-200 rounded-lg shadow-sm">
+                    <span class="font-bold text-brand-700 block text-sm">Zaria & Bagalam</span>
+                    <span class="text-slate-500">Zones résidentielles calmes pour jeunes pros.</span>
+                </div>
+                <div class="p-3 bg-white border border-slate-200 rounded-lg shadow-sm">
+                    <span class="font-bold text-brand-700 block text-sm">Zone UDM</span>
+                    <span class="text-slate-500">Périphérie campus, idéale pour grands appartements.</span>
+                </div>
+                <div class="p-3 bg-white border border-slate-200 rounded-lg shadow-sm">
+                    <span class="font-bold text-brand-700 block text-sm">Sonitel</span>
+                    <span class="text-slate-500">Quartier sécurisé et bien desservi par les transports.</span>
+                </div>
+                <div class="p-3 bg-white border border-slate-200 rounded-lg shadow-sm">
+                    <span class="font-bold text-brand-700 block text-sm">Région Maradi</span>
+                    <span class="text-slate-500">Expansion vers axes principaux de la ville.</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3 -->
+        <section id="sec-3" class="mb-10 page-break avoid-break">
+            <div class="flex items-center space-x-3 border-b-2 border-brand-600 pb-2 mb-4">
+                <span class="w-7 h-7 bg-brand-600 text-white font-bold rounded-full flex items-center justify-center text-sm">3</span>
+                <h2 class="text-xl font-bold text-navy-900">Stratégie Opérationnelle & "WhatsApp-First"</h2>
+            </div>
+
+            <p class="text-slate-700 mb-4 leading-relaxed">
+                Pour réussir à Maradi sans se heurter aux lourdeurs administratives ni faire peur aux utilisateurs avec des systèmes bancaires complexes, l'application repose sur un modèle hybride : <strong>Plateforme Web + Conciergerie WhatsApp</strong>.
+            </p>
+
+            <!-- Workflow Diagram Box -->
+            <div class="bg-navy-900 text-white p-6 rounded-xl shadow-md my-4">
+                <h3 class="font-bold text-brand-100 text-center uppercase tracking-wider text-sm mb-4">
+                    Flux de Mise en Relation & Confiance Client
+                </h3>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 text-center text-xs">
+                    <div class="bg-slate-800 p-3 rounded-lg border border-slate-700">
+                        <span class="w-6 h-6 bg-brand-600 text-white rounded-full inline-flex items-center justify-center font-bold mb-2">1</span>
+                        <p class="font-semibold text-slate-200">Recherche sur le Web</p>
+                        <p class="text-slate-400 text-[11px] mt-1">L'étudiant consulte les logements vérifiés à Maradi.</p>
+                    </div>
+
+                    <div class="bg-slate-800 p-3 rounded-lg border border-slate-700">
+                        <span class="w-6 h-6 bg-brand-600 text-white rounded-full inline-flex items-center justify-center font-bold mb-2">2</span>
+                        <p class="font-semibold text-slate-200">Clic WhatsApp</p>
+                        <p class="text-slate-400 text-[11px] mt-1">Ouverture directe d'une discussion avec le support local.</p>
+                    </div>
+
+                    <div class="bg-slate-800 p-3 rounded-lg border border-slate-700">
+                        <span class="w-6 h-6 bg-brand-600 text-white rounded-full inline-flex items-center justify-center font-bold mb-2">3</span>
+                        <p class="font-semibold text-slate-200">Rassurance & Accord</p>
+                        <p class="text-slate-400 text-[11px] mt-1">Réponse aux questions et transmission des détails.</p>
+                    </div>
+
+                    <div class="bg-slate-800 p-3 rounded-lg border border-slate-700">
+                        <span class="w-6 h-6 bg-brand-600 text-white rounded-full inline-flex items-center justify-center font-bold mb-2">4</span>
+                        <p class="font-semibold text-slate-200">Paiement & Visite</p>
+                        <p class="text-slate-400 text-[11px] mt-1">Reglement du Pass (1 000 FCFA) par Moov/Airtel/Nita.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                    <h4 class="font-bold text-slate-800 text-sm mb-2"><i class="fa-solid fa-mobile-retro text-brand-600 mr-2"></i> Moyens de Paiement Intégrés</h4>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        Aucun paiement par carte bancaire. Transferts directs de téléphone à téléphone ou en guichet local :
+                    </p>
+                    <ul class="text-xs text-slate-700 mt-2 space-y-1">
+                        <li>• <strong>Moov Money Niger :</strong> Transfert rapide marchand/personnel.</li>
+                        <li>• <strong>Airtel Money Niger :</strong> Paiement par USSD.</li>
+                        <li>• <strong>Agences Locales :</strong> Nita, Amana Express, Al-Izza (à Maradi).</li>
+                    </ul>
+                </div>
+
+                <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                    <h4 class="font-bold text-slate-800 text-sm mb-2"><i class="fa-solid fa-shield-halved text-brand-600 mr-2"></i> Protocole de Validation des Logements</h4>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        Pour éviter les arnaques de faux bailleurs :
+                    </p>
+                    <ul class="text-xs text-slate-700 mt-2 space-y-1">
+                        <li>• Visite physique préalable par le promoteur (vous-même au début).</li>
+                        <li>• Vérification de l'existence réelle de la chambre et de l'eau/électricité.</li>
+                        <li>• Attribution du badge visuel <strong>"Vérifié Qolock"</strong> sur le site.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4 -->
+        <section id="sec-4" class="mb-10 avoid-break">
+            <div class="flex items-center space-x-3 border-b-2 border-brand-600 pb-2 mb-4">
+                <span class="w-7 h-7 bg-brand-600 text-white font-bold rounded-full flex items-center justify-center text-sm">4</span>
+                <h2 class="text-xl font-bold text-navy-900">Modèle Économique & Projections Financières</h2>
+            </div>
+
+            <p class="text-slate-700 mb-4 leading-relaxed">
+                Le modèle repose sur des petits montants très accessibles pour un étudiant (faible barrière à l'entrée), garantissant un volume élevé de transactions répétitives.
+            </p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+                <div class="p-4 bg-emerald-50 border border-brand-100 rounded-lg text-center">
+                    <span class="text-xs font-bold text-brand-800 uppercase block mb-1">Source 1 : Pass Visite</span>
+                    <span class="text-2xl font-black text-brand-700">1 000 FCFA</span>
+                    <span class="text-[11px] text-slate-600 block mt-1">Payé par l'étudiant pour obtenir le contact vérifié du bailleur.</span>
+                </div>
+
+                <div class="p-4 bg-amber-50 border border-amber-200 rounded-lg text-center">
+                    <span class="text-xs font-bold text-amber-800 uppercase block mb-1">Source 2 : Annonce TOP</span>
+                    <span class="text-2xl font-black text-accent-600">2 000 FCFA</span>
+                    <span class="text-[11px] text-slate-600 block mt-1">Payé par le propriétaire pour garder sa maison en haut de page pendant 7 jours.</span>
+                </div>
+
+                <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg text-center">
+                    <span class="text-xs font-bold text-blue-800 uppercase block mb-1">Source 3 : Contrat Bail</span>
+                    <span class="text-2xl font-black text-blue-700">1 500 FCFA</span>
+                    <span class="text-[11px] text-slate-600 block mt-1">Fourniture d'un modèle de contrat de colocation légal imprimable.</span>
+                </div>
+            </div>
+
+            <!-- Financial Forecast Table -->
+            <h3 class="font-bold text-slate-800 mb-3 text-sm">Simulation de Revenus Mensuels (Ville de Maradi) :</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs border-collapse border border-slate-200">
+                    <thead>
+                        <tr class="bg-navy-900 text-white">
+                            <th class="p-2.5 border border-slate-700">Phase de Croissance</th>
+                            <th class="p-2.5 border border-slate-700">Pass Visites (1000 F)</th>
+                            <th class="p-2.5 border border-slate-700">Annonces TOP (2000 F)</th>
+                            <th class="p-2.5 border border-slate-700">Chiffre d'Affaires Brut</th>
+                            <th class="p-2.5 border border-slate-700">Charges (Vercel/Data)</th>
+                            <th class="p-2.5 border border-slate-700 text-brand-400 font-bold">Bénéfice Net</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200 bg-white">
+                        <tr>
+                            <td class="p-2.5 font-bold border border-slate-200">Mois 1 (Lancement UDM)</td>
+                            <td class="p-2.5 border border-slate-200">30 clients = 30 000 F</td>
+                            <td class="p-2.5 border border-slate-200">5 annonces = 10 000 F</td>
+                            <td class="p-2.5 border border-slate-200 font-semibold">40 000 FCFA</td>
+                            <td class="p-2.5 border border-slate-200 text-slate-500">5 000 F (Connexion)</td>
+                            <td class="p-2.5 border border-slate-200 font-bold text-brand-700">35 000 FCFA</td>
+                        </tr>
+                        <tr>
+                            <td class="p-2.5 font-bold border border-slate-200">Mois 3 (Régime de Croisière)</td>
+                            <td class="p-2.5 border border-slate-200">120 clients = 120 000 F</td>
+                            <td class="p-2.5 border border-slate-200">15 annonces = 30 000 F</td>
+                            <td class="p-2.5 border border-slate-200 font-semibold">150 000 FCFA</td>
+                            <td class="p-2.5 border border-slate-200 text-slate-500">10 000 F</td>
+                            <td class="p-2.5 border border-slate-200 font-bold text-brand-700">140 000 FCFA</td>
+                        </tr>
+                        <tr class="bg-slate-50">
+                            <td class="p-2.5 font-bold border border-slate-200">Mois 6 (Pic de Rentrée)</td>
+                            <td class="p-2.5 border border-slate-200">250 clients = 250 000 F</td>
+                            <td class="p-2.5 border border-slate-200">30 annonces = 60 000 F</td>
+                            <td class="p-2.5 border border-slate-200 font-semibold">310 000 FCFA</td>
+                            <td class="p-2.5 border border-slate-200 text-slate-500">15 000 F</td>
+                            <td class="p-2.5 border border-slate-200 font-bold text-brand-700">295 000 FCFA</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-[11px] text-slate-500 mt-2 italic">* Remarque : Les coûts d'infrastructure web sont quasi-nuls au départ grâce aux offres gratuites Vercel & Supabase.</p>
+        </section>
+
+        <!-- SECTION 5 -->
+        <section id="sec-5" class="mb-10 page-break avoid-break">
+            <div class="flex items-center space-x-3 border-b-2 border-brand-600 pb-2 mb-4">
+                <span class="w-7 h-7 bg-brand-600 text-white font-bold rounded-full flex items-center justify-center text-sm">5</span>
+                <h2 class="text-xl font-bold text-navy-900">Architecture Technique & Conversion Application</h2>
+            </div>
+
+            <p class="text-slate-700 mb-4 leading-relaxed">
+                Le choix d'une architecture moderne et légère permet d'obtenir des temps de chargement ultra-rapides même sur un réseau mobile 3G/4G restreint.
+            </p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 my-4">
+                <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                    <span class="text-xs font-bold text-navy-900 block mb-1">1. Frontend (Visuel)</span>
+                    <p class="text-xs text-slate-600">React.js + Tailwind CSS. Code généré directement par Claude 3.5 Sonnet dans un Artifact unique.</p>
+                </div>
+
+                <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                    <span class="text-xs font-bold text-navy-900 block mb-1">2. Hébergement Web</span>
+                    <p class="text-xs text-slate-600">Vercel.com (Gratuit). Publication instantanée avec certificat SSL sécurisé (HTTPS).</p>
+                </div>
+
+                <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                    <span class="text-xs font-bold text-navy-900 block mb-1">3. Version App Android</span>
+                    <p class="text-xs text-slate-600">Conversion du site en fichier <code>.APK</code> via PWABuilder ou WebIntoApp pour partage direct sur WhatsApp.</p>
+                </div>
+            </div>
+
+            <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg text-xs text-amber-900 space-y-1">
+                <p class="font-bold uppercase"><i class="fa-solid fa-lightbulb mr-1"></i> Astuce de Distribution APK à Maradi :</p>
+                <p>Beaucoup d'étudiants préfèrent installer directement une application sans passer par Google Play Store. En générant le fichier <code>.APK</code> de Qolock Maradi, vous pourrez l'envoyer directement dans les groupes WhatsApp d'étudiants de l'UDM. Ils pourront l'installer en 1 clic sur leur téléphone Android !</p>
+            </div>
+        </section>
+
+        <!-- SECTION 6 -->
+        <section id="sec-6" class="mb-10 avoid-break">
+            <div class="flex items-center space-x-3 border-b-2 border-brand-600 pb-2 mb-4">
+                <span class="w-7 h-7 bg-brand-600 text-white font-bold rounded-full flex items-center justify-center text-sm">6</span>
+                <h2 class="text-xl font-bold text-navy-900">Plan d'Action Étape par Étape (Feuille de Route)</h2>
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <div class="flex items-start space-x-3 p-3 bg-white border border-slate-200 rounded-lg shadow-sm">
+                    <span class="px-2.5 py-1 bg-brand-600 text-white font-bold rounded text-[11px]">Étape 1</span>
+                    <div>
+                        <strong class="text-slate-800 text-sm block">Génération du Code Prototype dans Claude IA</strong>
+                        <p class="text-slate-600 mt-0.5">Copiez le Master Prompt (fourni en Section 7) dans Claude 3.5 Sonnet pour obtenir l'application interactive complète.</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start space-x-3 p-3 bg-white border border-slate-200 rounded-lg shadow-sm">
+                    <span class="px-2.5 py-1 bg-navy-900 text-white font-bold rounded text-[11px]">Étape 2</span>
+                    <div>
+                        <strong class="text-slate-800 text-sm block">Déploiement en ligne sur Vercel (Gratuit)</strong>
+                        <p class="text-slate-600 mt-0.5">Créez un compte sur Vercel.com, hébergez le code React et obtenez votre lien public (ex: <code>qolock-maradi.vercel.app</code>).</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start space-x-3 p-3 bg-white border border-slate-200 rounded-lg shadow-sm">
+                    <span class="px-2.5 py-1 bg-brand-600 text-white font-bold rounded text-[11px]">Étape 3</span>
+                    <div>
+                        <strong class="text-slate-800 text-sm block">Prospection Terrain à Maradi (10 à 15 premiers logements)</strong>
+                        <p class="text-slate-600 mt-0.5">Allez dans les quartiers Ali Dan Sofo, Sabon Gari et UDM. Prenez en photo 10 chambres/maisons auprès des démarcheurs/bailleurs et ajoutez-les sur le site.</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start space-x-3 p-3 bg-white border border-slate-200 rounded-lg shadow-sm">
+                    <span class="px-2.5 py-1 bg-navy-900 text-white font-bold rounded text-[11px]">Étape 4</span>
+                    <div>
+                        <strong class="text-slate-800 text-sm block">Campagne Marketing WhatsApp & Campus UDM</strong>
+                        <p class="text-slate-600 mt-0.5">Diffusez l'application dans les groupes WhatsApp de délégués d'étudiants et collez des affiches simples sur le campus de l'UDM.</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start space-x-3 p-3 bg-white border border-slate-200 rounded-lg shadow-sm">
+                    <span class="px-2.5 py-1 bg-brand-600 text-white font-bold rounded text-[11px]">Étape 5</span>
+                    <div>
+                        <strong class="text-slate-800 text-sm block">Encaissement & Gestion Administrative</strong>
+                        <p class="text-slate-600 mt-0.5">Recevez les 1 000 FCFA par Moov/Airtel/Nita à chaque demande de visite, vérifiez et transmettez le contact du propriétaire.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 7 -->
+        <section id="sec-7" class="mb-10 page-break avoid-break">
+            <div class="flex items-center space-x-3 border-b-2 border-brand-600 pb-2 mb-4">
+                <span class="w-7 h-7 bg-brand-600 text-white font-bold rounded-full flex items-center justify-center text-sm">7</span>
+                <h2 class="text-xl font-bold text-navy-900">Prompts Masters Prêts à Copier pour Claude IA</h2>
+            </div>
+
+            <p class="text-slate-700 mb-4 text-xs leading-relaxed">
+                Voici les deux prompts optimisés que vous devez copier-coller dans <strong>Claude 3.5 Sonnet</strong> pour qu'il construise immédiatement toute l'application et votre Panneau Administrateur.
+            </p>
+
+            <!-- Prompt Box 1 -->
+            <div class="mb-6 border border-slate-300 rounded-lg overflow-hidden shadow-sm">
+                <div class="bg-slate-800 text-white px-4 py-2 text-xs font-bold flex justify-between items-center">
+                    <span>PROMPT 1 : Application Client Complete (Spécial Maradi)</span>
+                    <button onclick="copyPrompt('prompt-1')" class="no-print text-[11px] bg-brand-600 hover:bg-brand-700 px-2 py-1 rounded text-white font-semibold transition">
+                        <i class="fa-regular fa-copy mr-1"></i> Copier
+                    </button>
+                </div>
+                <pre id="prompt-1" class="bg-slate-900 text-emerald-400 p-4 text-[11px] font-mono whitespace-pre-wrap overflow-x-auto max-h-60">Rôle : Tu es un Développeur Full-Stack Senior, expert en React, UI/UX et Tailwind CSS.
+
+Projet : Prototype interactif d'une application de colocation et de logement partagé exclusivement dédiée à MARADI (Niger), inspirée de qolock.com.
+
+Mission : Génère une Single Page Application (SPA) dans un seul Artifact React/Tailwind CSS.
+
+Fonctionnalités requises :
+1. Navigation (Navbar) : Logo "Qolock Maradi", Liens (Accueil, Recherche, Publier, Espace Admin).
+2. Vue Accueil : 
+   - Hero section avec titre : "Trouvez votre colocation à Maradi en toute confiance".
+   - Recherche par quartier de Maradi (Ali Dan Sofo, Sabon Gari, Zaria, Bagalam, Zone UDM, Sonitel) et Filtre Budget en FCFA.
+   - Section "Dernières offres à Maradi" avec cartes élégantes (Photos Unsplash d'intérieurs propres, prix en FCFA, quartier exact, équipements).
+3. Système WhatsApp Direct & Paiement Local :
+   - Chaque logement a un bouton vert "💬 Discuter sur WhatsApp".
+   - Un bouton "Détails & Réservation" ouvrant une fenêtre expliquant le paiement du Pass Visite (1 000 FCFA) par Moov Money, Airtel Money, Nita ou Amana Express.
+4. Vue "Publier une Annonce" : Formulaire simple permettant à un bailleur ou un étudiant de soumettre sa maison avec photos et quartier.
+5. Vue "Espace Admin" : Tableau de bord pour gérer les annonces (Ajouter, Basculer entre 'Disponible' et 'Réservé', Supprimer).
+
+Génère l'intégralité du code dans un seul fichier interactif.</pre>
+            </div>
+
+            <!-- Prompt Box 2 -->
+            <div class="border border-slate-300 rounded-lg overflow-hidden shadow-sm">
+                <div class="bg-slate-800 text-white px-4 py-2 text-xs font-bold flex justify-between items-center">
+                    <span>PROMPT 2 : Panneau de Gestion Administrateur & Base de Données</span>
+                    <button onclick="copyPrompt('prompt-2')" class="no-print text-[11px] bg-brand-600 hover:bg-brand-700 px-2 py-1 rounded text-white font-semibold transition">
+                        <i class="fa-regular fa-copy mr-1"></i> Copier
+                    </button>
+                </div>
+                <pre id="prompt-2" class="bg-slate-900 text-emerald-400 p-4 text-[11px] font-mono whitespace-pre-wrap overflow-x-auto max-h-60">Ajoute dans le prototype précédent une vue dédiée "Dashboard Gestionnaire" accessible depuis la Navbar :
+
+1. Statistiques en haut : Nombre d'annonces à Maradi, Total des Pass de 1000 FCFA générés, Nombre de demandes WhatsApp.
+2. Tableau interactif des maisons :
+   - Liste de toutes les chambres (Sabon Gari, Ali Dan Sofo, etc.).
+   - Bouton pour changer instantanément le statut ("Disponible" <-> "Loué").
+   - Bouton pour supprimer une maison.
+   - Formulaire rapide d'ajout de logement avec téléversement d'image depuis l'Espace Admin.
+
+Assure-toi que tout reste fluide et fonctionnel dans le même composant React.</pre>
+            </div>
+        </section>
+
+        <!-- SECTION 8 -->
+        <section id="sec-8" class="mb-8 avoid-break">
+            <div class="flex items-center space-x-3 border-b-2 border-brand-600 pb-2 mb-4">
+                <span class="w-7 h-7 bg-brand-600 text-white font-bold rounded-full flex items-center justify-center text-sm">8</span>
+                <h2 class="text-xl font-bold text-navy-900">Aspects Juridiques, Sécurité & Conseils Utiles</h2>
+            </div>
+
+            <div class="space-y-3 text-xs text-slate-700 leading-relaxed">
+                <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                    <strong class="text-navy-900 block mb-1">1. Statut Juridique au Démarrage :</strong>
+                    <p>Au tout début, vous agissez en tant qu'<strong>apporteur d'affaires individuel / conciergerie privée</strong>. Vous n'avez pas besoin d'enregistrer immédiatement une entreprise lourde pour tester le projet. Dès que vous atteignez 150 000 à 200 000 FCFA de bénéfice mensuel, vous pourrez créer un registre de commerce Établissement (RCCM) à Maradi.</p>
+                </div>
+
+                <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                    <strong class="text-navy-900 block mb-1">2. Contrat de Colocation entre Étudiants :</strong>
+                    <p>Pour éviter les litiges de loyer non payé entre colocataires, proposez-leur de signer un <em>Contrat de Colocation de Gré à Gré</em> rédigé par vos soins. Ce document simple fixe la part de chacun pour le loyer, l'eau et l'électricité.</p>
+                </div>
+
+                <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                    <strong class="text-navy-900 block mb-1">3. Clé du Succès : La Réactivité WhatsApp :</strong>
+                    <p>À Maradi, les étudiants s'attendent à une réponse très rapide. Gardez votre téléphone à proximité pour répondre aux messages WhatsApp dans les 15 minutes. Un client rassuré est un client qui effectue immédiatement son transfert de 1 000 FCFA !</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Signatures & Validation Footer Block -->
+        <footer class="mt-12 pt-6 border-t-2 border-slate-900 avoid-break">
+            <div class="flex flex-wrap justify-between items-end gap-6">
+                <div>
+                    <p class="text-xs font-bold text-navy-900 uppercase">Projet Validé pour Exécution</p>
+                    <p class="text-[11px] text-slate-500">Initiative de Colocation Étudiante — Maradi, Niger</p>
+                    <p class="text-[11px] font-semibold text-brand-700 mt-1">Équipe Qolock Maradi / Fondateur</p>
+                </div>
+
+                <div class="border-b border-dashed border-slate-400 w-48 text-center pb-1">
+                    <span class="text-[10px] text-slate-400 uppercase tracking-widest block">Cachet & Signature</span>
+                </div>
+            </div>
+
+            <div class="mt-8 text-center text-[10px] text-slate-400 border-t border-slate-200 pt-3">
+                Document généré pour archivage et impression. © 2026 Qolock Maradi. Tous droits réservés.
+            </div>
+        </footer>
+
+    </main>
+
+    <script>
+        // Smooth scroll helper
+        function scrollToSection(id) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // Copy prompt function
+        function copyPrompt(id) {
+            const promptText = document.getElementById(id).innerText;
+            
+            // Temporary text element for copying
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = promptText;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            
+            try {
+                document.execCommand('copy');
+                // Visual feedback
+                const btn = event.currentTarget;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Copié !';
+                btn.classList.remove('bg-brand-600', 'hover:bg-brand-700');
+                btn.classList.add('bg-emerald-600');
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.classList.remove('bg-emerald-600');
+                    btn.classList.add('bg-brand-600', 'hover:bg-brand-700');
+                }, 2000);
+            } catch (err) {
+                console.error('Erreur lors de la copie', err);
+            } finally {
+                document.body.removeChild(tempTextArea);
+            }
+        }
+    </script>
+</body>
+</html>

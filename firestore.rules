@@ -1,0 +1,1260 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net (Default-Deny)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Primitive Helpers ---
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerified() {
+      return isSignedIn() && (
+        request.auth.token.email_verified == true ||
+        request.auth.token.firebase.sign_in_provider == 'password' ||
+        (request.auth.token.phone_number is string && request.auth.token.phone_number.size() >= 6)
+      );
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        (request.auth.token.email_verified == true
+          && request.auth.token.email in ['ulrich2t@gmail.com', 'ulrichu413@gmail.com']
+          && request.auth.token.firebase.sign_in_provider == 'google.com') ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isNotSuspended() {
+      return isAdmin() || (
+        !exists(/databases/$(database)/documents/users/$(request.auth.uid)) ||
+        !('accountStatus' in get(/databases/$(database)/documents/users/$(request.auth.uid)).data) ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.accountStatus != 'suspended'
+      );
+    }
+
+    // --- Validation Blueprints ---
+    function isValidPlatformConfig(data) {
+      return data.keys().hasAll(['visitPassPrice', 'topListingPrice', 'whatsappNumber', 'moovNumber', 'airtelNumber', 'nitaAccount', 'updatedAt'])
+        && data.keys().hasOnly(['visitPassPrice', 'topListingPrice', 'topListingDurationDays', 'contractPrice', 'whatsappNumber', 'whatsappSecondaryNumber', 'whatsappGroupUrl', 'whatsappGroupLink', 'mtnNumber', 'moovNumber', 'airtelNumber', 'nitaAccount', 'updatedAt'])
+        && data.visitPassPrice is number && data.visitPassPrice >= 0 && data.visitPassPrice <= 500000
+        && data.topListingPrice is number && data.topListingPrice >= 0 && data.topListingPrice <= 500000
+        && (!('topListingDurationDays' in data) || (data.topListingDurationDays is number && data.topListingDurationDays >= 1 && data.topListingDurationDays <= 90))
+        && (!('contractPrice' in data) || (data.contractPrice is number && data.contractPrice >= 0 && data.contractPrice <= 500000))
+        && data.whatsappNumber is string && data.whatsappNumber.size() <= 40
+        && (!('whatsappSecondaryNumber' in data) || (data.whatsappSecondaryNumber is string && data.whatsappSecondaryNumber.size() <= 40))
+        && (!('whatsappGroupUrl' in data) || (data.whatsappGroupUrl is string && data.whatsappGroupUrl.size() <= 300))
+        && (!('whatsappGroupLink' in data) || (data.whatsappGroupLink is string && data.whatsappGroupLink.size() <= 300))
+        && (!('mtnNumber' in data) || (data.mtnNumber is string && data.mtnNumber.size() <= 60))
+        && data.moovNumber is string && data.moovNumber.size() <= 60
+        && data.airtelNumber is string && data.airtelNumber.size() <= 60
+        && data.nitaAccount is string && data.nitaAccount.size() <= 120
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidUser(data, userId) {
+      return data.keys().hasAll(['uid', 'displayName', 'photoURL', 'accountType', 'neighborhood', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['uid', 'displayName', 'photoURL', 'accountType', 'neighborhood', 'accountStatus', 'suspendedReason', 'createdAt', 'updatedAt'])
+        && data.uid is string && data.uid == userId && isValidId(data.uid)
+        && data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 100
+        && data.photoURL is string && data.photoURL.size() <= 500
+        && data.accountType in ['tenant', 'landlord']
+        && data.neighborhood is string && data.neighborhood.size() <= 80
+        && (!('accountStatus' in data) || data.accountStatus in ['active', 'suspended'])
+        && (!('suspendedReason' in data) || (data.suspendedReason is string && data.suspendedReason.size() <= 300))
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidUserPrivate(data) {
+      return data.keys().hasAll(['email', 'phone', 'updatedAt'])
+        && data.keys().hasOnly(['email', 'phone', 'verifiedPhones', 'updatedAt'])
+        && data.email is string && data.email.size() <= 200
+        && data.phone is string && data.phone.size() <= 40
+        && (!('verifiedPhones' in data) || (
+          data.verifiedPhones is list
+          && data.verifiedPhones.size() <= 5
+          && (data.verifiedPhones.size() == 0 || (data.verifiedPhones[0] is string && data.verifiedPhones[0].size() >= 6 && data.verifiedPhones[0].size() <= 40))
+        ))
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidListing(data) {
+      return data.keys().hasAll([
+          'title', 'description', 'neighborhood', 'propertyType',
+          'priceFcfa', 'depositMonths', 'availableSpots', 'amenities',
+          'photos', 'status', 'isVerifiedQolock', 'isTop', 'topRequested',
+          'ownerId', 'ownerName', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'title', 'description', 'neighborhood', 'locationDetails', 'propertyType',
+          'priceFcfa', 'depositMonths', 'availableSpots', 'roomsCount', 'availability',
+          'amenities', 'photos', 'videos', 'bathroomType', 'toiletType', 'furnished',
+          'waterElectricity', 'surfaceSqm', 'roommatePreference', 'houseRules',
+          'status', 'moderationReason', 'moderationHistory',
+          'validatedByName', 'validatedByEmail', 'validatedAtIso',
+          'isVerifiedQolock', 'isTop', 'topRequested',
+          'ownerId', 'ownerName', 'createdAt', 'updatedAt'
+        ])
+        && data.title is string && data.title.size() >= 1 && data.title.size() <= 160
+        && data.description is string && data.description.size() <= 4000
+        && data.neighborhood is string && data.neighborhood.size() >= 1 && data.neighborhood.size() <= 80
+        && (!('locationDetails' in data) || (data.locationDetails is string && data.locationDetails.size() <= 200))
+        && data.propertyType in ['chambre', 'maison', 'appartement', 'maison_partagee', 'annexe', 'studio', 'colocation', 'autre']
+        && data.priceFcfa is number && data.priceFcfa >= 0 && data.priceFcfa <= 5000000
+        && data.depositMonths is number && data.depositMonths >= 0 && data.depositMonths <= 12
+        && data.availableSpots is number && data.availableSpots >= 1 && data.availableSpots <= 20
+        && (!('roomsCount' in data) || (data.roomsCount is number && data.roomsCount >= 1 && data.roomsCount <= 30))
+        && (!('availability' in data) || (data.availability is string && data.availability.size() <= 80))
+        && data.amenities is list && data.amenities.size() <= 16 && (data.amenities.size() == 0 || data.amenities[0] is string)
+        && data.photos is list && data.photos.size() <= 6 && (data.photos.size() == 0 || (data.photos[0] is string && data.photos[0].size() <= 220000))
+        && (!('videos' in data) || (
+          data.videos is list && data.videos.size() <= 3 && (
+            data.videos.size() == 0 || (
+              data.videos[0] is map
+              && data.videos[0].keys().hasAll(['id', 'title', 'sourceType', 'url', 'clipId', 'durationSec'])
+              && data.videos[0].keys().hasOnly(['id', 'title', 'sourceType', 'url', 'clipId', 'durationSec'])
+              && data.videos[0].id is string && data.videos[0].id.size() >= 1 && data.videos[0].id.size() <= 64
+              && data.videos[0].title is string && data.videos[0].title.size() <= 120
+              && data.videos[0].sourceType in ['url', 'clip']
+              && data.videos[0].url is string && data.videos[0].url.size() <= 500
+              && data.videos[0].clipId is string && data.videos[0].clipId.size() <= 128
+              && data.videos[0].durationSec is number && data.videos[0].durationSec >= 0 && data.videos[0].durationSec <= 3600
+            )
+          )
+        ))
+        && (!('bathroomType' in data) || data.bathroomType in ['interne', 'externe', 'partagee'])
+        && (!('toiletType' in data) || data.toiletType in ['interne', 'externe'])
+        && (!('furnished' in data) || data.furnished in ['non_meuble', 'semi_meuble', 'meuble'])
+        && (!('waterElectricity' in data) || data.waterElectricity in ['inclus', 'compteur_individuel', 'partage'])
+        && (!('surfaceSqm' in data) || (data.surfaceSqm is number && data.surfaceSqm >= 0 && data.surfaceSqm <= 2000))
+        && (!('roommatePreference' in data) || data.roommatePreference in ['mixte', 'etudiants', 'femmes', 'hommes', 'jeunes_actifs'])
+        && (!('houseRules' in data) || (data.houseRules is string && data.houseRules.size() <= 1000))
+        && data.status in ['pending', 'in_review', 'needs_correction', 'published', 'reserved', 'rented', 'rejected', 'suspended']
+        && (!('moderationReason' in data) || (data.moderationReason is string && data.moderationReason.size() <= 300))
+        && (!('moderationHistory' in data) || (
+          data.moderationHistory is list
+          && data.moderationHistory.size() <= 12
+          && (data.moderationHistory.size() == 0 || (
+            data.moderationHistory[0] is map
+            && data.moderationHistory[0].keys().hasAll(['status', 'reason', 'actorName', 'atIso'])
+            && data.moderationHistory[0].keys().hasOnly(['status', 'reason', 'actorName', 'actorEmail', 'atIso'])
+            && data.moderationHistory[0].status in ['pending', 'in_review', 'needs_correction', 'published', 'reserved', 'rented', 'rejected', 'suspended']
+            && data.moderationHistory[0].reason is string && data.moderationHistory[0].reason.size() <= 300
+            && data.moderationHistory[0].actorName is string && data.moderationHistory[0].actorName.size() <= 100
+            && (!('actorEmail' in data.moderationHistory[0]) || (data.moderationHistory[0].actorEmail is string && data.moderationHistory[0].actorEmail.size() <= 200))
+            && data.moderationHistory[0].atIso is string && data.moderationHistory[0].atIso.size() <= 40
+          ))
+        ))
+        && (!('validatedByName' in data) || (data.validatedByName is string && data.validatedByName.size() <= 100))
+        && (!('validatedByEmail' in data) || (data.validatedByEmail is string && data.validatedByEmail.size() <= 200))
+        && (!('validatedAtIso' in data) || (data.validatedAtIso is string && data.validatedAtIso.size() <= 40))
+        && data.isVerifiedQolock is bool
+        && data.isTop is bool
+        && data.topRequested is bool
+        && data.ownerId is string && isValidId(data.ownerId)
+        && data.ownerName is string && data.ownerName.size() >= 1 && data.ownerName.size() <= 100
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidListingContact(data) {
+      return data.keys().hasAll(['ownerId', 'contactName', 'contactPhone', 'updatedAt'])
+        && data.keys().hasOnly(['ownerId', 'contactName', 'contactPhone', 'updatedAt'])
+        && data.ownerId is string && isValidId(data.ownerId)
+        && data.contactName is string && data.contactName.size() <= 100
+        && data.contactPhone is string && data.contactPhone.size() <= 40
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidListingVerification(data) {
+      return data.keys().hasAll([
+          'ownerId', 'contactName', 'contactPhone', 'depositorAddress',
+          'depositorStatus', 'authorizationNote', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'ownerId', 'contactName', 'contactPhone', 'contactWhatsapp',
+          'depositorAddress', 'depositorStatus', 'authorizationNote', 'updatedAt'
+        ])
+        && data.ownerId is string && isValidId(data.ownerId)
+        && data.contactName is string && data.contactName.size() >= 1 && data.contactName.size() <= 100
+        && data.contactPhone is string && data.contactPhone.size() >= 1 && data.contactPhone.size() <= 40
+        && (!('contactWhatsapp' in data) || (data.contactWhatsapp is string && data.contactWhatsapp.size() <= 40))
+        && data.depositorAddress is string && data.depositorAddress.size() >= 1 && data.depositorAddress.size() <= 200
+        && data.depositorStatus in ['proprietaire', 'demarcheur', 'representant']
+        && data.authorizationNote is string && data.authorizationNote.size() <= 600
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidVideoClip(data) {
+      return data.keys().hasAll(['ownerId', 'title', 'mimeType', 'dataUrl', 'durationSec', 'isPublic', 'createdAt'])
+        && data.keys().hasOnly(['ownerId', 'title', 'mimeType', 'dataUrl', 'durationSec', 'isPublic', 'createdAt'])
+        && data.ownerId is string && isValidId(data.ownerId)
+        && data.title is string && data.title.size() >= 1 && data.title.size() <= 120
+        && data.mimeType in ['video/webm', 'video/mp4']
+        && data.dataUrl is string && data.dataUrl.size() >= 1 && data.dataUrl.size() <= 750000
+        && data.durationSec is number && data.durationSec >= 0 && data.durationSec <= 60
+        && data.isPublic is bool
+        && data.createdAt is timestamp;
+    }
+
+    function isValidContentModerationHistory(listVal) {
+      return listVal is list
+        && listVal.size() <= 12
+        && (listVal.size() == 0 || (
+          listVal[0] is map
+          && listVal[0].keys().hasAll(['status', 'reason', 'actorName', 'atIso'])
+          && listVal[0].keys().hasOnly(['status', 'reason', 'actorName', 'actorEmail', 'atIso'])
+          && listVal[0].status in ['pending', 'approved', 'rejected', 'needs_correction']
+          && listVal[0].reason is string && listVal[0].reason.size() <= 300
+          && listVal[0].actorName is string && listVal[0].actorName.size() <= 100
+          && (!('actorEmail' in listVal[0]) || (listVal[0].actorEmail is string && listVal[0].actorEmail.size() <= 200))
+          && listVal[0].atIso is string && listVal[0].atIso.size() <= 40
+        ));
+    }
+
+    function isValidColocInterest(data, userId) {
+      return data.keys().hasAll([
+          'userId', 'userName', 'occupation', 'habits',
+          'budgetFcfa', 'message', 'isPublic', 'moderationStatus', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'listingId', 'listingTitle',
+          'userId', 'userName', 'occupation', 'habits',
+          'budgetFcfa', 'message', 'isPublic',
+          'moderationStatus', 'moderationReason', 'moderationHistory',
+          'validatedByName', 'validatedAtIso',
+          'createdAt', 'updatedAt'
+        ])
+        && (!('listingId' in data) || (data.listingId is string && isValidId(data.listingId)))
+        && (!('listingTitle' in data) || (data.listingTitle is string && data.listingTitle.size() <= 160))
+        && data.userId is string && data.userId == userId && isValidId(data.userId)
+        && data.userName is string && data.userName.size() >= 1 && data.userName.size() <= 100
+        && data.occupation is string && data.occupation.size() >= 1 && data.occupation.size() <= 80
+        && data.habits is string && data.habits.size() >= 1 && data.habits.size() <= 120
+        && data.budgetFcfa is number && data.budgetFcfa >= 0 && data.budgetFcfa <= 5000000
+        && data.message is string && data.message.size() >= 1 && data.message.size() <= 600
+        && data.isPublic is bool
+        && data.moderationStatus in ['pending', 'approved', 'rejected', 'needs_correction']
+        && (!('moderationReason' in data) || (data.moderationReason is string && data.moderationReason.size() <= 300))
+        && (!('moderationHistory' in data) || isValidContentModerationHistory(data.moderationHistory))
+        && (!('validatedByName' in data) || (data.validatedByName is string && data.validatedByName.size() <= 100))
+        && (!('validatedAtIso' in data) || (data.validatedAtIso is string && data.validatedAtIso.size() <= 40))
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidColocProfile(data) {
+      return data.keys().hasAll([
+          'authorId', 'authorName', 'targetNeighborhood', 'desiredType',
+          'maxBudgetFcfa', 'occupation', 'genderPreference', 'lifestyle',
+          'bio', 'linkedListingId', 'status', 'isPublic', 'moderationStatus',
+          'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'authorId', 'authorName', 'authorPhoto', 'statusCategory',
+          'targetNeighborhood', 'desiredType', 'maxBudgetFcfa',
+          'desiredRoommatesCount', 'availability', 'occupation',
+          'genderPreference', 'lifestyle', 'bio', 'linkedListingId',
+          'status', 'isPublic', 'moderationStatus', 'moderationReason',
+          'moderationHistory', 'validatedByName', 'validatedAtIso',
+          'createdAt', 'updatedAt'
+        ])
+        && data.authorId is string && isValidId(data.authorId)
+        && data.authorName is string && data.authorName.size() >= 1 && data.authorName.size() <= 100
+        && (!('authorPhoto' in data) || (data.authorPhoto is string && data.authorPhoto.size() <= 145000))
+        && (!('statusCategory' in data) || data.statusCategory in ['etudiant', 'travailleur', 'autre'])
+        && data.targetNeighborhood is string && data.targetNeighborhood.size() >= 1 && data.targetNeighborhood.size() <= 80
+        && data.desiredType in ['maison_partagee', 'annexe', 'chambre', 'appartement']
+        && data.maxBudgetFcfa is number && data.maxBudgetFcfa >= 0 && data.maxBudgetFcfa <= 5000000
+        && (!('desiredRoommatesCount' in data) || (data.desiredRoommatesCount is number && data.desiredRoommatesCount >= 1 && data.desiredRoommatesCount <= 6))
+        && (!('availability' in data) || (data.availability is string && data.availability.size() <= 80))
+        && data.occupation is string && data.occupation.size() >= 1 && data.occupation.size() <= 80
+        && data.genderPreference in ['mixte', 'femmes', 'hommes', 'etudiants']
+        && data.lifestyle is string && data.lifestyle.size() >= 1 && data.lifestyle.size() <= 120
+        && data.bio is string && data.bio.size() >= 1 && data.bio.size() <= 800
+        && data.linkedListingId is string && data.linkedListingId.size() <= 128
+        && data.status in ['active', 'found']
+        && data.isPublic is bool
+        && data.moderationStatus in ['pending', 'approved', 'rejected', 'needs_correction']
+        && (!('moderationReason' in data) || (data.moderationReason is string && data.moderationReason.size() <= 300))
+        && (!('moderationHistory' in data) || isValidContentModerationHistory(data.moderationHistory))
+        && (!('validatedByName' in data) || (data.validatedByName is string && data.validatedByName.size() <= 100))
+        && (!('validatedAtIso' in data) || (data.validatedAtIso is string && data.validatedAtIso.size() <= 40))
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidColocMessage(data) {
+      return data.keys().hasAll([
+          'profileAuthorId', 'authorId', 'authorName', 'message',
+          'isPublic', 'moderationStatus', 'createdAt'
+        ])
+        && data.keys().hasOnly([
+          'profileId', 'profileAuthorId', 'authorId', 'authorName', 'message',
+          'isPublic', 'moderationStatus', 'moderationReason',
+          'moderationHistory', 'validatedByName', 'validatedAtIso', 'createdAt'
+        ])
+        && (!('profileId' in data) || (data.profileId is string && isValidId(data.profileId)))
+        && data.profileAuthorId is string && isValidId(data.profileAuthorId)
+        && data.authorId is string && isValidId(data.authorId)
+        && data.authorName is string && data.authorName.size() >= 1 && data.authorName.size() <= 100
+        && data.message is string && data.message.size() >= 1 && data.message.size() <= 600
+        && data.isPublic is bool
+        && data.moderationStatus in ['pending', 'approved', 'rejected', 'needs_correction']
+        && (!('moderationReason' in data) || (data.moderationReason is string && data.moderationReason.size() <= 300))
+        && (!('moderationHistory' in data) || isValidContentModerationHistory(data.moderationHistory))
+        && (!('validatedByName' in data) || (data.validatedByName is string && data.validatedByName.size() <= 100))
+        && (!('validatedAtIso' in data) || (data.validatedAtIso is string && data.validatedAtIso.size() <= 40))
+        && data.createdAt is timestamp;
+    }
+
+    function isValidListingReview(data) {
+      return data.keys().hasAll([
+          'listingId', 'listingTitle', 'authorId', 'authorName',
+          'rating', 'comment', 'isPublic', 'moderationStatus',
+          'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'listingId', 'listingTitle', 'authorId', 'authorName',
+          'rating', 'comment', 'isPublic', 'moderationStatus',
+          'moderationReason', 'moderationHistory',
+          'validatedByName', 'validatedAtIso',
+          'createdAt', 'updatedAt'
+        ])
+        && data.listingId is string && isValidId(data.listingId)
+        && data.listingTitle is string && data.listingTitle.size() >= 1 && data.listingTitle.size() <= 160
+        && data.authorId is string && isValidId(data.authorId)
+        && data.authorName is string && data.authorName.size() >= 1 && data.authorName.size() <= 100
+        && data.rating is number && data.rating >= 1 && data.rating <= 5
+        && data.comment is string && data.comment.size() >= 1 && data.comment.size() <= 800
+        && data.isPublic is bool
+        && data.moderationStatus in ['pending', 'approved', 'rejected', 'needs_correction']
+        && (!('moderationReason' in data) || (data.moderationReason is string && data.moderationReason.size() <= 300))
+        && (!('moderationHistory' in data) || isValidContentModerationHistory(data.moderationHistory))
+        && (!('validatedByName' in data) || (data.validatedByName is string && data.validatedByName.size() <= 100))
+        && (!('validatedAtIso' in data) || (data.validatedAtIso is string && data.validatedAtIso.size() <= 40))
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidColocConversation(data) {
+      return data.keys().hasAll([
+          'participantIds', 'requesterId', 'recipientId', 'requesterName',
+          'recipientName', 'profileId', 'status', 'initialMessage',
+          'lastMessage', 'lastSenderId', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'participantIds', 'requesterId', 'recipientId', 'requesterName',
+          'recipientName', 'profileId', 'status', 'blockedBy', 'leftBy',
+          'initialMessage', 'lastMessage', 'lastSenderId', 'createdAt', 'updatedAt'
+        ])
+        && data.participantIds is list && data.participantIds.size() == 2
+        && data.participantIds[0] is string && isValidId(data.participantIds[0])
+        && data.participantIds[1] is string && isValidId(data.participantIds[1])
+        && data.requesterId is string && isValidId(data.requesterId)
+        && data.recipientId is string && isValidId(data.recipientId)
+        && data.requesterName is string && data.requesterName.size() >= 1 && data.requesterName.size() <= 100
+        && data.recipientName is string && data.recipientName.size() >= 1 && data.recipientName.size() <= 100
+        && data.profileId is string && data.profileId.size() <= 128
+        && data.status in ['pending', 'accepted', 'rejected', 'blocked', 'left']
+        && (!('blockedBy' in data) || (data.blockedBy is string && data.blockedBy.size() <= 128))
+        && (!('leftBy' in data) || (data.leftBy is list && data.leftBy.size() <= 2 && (data.leftBy.size() == 0 || (data.leftBy[0] is string && isValidId(data.leftBy[0])))))
+        && data.initialMessage is string && data.initialMessage.size() <= 600
+        && data.lastMessage is string && data.lastMessage.size() <= 600
+        && data.lastSenderId is string && data.lastSenderId.size() <= 128
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidColocPrivateMessage(data) {
+      return data.keys().hasAll(['participantIds', 'senderId', 'senderName', 'text', 'createdAt'])
+        && data.keys().hasOnly(['participantIds', 'senderId', 'senderName', 'text', 'createdAt'])
+        && data.participantIds is list && data.participantIds.size() == 2
+        && data.participantIds[0] is string && isValidId(data.participantIds[0])
+        && data.participantIds[1] is string && isValidId(data.participantIds[1])
+        && data.senderId is string && isValidId(data.senderId)
+        && data.senderName is string && data.senderName.size() >= 1 && data.senderName.size() <= 100
+        && data.text is string && data.text.size() >= 1 && data.text.size() <= 800
+        && data.createdAt is timestamp;
+    }
+
+    function isValidColocMeeting(data) {
+      return data.keys().hasAll([
+          'conversationId', 'participantIds', 'proposerId', 'proposerName',
+          'recipientId', 'recipientName', 'meetingDate', 'meetingTime',
+          'publicPlace', 'note', 'status', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'conversationId', 'participantIds', 'proposerId', 'proposerName',
+          'recipientId', 'recipientName', 'meetingDate', 'meetingTime',
+          'publicPlace', 'note', 'status', 'createdAt', 'updatedAt'
+        ])
+        && data.conversationId is string && isValidId(data.conversationId)
+        && data.participantIds is list && data.participantIds.size() == 2
+        && data.participantIds[0] is string && isValidId(data.participantIds[0])
+        && data.participantIds[1] is string && isValidId(data.participantIds[1])
+        && data.proposerId is string && isValidId(data.proposerId)
+        && data.proposerName is string && data.proposerName.size() >= 1 && data.proposerName.size() <= 100
+        && data.recipientId is string && isValidId(data.recipientId)
+        && data.recipientName is string && data.recipientName.size() >= 1 && data.recipientName.size() <= 100
+        && data.meetingDate is string && data.meetingDate.size() >= 1 && data.meetingDate.size() <= 20
+        && data.meetingTime is string && data.meetingTime.size() >= 1 && data.meetingTime.size() <= 10
+        && data.publicPlace is string && data.publicPlace.size() >= 1 && data.publicPlace.size() <= 160
+        && data.note is string && data.note.size() <= 300
+        && data.status in ['proposed', 'accepted', 'declined', 'confirmed', 'cancelled']
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidColocReport(data) {
+      return data.keys().hasAll([
+          'reporterId', 'reporterName', 'reportedUserId', 'reportedUserName',
+          'contextType', 'targetId', 'reason', 'details', 'status', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'reporterId', 'reporterName', 'reportedUserId', 'reportedUserName',
+          'contextType', 'targetId', 'reason', 'details', 'status', 'createdAt', 'updatedAt'
+        ])
+        && data.reporterId is string && isValidId(data.reporterId)
+        && data.reporterName is string && data.reporterName.size() >= 1 && data.reporterName.size() <= 100
+        && data.reportedUserId is string && isValidId(data.reportedUserId)
+        && data.reportedUserName is string && data.reportedUserName.size() >= 1 && data.reportedUserName.size() <= 100
+        && data.contextType in ['coloc_profile', 'coloc_chat', 'coloc_meeting']
+        && data.targetId is string && isValidId(data.targetId)
+        && data.reason is string && data.reason.size() >= 1 && data.reason.size() <= 100
+        && data.details is string && data.details.size() >= 1 && data.details.size() <= 1000
+        && data.status in ['open', 'resolved', 'dismissed']
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidServiceOrder(data) {
+      return data.keys().hasAll([
+          'orderType', 'userId', 'userName', 'userPhone', 'listingId',
+          'listingTitle', 'paymentMethod', 'transactionRef', 'amountFcfa',
+          'preferredDate', 'status', 'adminNote', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'orderType', 'userId', 'userName', 'userPhone', 'beneficiaryPhone',
+          'listingId', 'listingTitle', 'paymentMethod', 'transactionRef',
+          'amountFcfa', 'durationDays', 'preferredDate', 'proofImage',
+          'status', 'adminNote', 'rejectionReason', 'receiptNumber',
+          'verificationHistory', 'createdAt', 'updatedAt'
+        ])
+        && data.orderType in ['visit_pass', 'top_listing', 'contract']
+        && data.userId is string && isValidId(data.userId)
+        && data.userName is string && data.userName.size() >= 1 && data.userName.size() <= 100
+        && data.userPhone is string && data.userPhone.size() >= 1 && data.userPhone.size() <= 40
+        && (!('beneficiaryPhone' in data) || (data.beneficiaryPhone is string && data.beneficiaryPhone.size() <= 60))
+        && data.listingId is string && data.listingId.size() <= 128
+        && data.listingTitle is string && data.listingTitle.size() <= 160
+        && data.paymentMethod in ['MTN Mobile Money', 'Airtel Money', 'Nita', 'Moov Money', 'Amana Express', 'Al-Izza', 'Espèces / Agence']
+        && data.transactionRef is string && data.transactionRef.size() >= 1 && data.transactionRef.size() <= 100
+        && data.amountFcfa is number && data.amountFcfa >= 0 && data.amountFcfa <= 500000
+        && (!('durationDays' in data) || (data.durationDays is number && data.durationDays >= 1 && data.durationDays <= 90))
+        && data.preferredDate is string && data.preferredDate.size() <= 32
+        && (!('proofImage' in data) || (data.proofImage is string && data.proofImage.size() <= 220000))
+        && data.status in ['pending', 'verified', 'rejected', 'failed', 'refunded']
+        && data.adminNote is string && data.adminNote.size() <= 300
+        && (!('rejectionReason' in data) || (data.rejectionReason is string && data.rejectionReason.size() <= 300))
+        && (!('receiptNumber' in data) || (data.receiptNumber is string && data.receiptNumber.size() <= 80))
+        && (!('verificationHistory' in data) || (
+          data.verificationHistory is list
+          && data.verificationHistory.size() <= 10
+          && (data.verificationHistory.size() == 0 || (
+            data.verificationHistory[0] is map
+            && data.verificationHistory[0].keys().hasAll(['status', 'note', 'actorName', 'atIso'])
+            && data.verificationHistory[0].keys().hasOnly(['status', 'note', 'actorName', 'atIso'])
+            && data.verificationHistory[0].status in ['pending', 'verified', 'rejected', 'failed', 'refunded']
+            && data.verificationHistory[0].note is string && data.verificationHistory[0].note.size() <= 300
+            && data.verificationHistory[0].actorName is string && data.verificationHistory[0].actorName.size() <= 100
+            && data.verificationHistory[0].atIso is string && data.verificationHistory[0].atIso.size() <= 40
+          ))
+        ))
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidPaymentRefLock(data) {
+      return data.keys().hasAll(['orderId', 'createdAt'])
+        && data.keys().hasOnly(['orderId', 'createdAt'])
+        && data.orderId is string && isValidId(data.orderId)
+        && data.createdAt is timestamp;
+    }
+
+    function isValidPassAccess(data) {
+      return data.keys().hasAll(['userId', 'listingId', 'orderId', 'grantedAt'])
+        && data.keys().hasOnly(['userId', 'listingId', 'orderId', 'grantedAt'])
+        && data.userId is string && isValidId(data.userId)
+        && data.listingId is string && isValidId(data.listingId)
+        && data.orderId is string && isValidId(data.orderId)
+        && data.grantedAt is timestamp;
+    }
+
+    function isValidReport(data) {
+      return data.keys().hasAll(['listingId', 'listingTitle', 'reporterId', 'reporterName', 'reason', 'details', 'status', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['listingId', 'listingTitle', 'reporterId', 'reporterName', 'reason', 'details', 'status', 'createdAt', 'updatedAt'])
+        && data.listingId is string && isValidId(data.listingId)
+        && data.listingTitle is string && data.listingTitle.size() >= 1 && data.listingTitle.size() <= 160
+        && data.reporterId is string && isValidId(data.reporterId)
+        && data.reporterName is string && data.reporterName.size() >= 1 && data.reporterName.size() <= 100
+        && data.reason in ['fausse_annonce', 'arnaque_prix', 'deja_loue', 'contenu_inapproprie', 'autre']
+        && data.details is string && data.details.size() >= 1 && data.details.size() <= 1000
+        && data.status in ['open', 'resolved', 'dismissed']
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidActivity(data) {
+      return data.keys().hasAll(['actorId', 'actorName', 'action', 'targetTitle', 'targetType', 'createdAt'])
+        && data.keys().hasOnly(['actorId', 'actorName', 'action', 'targetTitle', 'targetType', 'createdAt'])
+        && data.actorId is string && isValidId(data.actorId)
+        && data.actorName is string && data.actorName.size() >= 1 && data.actorName.size() <= 100
+        && data.action is string && data.action.size() >= 1 && data.action.size() <= 100
+        && data.targetTitle is string && data.targetTitle.size() <= 160
+        && data.targetType in ['listing', 'order', 'report', 'config', 'user', 'coloc', 'community', 'rental', 'review']
+        && data.createdAt is timestamp;
+    }
+
+    function isValidCommunityPost(data) {
+      return data.keys().hasAll(['authorId', 'authorName', 'category', 'title', 'content', 'isPublic', 'moderationStatus', 'createdAt'])
+        && data.keys().hasOnly(['authorId', 'authorName', 'category', 'title', 'content', 'neighborhood', 'isPublic', 'moderationStatus', 'createdAt'])
+        && data.authorId is string && isValidId(data.authorId)
+        && data.authorName is string && data.authorName.size() >= 1 && data.authorName.size() <= 100
+        && data.category in ['entraide', 'conseil', 'colocation', 'info_udm']
+        && data.title is string && data.title.size() >= 1 && data.title.size() <= 140
+        && data.content is string && data.content.size() >= 1 && data.content.size() <= 1000
+        && (!('neighborhood' in data) || (data.neighborhood is string && data.neighborhood.size() <= 80))
+        && data.isPublic is bool
+        && data.moderationStatus in ['pending', 'approved', 'rejected', 'needs_correction']
+        && data.createdAt is timestamp;
+    }
+
+    function isValidNotification(data) {
+      return data.keys().hasAll(['userId', 'category', 'title', 'message', 'read', 'createdAt'])
+        && data.keys().hasOnly(['userId', 'senderId', 'category', 'title', 'message', 'targetId', 'read', 'createdAt'])
+        && data.userId is string && isValidId(data.userId)
+        && (!('senderId' in data) || (data.senderId is string && isValidId(data.senderId)))
+        && data.category in ['listing', 'payment', 'coloc', 'account', 'system']
+        && data.title is string && data.title.size() >= 1 && data.title.size() <= 120
+        && data.message is string && data.message.size() >= 1 && data.message.size() <= 500
+        && (!('targetId' in data) || (data.targetId is string && data.targetId.size() <= 128))
+        && data.read is bool
+        && data.createdAt is timestamp;
+    }
+
+    function isValidAdminAlert(data) {
+      return data.keys().hasAll(['type', 'listingId', 'listingTitle', 'neighborhood', 'ownerId', 'ownerName', 'read', 'createdAt'])
+        && data.keys().hasOnly(['type', 'listingId', 'listingTitle', 'neighborhood', 'ownerId', 'ownerName', 'depositorStatus', 'read', 'createdAt'])
+        && data.type in [
+          'new_listing',
+          'resubmitted_listing',
+          'rental_confirmed',
+          'new_coloc_profile',
+          'resubmitted_coloc_profile',
+          'new_coloc_request',
+          'new_comment',
+          'new_review'
+        ]
+        && data.listingId is string && isValidId(data.listingId)
+        && data.listingTitle is string && data.listingTitle.size() >= 1 && data.listingTitle.size() <= 160
+        && data.neighborhood is string && data.neighborhood.size() <= 80
+        && data.ownerId is string && isValidId(data.ownerId)
+        && data.ownerName is string && data.ownerName.size() >= 1 && data.ownerName.size() <= 100
+        && (!('depositorStatus' in data) || data.depositorStatus in ['proprietaire', 'demarcheur', 'representant'])
+        && data.read is bool
+        && data.createdAt is timestamp;
+    }
+
+    function isValidRentalConfirmation(data) {
+      return data.keys().hasAll([
+          'listingId', 'listingTitle', 'neighborhood', 'priceFcfa',
+          'tenantId', 'tenantName', 'landlordId', 'landlordName',
+          'welcomeMessage', 'confirmedById', 'confirmedByName', 'confirmedAtIso', 'createdAt'
+        ])
+        && data.keys().hasOnly([
+          'listingId', 'listingTitle', 'neighborhood', 'priceFcfa',
+          'tenantId', 'tenantName', 'tenantPhone', 'landlordId', 'landlordName',
+          'welcomeMessage', 'confirmedById', 'confirmedByName', 'confirmedByEmail',
+          'confirmedAtIso', 'createdAt'
+        ])
+        && data.listingId is string && isValidId(data.listingId)
+        && data.listingTitle is string && data.listingTitle.size() >= 1 && data.listingTitle.size() <= 160
+        && data.neighborhood is string && data.neighborhood.size() >= 1 && data.neighborhood.size() <= 80
+        && data.priceFcfa is number && data.priceFcfa >= 0 && data.priceFcfa <= 5000000
+        && data.tenantId is string && isValidId(data.tenantId)
+        && data.tenantName is string && data.tenantName.size() >= 1 && data.tenantName.size() <= 100
+        && (!('tenantPhone' in data) || (data.tenantPhone is string && data.tenantPhone.size() <= 40))
+        && data.landlordId is string && isValidId(data.landlordId)
+        && data.landlordName is string && data.landlordName.size() >= 1 && data.landlordName.size() <= 100
+        && data.welcomeMessage is string && data.welcomeMessage.size() >= 1 && data.welcomeMessage.size() <= 500
+        && data.confirmedById is string && isValidId(data.confirmedById)
+        && data.confirmedByName is string && data.confirmedByName.size() >= 1 && data.confirmedByName.size() <= 100
+        && (!('confirmedByEmail' in data) || (data.confirmedByEmail is string && data.confirmedByEmail.size() <= 200))
+        && data.confirmedAtIso is string && data.confirmedAtIso.size() >= 1 && data.confirmedAtIso.size() <= 40
+        && data.createdAt is timestamp;
+    }
+
+    // --- Collection Rules ---
+
+    match /admins/{adminId} {
+      allow get: if isAdmin() && isValidId(adminId);
+      allow list: if isAdmin();
+      allow create, update, delete: if false;
+    }
+
+    match /platformConfig/{configId} {
+      allow get: if configId == 'settings';
+      allow create, update: if isAdmin() && configId == 'settings'
+        && isValidPlatformConfig(incoming())
+        && incoming().updatedAt == request.time;
+    }
+
+    match /users/{userId} {
+      allow get: if isSignedIn() && isValidId(userId) && (isOwner(userId) || isAdmin());
+      allow list: if isAdmin();
+      allow create: if isVerified() && isValidId(userId) && isOwner(userId)
+        && isValidUser(incoming(), userId)
+        && (!('accountStatus' in incoming()) || incoming().accountStatus == 'active')
+        && !('suspendedReason' in incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isVerified() && isValidId(userId)
+        && isValidUser(incoming(), userId)
+        && incoming().uid == existing().uid
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          (isAdmin() && !(userId == request.auth.uid && ('accountStatus' in incoming()) && incoming().accountStatus == 'suspended')) ||
+          (isOwner(userId) && incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'photoURL', 'accountType', 'neighborhood', 'updatedAt']))
+        );
+
+      match /private/{docId} {
+        allow get: if isSignedIn() && docId == 'info' && (isOwner(userId) || isAdmin());
+        allow create, update: if isVerified() && docId == 'info' && isOwner(userId)
+          && isValidUserPrivate(incoming())
+          && incoming().updatedAt == request.time;
+      }
+    }
+
+    match /listings/{listingId} {
+      allow get: if isValidId(listingId) && (
+        existing().status in ['published', 'reserved', 'rented'] ||
+        (isSignedIn() && (existing().ownerId == request.auth.uid || isAdmin()))
+      );
+      allow list: if (resource.data.status in ['published', 'reserved', 'rented']) ||
+        (isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin()));
+      allow create: if isVerified() && isNotSuspended() && isValidId(listingId)
+        && isValidListing(incoming())
+        && incoming().ownerId == request.auth.uid
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time
+        && (
+          isAdmin() ||
+          (incoming().status == 'pending'
+            && incoming().isVerifiedQolock == false
+            && incoming().isTop == false
+            && !('moderationReason' in incoming())
+            && !('moderationHistory' in incoming())
+            && !('validatedByName' in incoming())
+            && !('validatedByEmail' in incoming())
+            && !('validatedAtIso' in incoming()))
+        );
+      allow update: if isVerified() && isNotSuspended() && isValidId(listingId)
+        && isValidListing(incoming())
+        && incoming().ownerId == existing().ownerId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          isAdmin() ||
+          (existing().ownerId == request.auth.uid
+            && existing().status in ['published', 'reserved', 'rented']
+            && incoming().status in ['published', 'reserved', 'rented']
+            && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])) ||
+          (existing().ownerId == request.auth.uid
+            && existing().status in ['published', 'reserved', 'rented']
+            && incoming().topRequested == true
+            && incoming().diff(existing()).affectedKeys().hasOnly(['topRequested', 'updatedAt'])) ||
+          (existing().ownerId == request.auth.uid
+            && existing().status != 'suspended'
+            && incoming().status == 'pending'
+            && incoming().isVerifiedQolock == false
+            && incoming().isTop == false
+            && incoming().diff(existing()).affectedKeys().hasOnly([
+              'title', 'description', 'neighborhood', 'locationDetails', 'propertyType',
+              'priceFcfa', 'depositMonths', 'availableSpots', 'roomsCount', 'availability',
+              'amenities', 'photos', 'videos', 'bathroomType', 'toiletType', 'furnished',
+              'waterElectricity', 'surfaceSqm', 'roommatePreference', 'houseRules',
+              'status', 'isVerifiedQolock', 'isTop', 'updatedAt'
+            ]))
+        );
+      allow delete: if isVerified() && isValidId(listingId)
+        && (isAdmin() || existing().ownerId == request.auth.uid);
+
+      match /private/{docId} {
+        allow get: if isSignedIn() && isValidId(listingId) && (
+          (docId == 'contact' && (
+            isAdmin() ||
+            existing().ownerId == request.auth.uid ||
+            exists(/databases/$(database)/documents/passAccess/$(request.auth.uid + '_' + listingId))
+          )) ||
+          (docId == 'verification' && (
+            isAdmin() ||
+            existing().ownerId == request.auth.uid
+          ))
+        );
+        allow create, update: if isVerified() && isNotSuspended() && isValidId(listingId) && (
+          (docId == 'contact'
+            && isValidListingContact(incoming())
+            && (isAdmin() || incoming().ownerId == request.auth.uid)
+            && incoming().updatedAt == request.time) ||
+          (docId == 'verification'
+            && isValidListingVerification(incoming())
+            && (isAdmin() || incoming().ownerId == request.auth.uid)
+            && incoming().updatedAt == request.time)
+        );
+        allow delete: if isVerified() && isValidId(listingId) && docId in ['contact', 'verification']
+          && (
+            isAdmin() ||
+            (resource != null && existing().ownerId == request.auth.uid) ||
+            (resource == null && get(/databases/$(database)/documents/listings/$(listingId)).data.ownerId == request.auth.uid)
+          );
+      }
+
+      match /videoClips/{clipId} {
+        allow get: if isValidId(listingId) && isValidId(clipId) && (
+          (existing().isPublic == true && get(/databases/$(database)/documents/listings/$(listingId)).data.status in ['published', 'reserved', 'rented']) ||
+          (isSignedIn() && (existing().ownerId == request.auth.uid || isAdmin()))
+        );
+        allow create: if isVerified() && isNotSuspended() && isValidId(listingId) && isValidId(clipId)
+          && isValidVideoClip(incoming())
+          && (isAdmin() || incoming().ownerId == request.auth.uid)
+          && incoming().createdAt == request.time
+          && (isAdmin() || getAfter(/databases/$(database)/documents/listings/$(listingId)).data.ownerId == request.auth.uid);
+        allow delete: if isVerified() && isValidId(listingId) && isValidId(clipId)
+          && (
+            isAdmin() ||
+            (resource != null && existing().ownerId == request.auth.uid) ||
+            (resource == null && get(/databases/$(database)/documents/listings/$(listingId)).data.ownerId == request.auth.uid)
+          );
+      }
+
+      match /colocInterests/{userId} {
+        allow get: if isValidId(listingId) && isValidId(userId) && (
+          existing().moderationStatus == 'approved' ||
+          isOwner(userId) ||
+          isAdmin()
+        );
+        allow list: if resource.data.moderationStatus == 'approved' ||
+          (isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin()));
+        allow create: if isVerified() && isNotSuspended() && isValidId(listingId) && isValidId(userId) && isOwner(userId)
+          && isValidColocInterest(incoming(), userId)
+          && (isAdmin() || (
+            incoming().isPublic == false
+            && incoming().moderationStatus == 'pending'
+            && !('moderationReason' in incoming())
+            && !('moderationHistory' in incoming())
+            && !('validatedByName' in incoming())
+            && !('validatedAtIso' in incoming())
+          ))
+          && incoming().createdAt == request.time
+          && incoming().updatedAt == request.time
+          && exists(/databases/$(database)/documents/listings/$(listingId));
+        allow update: if isVerified() && isNotSuspended() && isValidId(listingId) && isValidId(userId)
+          && isValidColocInterest(incoming(), userId)
+          && incoming().userId == existing().userId
+          && incoming().createdAt == existing().createdAt
+          && incoming().updatedAt == request.time
+          && (
+            isAdmin() ||
+            (isOwner(userId)
+              && incoming().isPublic == false
+              && incoming().moderationStatus == 'pending'
+              && incoming().diff(existing()).affectedKeys().hasOnly([
+                'listingId', 'listingTitle', 'userName', 'occupation', 'habits',
+                'budgetFcfa', 'message', 'isPublic', 'moderationStatus', 'updatedAt'
+              ]))
+          );
+        allow delete: if isVerified() && isValidId(listingId) && isValidId(userId)
+          && (isAdmin() || isOwner(userId));
+      }
+
+      match /reviews/{reviewId} {
+        allow get: if isValidId(listingId) && isValidId(reviewId) && (
+          existing().moderationStatus == 'approved' ||
+          (isSignedIn() && (existing().authorId == request.auth.uid || isAdmin()))
+        );
+        allow list: if resource.data.moderationStatus == 'approved' ||
+          (isSignedIn() && (resource.data.authorId == request.auth.uid || isAdmin()));
+        allow create: if isVerified() && isNotSuspended() && isValidId(listingId) && isValidId(reviewId)
+          && isValidListingReview(incoming())
+          && incoming().listingId == listingId
+          && incoming().authorId == request.auth.uid
+          && incoming().createdAt == request.time
+          && incoming().updatedAt == request.time
+          && exists(/databases/$(database)/documents/listings/$(listingId))
+          && (isAdmin() || (
+            incoming().isPublic == false
+            && incoming().moderationStatus == 'pending'
+            && !('moderationReason' in incoming())
+            && !('moderationHistory' in incoming())
+            && !('validatedByName' in incoming())
+            && !('validatedAtIso' in incoming())
+          ));
+        allow update: if isVerified() && isNotSuspended() && isValidId(listingId) && isValidId(reviewId)
+          && isValidListingReview(incoming())
+          && incoming().listingId == existing().listingId
+          && incoming().authorId == existing().authorId
+          && incoming().createdAt == existing().createdAt
+          && incoming().updatedAt == request.time
+          && (
+            isAdmin() ||
+            (existing().authorId == request.auth.uid
+              && incoming().isPublic == false
+              && incoming().moderationStatus == 'pending'
+              && incoming().diff(existing()).affectedKeys().hasOnly([
+                'authorName', 'rating', 'comment', 'isPublic', 'moderationStatus', 'updatedAt'
+              ]))
+          );
+        allow delete: if isVerified() && isValidId(listingId) && isValidId(reviewId)
+          && (isAdmin() || existing().authorId == request.auth.uid);
+      }
+    }
+
+    match /colocProfiles/{profileId} {
+      allow get: if isValidId(profileId) && (
+        existing().moderationStatus == 'approved' ||
+        (isSignedIn() && (existing().authorId == request.auth.uid || isAdmin()))
+      );
+      allow list: if resource.data.moderationStatus == 'approved' ||
+        (isSignedIn() && (resource.data.authorId == request.auth.uid || isAdmin()));
+      allow create: if isVerified() && isNotSuspended() && isValidId(profileId)
+        && isValidColocProfile(incoming())
+        && incoming().authorId == request.auth.uid
+        && incoming().status == 'active'
+        && (isAdmin() || (
+          incoming().isPublic == false
+          && incoming().moderationStatus == 'pending'
+          && !('moderationReason' in incoming())
+          && !('moderationHistory' in incoming())
+          && !('validatedByName' in incoming())
+          && !('validatedAtIso' in incoming())
+        ))
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isVerified() && isNotSuspended() && isValidId(profileId)
+        && isValidColocProfile(incoming())
+        && incoming().authorId == existing().authorId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          isAdmin() ||
+          (existing().authorId == request.auth.uid
+            && existing().moderationStatus == 'approved'
+            && incoming().moderationStatus == 'approved'
+            && incoming().isPublic == existing().isPublic
+            && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])) ||
+          (existing().authorId == request.auth.uid
+            && incoming().isPublic == false
+            && incoming().moderationStatus == 'pending'
+            && incoming().diff(existing()).affectedKeys().hasOnly([
+              'authorName', 'authorPhoto', 'statusCategory',
+              'targetNeighborhood', 'desiredType', 'maxBudgetFcfa',
+              'desiredRoommatesCount', 'availability', 'occupation',
+              'genderPreference', 'lifestyle', 'bio',
+              'linkedListingId', 'status', 'isPublic', 'moderationStatus', 'updatedAt'
+            ]))
+        );
+      allow delete: if isVerified() && isValidId(profileId)
+        && (isAdmin() || existing().authorId == request.auth.uid);
+
+      match /messages/{messageId} {
+        allow get: if isValidId(profileId) && isValidId(messageId) && (
+          existing().moderationStatus == 'approved' ||
+          (isSignedIn() && (existing().authorId == request.auth.uid || existing().profileAuthorId == request.auth.uid || isAdmin()))
+        );
+        allow list: if resource.data.moderationStatus == 'approved' || (
+          isSignedIn() && (
+            resource.data.authorId == request.auth.uid ||
+            resource.data.profileAuthorId == request.auth.uid ||
+            isAdmin()
+          )
+        );
+        allow create: if isVerified() && isNotSuspended() && isValidId(profileId) && isValidId(messageId)
+          && isValidColocMessage(incoming())
+          && incoming().authorId == request.auth.uid
+          && (isAdmin() || (
+            incoming().isPublic == false
+            && incoming().moderationStatus == 'pending'
+            && !('moderationReason' in incoming())
+            && !('moderationHistory' in incoming())
+            && !('validatedByName' in incoming())
+            && !('validatedAtIso' in incoming())
+          ))
+          && incoming().createdAt == request.time
+          && exists(/databases/$(database)/documents/colocProfiles/$(profileId));
+        allow update: if isAdmin() && isValidId(profileId) && isValidId(messageId)
+          && isValidColocMessage(incoming())
+          && incoming().authorId == existing().authorId
+          && incoming().profileAuthorId == existing().profileAuthorId
+          && incoming().createdAt == existing().createdAt;
+        allow delete: if isVerified() && isValidId(profileId) && isValidId(messageId)
+          && (isAdmin() || existing().authorId == request.auth.uid || existing().profileAuthorId == request.auth.uid);
+      }
+    }
+
+    match /colocConversations/{convId} {
+      allow get: if isSignedIn() && isValidId(convId) && (
+        request.auth.uid in existing().participantIds || isAdmin()
+      );
+      allow list: if isSignedIn() && (
+        request.auth.uid in resource.data.participantIds || isAdmin()
+      );
+      allow create: if isVerified() && isNotSuspended() && isValidId(convId)
+        && isValidColocConversation(incoming())
+        && incoming().requesterId == request.auth.uid
+        && incoming().recipientId != request.auth.uid
+        && request.auth.uid in incoming().participantIds
+        && incoming().recipientId in incoming().participantIds
+        && incoming().status == 'pending'
+        && !('blockedBy' in incoming())
+        && (!('leftBy' in incoming()) || incoming().leftBy.size() == 0)
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isVerified() && isNotSuspended() && isValidId(convId)
+        && isValidColocConversation(incoming())
+        && incoming().participantIds == existing().participantIds
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          isAdmin() ||
+          (existing().status == 'pending'
+            && existing().recipientId == request.auth.uid
+            && incoming().status in ['accepted', 'rejected']
+            && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])) ||
+          (existing().status == 'accepted'
+            && request.auth.uid in existing().participantIds
+            && incoming().lastSenderId == request.auth.uid
+            && incoming().diff(existing()).affectedKeys().hasOnly(['lastMessage', 'lastSenderId', 'updatedAt'])) ||
+          (request.auth.uid in existing().participantIds
+            && incoming().status == 'blocked'
+            && incoming().blockedBy == request.auth.uid
+            && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'blockedBy', 'updatedAt'])) ||
+          (existing().status == 'blocked'
+            && existing().blockedBy == request.auth.uid
+            && incoming().status == 'accepted'
+            && incoming().blockedBy == ''
+            && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'blockedBy', 'updatedAt'])) ||
+          (existing().status in ['pending', 'accepted']
+            && request.auth.uid in existing().participantIds
+            && incoming().status == 'left'
+            && ('leftBy' in incoming())
+            && request.auth.uid in incoming().leftBy
+            && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'leftBy', 'updatedAt'])) ||
+          (existing().status in ['rejected', 'left']
+            && request.auth.uid in existing().participantIds
+            && incoming().status == 'pending'
+            && incoming().requesterId == request.auth.uid
+            && incoming().recipientId in existing().participantIds
+            && incoming().recipientId != request.auth.uid
+            && (!('leftBy' in incoming()) || incoming().leftBy.size() == 0)
+            && incoming().diff(existing()).affectedKeys().hasOnly([
+              'status', 'requesterId', 'recipientId', 'requesterName', 'recipientName',
+              'profileId', 'initialMessage', 'lastMessage', 'lastSenderId', 'leftBy', 'updatedAt'
+            ]))
+        );
+
+      match /messages/{messageId} {
+        allow get: if isSignedIn() && isValidId(convId) && isValidId(messageId) && (
+          isAdmin() ||
+          request.auth.uid in get(/databases/$(database)/documents/colocConversations/$(convId)).data.participantIds
+        );
+        allow list: if isSignedIn() && (
+          isAdmin() ||
+          request.auth.uid in resource.data.participantIds
+        );
+        allow create: if isVerified() && isNotSuspended() && isValidId(convId) && isValidId(messageId)
+          && isValidColocPrivateMessage(incoming())
+          && incoming().senderId == request.auth.uid
+          && incoming().createdAt == request.time
+          && get(/databases/$(database)/documents/colocConversations/$(convId)).data.status == 'accepted'
+          && request.auth.uid in get(/databases/$(database)/documents/colocConversations/$(convId)).data.participantIds
+          && incoming().participantIds == get(/databases/$(database)/documents/colocConversations/$(convId)).data.participantIds;
+      }
+    }
+
+    match /colocMeetings/{meetingId} {
+      allow get: if isSignedIn() && isValidId(meetingId) && (
+        isAdmin() ||
+        request.auth.uid in existing().participantIds
+      );
+      allow list: if isSignedIn() && (
+        isAdmin() ||
+        request.auth.uid in resource.data.participantIds
+      );
+      allow create: if isVerified() && isNotSuspended() && isValidId(meetingId)
+        && isValidColocMeeting(incoming())
+        && incoming().proposerId == request.auth.uid
+        && incoming().recipientId != request.auth.uid
+        && request.auth.uid in incoming().participantIds
+        && incoming().recipientId in incoming().participantIds
+        && incoming().status == 'proposed'
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time
+        && get(/databases/$(database)/documents/colocConversations/$(incoming().conversationId)).data.status == 'accepted'
+        && request.auth.uid in get(/databases/$(database)/documents/colocConversations/$(incoming().conversationId)).data.participantIds;
+      allow update: if isVerified() && isNotSuspended() && isValidId(meetingId)
+        && isValidColocMeeting(incoming())
+        && incoming().conversationId == existing().conversationId
+        && incoming().participantIds == existing().participantIds
+        && incoming().proposerId == existing().proposerId
+        && incoming().recipientId == existing().recipientId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          isAdmin() ||
+          (existing().status == 'proposed'
+            && existing().recipientId == request.auth.uid
+            && incoming().status in ['accepted', 'confirmed', 'declined']
+            && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])) ||
+          (existing().status in ['proposed', 'accepted', 'confirmed']
+            && request.auth.uid in existing().participantIds
+            && incoming().status in ['confirmed', 'cancelled']
+            && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt']))
+        );
+    }
+
+    match /colocReports/{reportId} {
+      allow get: if isSignedIn() && isValidId(reportId) && (
+        existing().reporterId == request.auth.uid || isAdmin()
+      );
+      allow list: if isSignedIn() && (
+        resource.data.reporterId == request.auth.uid || isAdmin()
+      );
+      allow create: if isVerified() && isNotSuspended() && isValidId(reportId)
+        && isValidColocReport(incoming())
+        && incoming().reporterId == request.auth.uid
+        && incoming().reportedUserId != request.auth.uid
+        && incoming().status == 'open'
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isAdmin() && isValidId(reportId)
+        && isValidColocReport(incoming())
+        && existing().status == 'open'
+        && incoming().reporterId == existing().reporterId
+        && incoming().reportedUserId == existing().reportedUserId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt']);
+    }
+
+    match /communityPosts/{postId} {
+      allow get: if isValidId(postId) && (
+        existing().moderationStatus == 'approved' ||
+        (isSignedIn() && (existing().authorId == request.auth.uid || isAdmin()))
+      );
+      allow list: if resource.data.moderationStatus == 'approved' ||
+        (isSignedIn() && (resource.data.authorId == request.auth.uid || isAdmin()));
+      allow create: if isVerified() && isNotSuspended() && isValidId(postId)
+        && isValidCommunityPost(incoming())
+        && incoming().authorId == request.auth.uid
+        && (isAdmin() || (incoming().isPublic == false && incoming().moderationStatus == 'pending'))
+        && incoming().createdAt == request.time;
+      allow update: if isAdmin() && isValidId(postId)
+        && isValidCommunityPost(incoming())
+        && incoming().authorId == existing().authorId
+        && incoming().createdAt == existing().createdAt
+        && incoming().diff(existing()).affectedKeys().hasOnly(['isPublic', 'moderationStatus', 'category', 'title', 'content', 'neighborhood']);
+      allow delete: if isVerified() && isValidId(postId)
+        && (isAdmin() || existing().authorId == request.auth.uid);
+    }
+
+    match /serviceOrders/{orderId} {
+      allow get: if isSignedIn() && isValidId(orderId) && (existing().userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isVerified() && isNotSuspended() && isValidId(orderId)
+        && isValidServiceOrder(incoming())
+        && incoming().orderType in ['visit_pass', 'top_listing']
+        && incoming().userId == request.auth.uid
+        && incoming().status == 'pending'
+        && incoming().adminNote == ''
+        && !('receiptNumber' in incoming())
+        && !('rejectionReason' in incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isAdmin() && isValidId(orderId)
+        && isValidServiceOrder(incoming())
+        && (
+          (existing().status == 'pending' && incoming().status in ['verified', 'rejected', 'failed']) ||
+          (existing().status == 'verified' && incoming().status == 'refunded')
+        )
+        && incoming().userId == existing().userId
+        && incoming().orderType == existing().orderType
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'status', 'adminNote', 'rejectionReason', 'receiptNumber', 'verificationHistory', 'updatedAt'
+        ]);
+    }
+
+    match /paymentRefLocks/{refKey} {
+      allow get: if isSignedIn() && isValidId(refKey);
+      allow create: if isVerified() && isNotSuspended() && isValidId(refKey)
+        && isValidPaymentRefLock(incoming())
+        && incoming().createdAt == request.time
+        && getAfter(/databases/$(database)/documents/serviceOrders/$(incoming().orderId)).data.userId == request.auth.uid
+        && getAfter(/databases/$(database)/documents/serviceOrders/$(incoming().orderId)).data.status == 'pending';
+      allow update: if false;
+      allow delete: if isAdmin() && isValidId(refKey);
+    }
+
+    match /passAccess/{accessId} {
+      allow get: if isSignedIn() && isValidId(accessId) && (existing().userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAdmin() && isValidId(accessId)
+        && isValidPassAccess(incoming())
+        && accessId == (incoming().userId + '_' + incoming().listingId)
+        && incoming().grantedAt == request.time;
+      allow delete: if isAdmin() && isValidId(accessId);
+    }
+
+    match /reports/{reportId} {
+      allow get: if isSignedIn() && isValidId(reportId) && (existing().reporterId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.reporterId == request.auth.uid || isAdmin());
+      allow create: if isVerified() && isNotSuspended() && isValidId(reportId)
+        && isValidReport(incoming())
+        && incoming().reporterId == request.auth.uid
+        && incoming().status == 'open'
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time
+        && exists(/databases/$(database)/documents/listings/$(incoming().listingId));
+      allow update: if isAdmin() && isValidId(reportId)
+        && isValidReport(incoming())
+        && existing().status == 'open'
+        && incoming().reporterId == existing().reporterId
+        && incoming().listingId == existing().listingId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt']);
+    }
+
+    match /activities/{activityId} {
+      allow get, list: if isAdmin();
+      allow create: if isVerified() && isNotSuspended() && isValidId(activityId)
+        && isValidActivity(incoming())
+        && incoming().actorId == request.auth.uid
+        && incoming().createdAt == request.time;
+    }
+
+    match /notifications/{notifId} {
+      allow get: if isSignedIn() && isValidId(notifId) && (existing().userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isValidId(notifId)
+        && isValidNotification(incoming())
+        && incoming().createdAt == request.time
+        && (
+          isAdmin() ||
+          (isVerified() && isNotSuspended()
+            && incoming().category == 'coloc'
+            && 'senderId' in incoming()
+            && incoming().senderId == request.auth.uid
+            && incoming().userId != request.auth.uid
+            && incoming().read == false
+            && 'targetId' in incoming()
+            && isValidId(incoming().targetId)
+            && request.auth.uid in getAfter(/databases/$(database)/documents/colocConversations/$(incoming().targetId)).data.participantIds
+            && incoming().userId in getAfter(/databases/$(database)/documents/colocConversations/$(incoming().targetId)).data.participantIds)
+        );
+      allow update: if isSignedIn() && isValidId(notifId)
+        && isValidNotification(incoming())
+        && (
+          isAdmin() ||
+          (existing().userId == request.auth.uid
+            && incoming().userId == existing().userId
+            && incoming().category == existing().category
+            && incoming().title == existing().title
+            && incoming().message == existing().message
+            && incoming().createdAt == existing().createdAt
+            && incoming().read == true
+            && incoming().diff(existing()).affectedKeys().hasOnly(['read']))
+        );
+      allow delete: if isSignedIn() && isValidId(notifId) && (existing().userId == request.auth.uid || isAdmin());
+    }
+
+    match /adminAlerts/{alertId} {
+      allow get, list: if isAdmin();
+      allow create: if isVerified() && isNotSuspended() && isValidId(alertId)
+        && isValidAdminAlert(incoming())
+        && incoming().ownerId == request.auth.uid
+        && incoming().read == false
+        && incoming().createdAt == request.time
+        && (
+          (incoming().type in ['new_listing', 'resubmitted_listing']
+            && getAfter(/databases/$(database)/documents/listings/$(incoming().listingId)).data.ownerId == request.auth.uid) ||
+          (incoming().type in ['new_coloc_profile', 'resubmitted_coloc_profile']
+            && getAfter(/databases/$(database)/documents/colocProfiles/$(incoming().listingId)).data.authorId == request.auth.uid) ||
+          (incoming().type == 'new_coloc_request'
+            && getAfter(/databases/$(database)/documents/listings/$(incoming().listingId)/colocInterests/$(request.auth.uid)).data.userId == request.auth.uid) ||
+          (incoming().type in ['new_comment', 'new_review'])
+        );
+      allow update: if isAdmin() && isValidId(alertId)
+        && isValidAdminAlert(incoming())
+        && incoming().diff(existing()).affectedKeys().hasOnly(['read']);
+      allow delete: if isAdmin() && isValidId(alertId);
+    }
+
+    match /rentalConfirmations/{confId} {
+      allow get: if isSignedIn() && isValidId(confId) && (
+        isAdmin() ||
+        existing().tenantId == request.auth.uid ||
+        existing().landlordId == request.auth.uid
+      );
+      allow list: if isSignedIn() && (
+        isAdmin() ||
+        resource.data.tenantId == request.auth.uid ||
+        resource.data.landlordId == request.auth.uid
+      );
+      allow create: if isAdmin() && isValidId(confId)
+        && isValidRentalConfirmation(incoming())
+        && incoming().confirmedById == request.auth.uid
+        && incoming().createdAt == request.time;
+      allow update: if isAdmin() && isValidId(confId)
+        && isValidRentalConfirmation(incoming())
+        && incoming().createdAt == existing().createdAt;
+      allow delete: if isAdmin() && isValidId(confId);
+    }
+
+    // Admin collectionGroup read access for centralized moderation queue
+    match /{path=**}/colocInterests/{docId} {
+      allow list: if isAdmin();
+    }
+    match /{path=**}/messages/{docId} {
+      allow list: if isAdmin();
+    }
+    match /{path=**}/reviews/{docId} {
+      allow list: if isAdmin();
+    }
+  }
+}

@@ -1,0 +1,715 @@
+{
+  "entities": {
+    "PlatformConfig": {
+      "title": "PlatformConfig",
+      "description": "Global Qolock Maradi tariffs, WhatsApp support numbers, student WhatsApp group link, and Mobile Money coordinates.",
+      "type": "object",
+      "properties": {
+        "visitPassPrice": { "type": "number", "description": "Pass Visite price in FCFA (default 2000)." },
+        "topListingPrice": { "type": "number", "description": "Annonce TOP boost price in FCFA (default 1000)." },
+        "topListingDurationDays": { "type": "number", "description": "Duration in days for Annonce TOP highlight (default 7)." },
+        "contractPrice": { "type": "number", "description": "Legacy optional contract model price (service discontinued)." },
+        "whatsappNumber": { "type": "string", "maxLength": 40, "description": "Primary WhatsApp support number." },
+        "whatsappSecondaryNumber": { "type": "string", "maxLength": 40, "description": "Secondary WhatsApp support number." },
+        "whatsappGroupUrl": { "type": "string", "maxLength": 300, "description": "Official Qolock Maradi student WhatsApp group invite link." },
+        "whatsappGroupLink": { "type": "string", "maxLength": 300, "description": "Legacy alias for official WhatsApp group invite link." },
+        "mtnNumber": { "type": "string", "maxLength": 60, "description": "MTN Mobile Money payment number." },
+        "moovNumber": { "type": "string", "maxLength": 60, "description": "Moov Money merchant/transfer number." },
+        "airtelNumber": { "type": "string", "maxLength": 60, "description": "Airtel Money Niger merchant/transfer number." },
+        "nitaAccount": { "type": "string", "maxLength": 120, "description": "Nita / MyNita / Amana Express / Al-Izza recipient." },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "visitPassPrice",
+        "topListingPrice",
+        "whatsappNumber",
+        "moovNumber",
+        "airtelNumber",
+        "nitaAccount",
+        "updatedAt"
+      ]
+    },
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Public profile and account role of a Qolock Maradi user.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "displayName": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "photoURL": { "type": "string", "maxLength": 500 },
+        "accountType": { "type": "string", "enum": ["tenant", "landlord"] },
+        "neighborhood": { "type": "string", "maxLength": 80 },
+        "accountStatus": { "type": "string", "enum": ["active", "suspended"] },
+        "suspendedReason": { "type": "string", "maxLength": 300 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "displayName", "photoURL", "accountType", "neighborhood", "createdAt", "updatedAt"]
+    },
+    "UserPrivateInfo": {
+      "title": "UserPrivateInfo",
+      "description": "Isolated PII document storing user email, primary phone, and linked verified phones.",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "format": "email", "maxLength": 200 },
+        "phone": { "type": "string", "maxLength": 40 },
+        "verifiedPhones": {
+          "type": "array",
+          "description": "Additional verified E.164 phone numbers linked to the account (max 5)."
+        },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["email", "phone", "updatedAt"]
+    },
+    "Listing": {
+      "title": "Listing",
+      "description": "Housing, room, annex, apartment, or shared house offer in Maradi.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "description": { "type": "string", "maxLength": 4000 },
+        "neighborhood": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "locationDetails": { "type": "string", "maxLength": 200 },
+        "propertyType": {
+          "type": "string",
+          "enum": ["chambre", "maison", "appartement", "maison_partagee", "annexe", "studio", "colocation", "autre"]
+        },
+        "priceFcfa": { "type": "number" },
+        "depositMonths": { "type": "number" },
+        "availableSpots": { "type": "number" },
+        "roomsCount": { "type": "number" },
+        "availability": { "type": "string", "maxLength": 80 },
+        "amenities": { "type": "array" },
+        "photos": { "type": "array" },
+        "videos": { "type": "array" },
+        "bathroomType": { "type": "string", "enum": ["interne", "externe", "partagee"] },
+        "toiletType": { "type": "string", "enum": ["interne", "externe"] },
+        "furnished": { "type": "string", "enum": ["non_meuble", "semi_meuble", "meuble"] },
+        "waterElectricity": { "type": "string", "enum": ["inclus", "compteur_individuel", "partage"] },
+        "surfaceSqm": { "type": "number" },
+        "roommatePreference": { "type": "string", "enum": ["mixte", "etudiants", "femmes", "hommes", "jeunes_actifs"] },
+        "houseRules": { "type": "string", "maxLength": 1000 },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "in_review", "needs_correction", "published", "reserved", "rented", "rejected", "suspended"]
+        },
+        "moderationReason": { "type": "string", "maxLength": 300 },
+        "moderationHistory": {
+          "type": "array",
+          "description": "Bounded listing moderation decision log (max 12)."
+        },
+        "validatedByName": { "type": "string", "maxLength": 100 },
+        "validatedByEmail": { "type": "string", "maxLength": 200 },
+        "validatedAtIso": { "type": "string", "maxLength": 40 },
+        "isVerifiedQolock": { "type": "boolean" },
+        "isTop": { "type": "boolean" },
+        "topRequested": { "type": "boolean" },
+        "ownerId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "ownerName": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "title",
+        "description",
+        "neighborhood",
+        "propertyType",
+        "priceFcfa",
+        "depositMonths",
+        "availableSpots",
+        "amenities",
+        "photos",
+        "status",
+        "isVerifiedQolock",
+        "isTop",
+        "topRequested",
+        "ownerId",
+        "ownerName",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "ListingPrivateContact": {
+      "title": "ListingPrivateContact",
+      "description": "Landlord phone number isolated until Pass Visite verification.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "contactName": { "type": "string", "maxLength": 100 },
+        "contactPhone": { "type": "string", "maxLength": 40 },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "contactName", "contactPhone", "updatedAt"]
+    },
+    "ListingPrivateVerification": {
+      "title": "ListingPrivateVerification",
+      "description": "Private depositor verification PII (phone, WhatsApp, address, depositor role, authorization justification) readable strictly by Admin and listing owner.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "contactName": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "contactPhone": { "type": "string", "minLength": 1, "maxLength": 40 },
+        "contactWhatsapp": { "type": "string", "maxLength": 40 },
+        "depositorAddress": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "depositorStatus": { "type": "string", "enum": ["proprietaire", "demarcheur", "representant"] },
+        "authorizationNote": { "type": "string", "maxLength": 600 },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "contactName", "contactPhone", "depositorAddress", "depositorStatus", "authorizationNote", "updatedAt"]
+    },
+    "ListingVideoClip": {
+      "title": "ListingVideoClip",
+      "description": "Compressed mobile-ready video clip stored in a dedicated subcollection to keep listing queries lightweight.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "mimeType": { "type": "string", "enum": ["video/webm", "video/mp4"] },
+        "dataUrl": { "type": "string", "minLength": 1, "maxLength": 750000 },
+        "durationSec": { "type": "number" },
+        "isPublic": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "title", "mimeType", "dataUrl", "durationSec", "isPublic", "createdAt"]
+    },
+    "ColocInterest": {
+      "title": "ColocInterest",
+      "description": "Roommate candidate introduction for a shared house or colocation listing (subject to mandatory admin moderation).",
+      "type": "object",
+      "properties": {
+        "listingId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "listingTitle": { "type": "string", "maxLength": 160 },
+        "userId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "userName": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "occupation": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "habits": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "budgetFcfa": { "type": "number" },
+        "message": { "type": "string", "minLength": 1, "maxLength": 600 },
+        "isPublic": { "type": "boolean" },
+        "moderationStatus": { "type": "string", "enum": ["pending", "approved", "rejected", "needs_correction"] },
+        "moderationReason": { "type": "string", "maxLength": 300 },
+        "moderationHistory": { "type": "array", "description": "Bounded moderation history (max 12)." },
+        "validatedByName": { "type": "string", "maxLength": 100 },
+        "validatedAtIso": { "type": "string", "maxLength": 40 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "userId",
+        "userName",
+        "occupation",
+        "habits",
+        "budgetFcfa",
+        "message",
+        "isPublic",
+        "moderationStatus",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "ColocProfile": {
+      "title": "ColocProfile",
+      "description": "Roommate search announcement in the GidaColocs colocation meeting space (requires admin validation).",
+      "type": "object",
+      "properties": {
+        "authorId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "authorName": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "authorPhoto": { "type": "string", "maxLength": 145000 },
+        "statusCategory": { "type": "string", "enum": ["etudiant", "travailleur", "autre"] },
+        "targetNeighborhood": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "desiredType": { "type": "string", "enum": ["maison_partagee", "annexe", "chambre", "appartement"] },
+        "maxBudgetFcfa": { "type": "number" },
+        "desiredRoommatesCount": { "type": "number" },
+        "availability": { "type": "string", "maxLength": 80 },
+        "occupation": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "genderPreference": { "type": "string", "enum": ["mixte", "femmes", "hommes", "etudiants"] },
+        "lifestyle": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "bio": { "type": "string", "minLength": 1, "maxLength": 800 },
+        "linkedListingId": { "type": "string", "maxLength": 128 },
+        "status": { "type": "string", "enum": ["active", "found"] },
+        "isPublic": { "type": "boolean" },
+        "moderationStatus": { "type": "string", "enum": ["pending", "approved", "rejected", "needs_correction"] },
+        "moderationReason": { "type": "string", "maxLength": 300 },
+        "moderationHistory": { "type": "array", "description": "Bounded moderation history (max 12)." },
+        "validatedByName": { "type": "string", "maxLength": 100 },
+        "validatedAtIso": { "type": "string", "maxLength": 40 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "authorId",
+        "authorName",
+        "targetNeighborhood",
+        "desiredType",
+        "maxBudgetFcfa",
+        "occupation",
+        "genderPreference",
+        "lifestyle",
+        "bio",
+        "linkedListingId",
+        "status",
+        "isPublic",
+        "moderationStatus",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "ColocMessage": {
+      "title": "ColocMessage",
+      "description": "Public coordination comment on a roommate search announcement (moderated by admin).",
+      "type": "object",
+      "properties": {
+        "profileId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "profileAuthorId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "authorId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "authorName": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "message": { "type": "string", "minLength": 1, "maxLength": 600 },
+        "isPublic": { "type": "boolean" },
+        "moderationStatus": { "type": "string", "enum": ["pending", "approved", "rejected", "needs_correction"] },
+        "moderationReason": { "type": "string", "maxLength": 300 },
+        "moderationHistory": { "type": "array", "description": "Bounded moderation history (max 12)." },
+        "validatedByName": { "type": "string", "maxLength": 100 },
+        "validatedAtIso": { "type": "string", "maxLength": 40 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["profileAuthorId", "authorId", "authorName", "message", "isPublic", "moderationStatus", "createdAt"]
+    },
+    "ListingReview": {
+      "title": "ListingReview",
+      "description": "Public user review or comment on a housing listing (requires admin approval before public display).",
+      "type": "object",
+      "properties": {
+        "listingId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "listingTitle": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "authorId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "authorName": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "rating": { "type": "number" },
+        "comment": { "type": "string", "minLength": 1, "maxLength": 800 },
+        "isPublic": { "type": "boolean" },
+        "moderationStatus": { "type": "string", "enum": ["pending", "approved", "rejected", "needs_correction"] },
+        "moderationReason": { "type": "string", "maxLength": 300 },
+        "moderationHistory": { "type": "array", "description": "Bounded moderation history (max 12)." },
+        "validatedByName": { "type": "string", "maxLength": 100 },
+        "validatedAtIso": { "type": "string", "maxLength": 40 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["listingId", "listingTitle", "authorId", "authorName", "rating", "comment", "isPublic", "moderationStatus", "createdAt", "updatedAt"]
+    },
+    "ColocConversation": {
+      "title": "ColocConversation",
+      "description": "Private 1-to-1 roommate discussion thread with request approval, blocking, and leave controls (no phone PII).",
+      "type": "object",
+      "properties": {
+        "participantIds": { "type": "array", "description": "Exactly 2 UIDs." },
+        "requesterId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "recipientId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "requesterName": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "recipientName": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "profileId": { "type": "string", "maxLength": 128 },
+        "status": { "type": "string", "enum": ["pending", "accepted", "rejected", "blocked", "left"] },
+        "blockedBy": { "type": "string", "maxLength": 128 },
+        "leftBy": { "type": "array", "description": "UIDs who left the conversation (max 2)." },
+        "initialMessage": { "type": "string", "maxLength": 600 },
+        "lastMessage": { "type": "string", "maxLength": 600 },
+        "lastSenderId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "participantIds",
+        "requesterId",
+        "recipientId",
+        "requesterName",
+        "recipientName",
+        "profileId",
+        "status",
+        "initialMessage",
+        "lastMessage",
+        "lastSenderId",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "ColocPrivateMessage": {
+      "title": "ColocPrivateMessage",
+      "description": "Private chat message between two accepted roommate candidates.",
+      "type": "object",
+      "properties": {
+        "participantIds": { "type": "array" },
+        "senderId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "senderName": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "text": { "type": "string", "minLength": 1, "maxLength": 800 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["participantIds", "senderId", "senderName", "text", "createdAt"]
+    },
+    "ColocMeeting": {
+      "title": "ColocMeeting",
+      "description": "Public-place meeting proposal between future roommates.",
+      "type": "object",
+      "properties": {
+        "conversationId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "participantIds": { "type": "array" },
+        "proposerId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "proposerName": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "recipientId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "recipientName": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "meetingDate": { "type": "string", "minLength": 1, "maxLength": 20 },
+        "meetingTime": { "type": "string", "minLength": 1, "maxLength": 10 },
+        "publicPlace": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "note": { "type": "string", "maxLength": 300 },
+        "status": { "type": "string", "enum": ["proposed", "accepted", "declined", "confirmed", "cancelled"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "conversationId",
+        "participantIds",
+        "proposerId",
+        "proposerName",
+        "recipientId",
+        "recipientName",
+        "meetingDate",
+        "meetingTime",
+        "publicPlace",
+        "note",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "ColocReport": {
+      "title": "ColocReport",
+      "description": "Abuse or suspicious behavior report submitted against a roommate profile, chat, or meeting.",
+      "type": "object",
+      "properties": {
+        "reporterId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "reporterName": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "reportedUserId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "reportedUserName": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "contextType": { "type": "string", "enum": ["coloc_profile", "coloc_chat", "coloc_meeting"] },
+        "targetId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "reason": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "details": { "type": "string", "minLength": 1, "maxLength": 1000 },
+        "status": { "type": "string", "enum": ["open", "resolved", "dismissed"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "reporterId",
+        "reporterName",
+        "reportedUserId",
+        "reportedUserName",
+        "contextType",
+        "targetId",
+        "reason",
+        "details",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "CommunityPost": {
+      "title": "CommunityPost",
+      "description": "Student community board post for mutual aid, campus tips, and roommate advice in Maradi (moderated).",
+      "type": "object",
+      "properties": {
+        "authorId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "authorName": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "category": { "type": "string", "enum": ["entraide", "conseil", "colocation", "info_udm"] },
+        "title": { "type": "string", "minLength": 1, "maxLength": 140 },
+        "content": { "type": "string", "minLength": 1, "maxLength": 1000 },
+        "isPublic": { "type": "boolean" },
+        "moderationStatus": { "type": "string", "enum": ["pending", "approved", "rejected", "needs_correction"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["authorId", "authorName", "category", "title", "content", "isPublic", "moderationStatus", "createdAt"]
+    },
+    "ServiceOrder": {
+      "title": "ServiceOrder",
+      "description": "Pass Visite or Annonce TOP order paid via local Mobile Money ('contract' kept strictly for read-only historical archives).",
+      "type": "object",
+      "properties": {
+        "orderType": { "type": "string", "enum": ["visit_pass", "top_listing", "contract"] },
+        "userId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "userName": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "userPhone": { "type": "string", "minLength": 1, "maxLength": 40 },
+        "beneficiaryPhone": { "type": "string", "maxLength": 60 },
+        "listingId": { "type": "string", "maxLength": 128 },
+        "listingTitle": { "type": "string", "maxLength": 160 },
+        "paymentMethod": { "type": "string", "enum": ["MTN Mobile Money", "Airtel Money", "Nita", "Moov Money", "Amana Express", "Al-Izza", "Espèces / Agence"] },
+        "transactionRef": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "amountFcfa": { "type": "number" },
+        "durationDays": { "type": "number" },
+        "preferredDate": { "type": "string", "maxLength": 32 },
+        "proofImage": { "type": "string", "maxLength": 220000 },
+        "status": { "type": "string", "enum": ["pending", "verified", "rejected", "failed", "refunded"] },
+        "adminNote": { "type": "string", "maxLength": 300 },
+        "rejectionReason": { "type": "string", "maxLength": 300 },
+        "receiptNumber": { "type": "string", "maxLength": 80 },
+        "verificationHistory": {
+          "type": "array",
+          "description": "Bounded payment verification audit trail (max 10)."
+        },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "orderType",
+        "userId",
+        "userName",
+        "userPhone",
+        "listingId",
+        "listingTitle",
+        "paymentMethod",
+        "transactionRef",
+        "amountFcfa",
+        "preferredDate",
+        "status",
+        "adminNote",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "PaymentRefLock": {
+      "title": "PaymentRefLock",
+      "description": "Deduplication lock for submitted payment transaction references (zero PII).",
+      "type": "object",
+      "properties": {
+        "orderId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["orderId", "createdAt"]
+    },
+    "PassAccess": {
+      "title": "PassAccess",
+      "description": "Admin-granted unlock record for verified Pass Visite or Contract download.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "listingId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "orderId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "grantedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "listingId", "orderId", "grantedAt"]
+    },
+    "Report": {
+      "title": "Report",
+      "description": "Suspicious listing report submitted by a tenant or user.",
+      "type": "object",
+      "properties": {
+        "listingId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "listingTitle": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "reporterId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "reporterName": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "reason": { "type": "string", "enum": ["fausse_annonce", "arnaque_prix", "deja_loue", "contenu_inapproprie", "autre"] },
+        "details": { "type": "string", "minLength": 1, "maxLength": 1000 },
+        "status": { "type": "string", "enum": ["open", "resolved", "dismissed"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "listingId",
+        "listingTitle",
+        "reporterId",
+        "reporterName",
+        "reason",
+        "details",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "PlatformActivity": {
+      "title": "PlatformActivity",
+      "description": "Audit log of actions on Qolock Maradi.",
+      "type": "object",
+      "properties": {
+        "actorId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "actorName": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "action": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "targetTitle": { "type": "string", "maxLength": 160 },
+        "targetType": { "type": "string", "enum": ["listing", "order", "report", "config", "user", "coloc", "community", "rental", "review"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["actorId", "actorName", "action", "targetTitle", "targetType", "createdAt"]
+    },
+    "UserNotification": {
+      "title": "UserNotification",
+      "description": "In-app notification sent to a user on listing moderation, payment verification, roommate activity, or account updates.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "senderId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "category": { "type": "string", "enum": ["listing", "payment", "coloc", "account", "system"] },
+        "title": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "message": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "targetId": { "type": "string", "maxLength": 128 },
+        "read": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "category", "title", "message", "read", "createdAt"]
+    },
+    "AdminAlert": {
+      "title": "AdminAlert",
+      "description": "Admin-only alert created when a user submits or resubmits content for mandatory moderation.",
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "new_listing",
+            "resubmitted_listing",
+            "rental_confirmed",
+            "new_coloc_profile",
+            "resubmitted_coloc_profile",
+            "new_coloc_request",
+            "new_comment",
+            "new_review"
+          ]
+        },
+        "listingId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "listingTitle": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "neighborhood": { "type": "string", "maxLength": 80 },
+        "ownerId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "ownerName": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "depositorStatus": { "type": "string", "enum": ["proprietaire", "demarcheur", "representant"] },
+        "read": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["type", "listingId", "listingTitle", "neighborhood", "ownerId", "ownerName", "read", "createdAt"]
+    },
+    "RentalConfirmation": {
+      "title": "RentalConfirmation",
+      "description": "Verified rental confirmation record triggering the official WhatsApp community welcome block for the tenant.",
+      "type": "object",
+      "properties": {
+        "listingId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "listingTitle": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "neighborhood": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "priceFcfa": { "type": "number" },
+        "tenantId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "tenantName": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "tenantPhone": { "type": "string", "maxLength": 40 },
+        "landlordId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "landlordName": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "welcomeMessage": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "confirmedById": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "confirmedByName": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "confirmedByEmail": { "type": "string", "maxLength": 200 },
+        "confirmedAtIso": { "type": "string", "maxLength": 40 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "listingId",
+        "listingTitle",
+        "neighborhood",
+        "priceFcfa",
+        "tenantId",
+        "tenantName",
+        "landlordId",
+        "landlordName",
+        "welcomeMessage",
+        "confirmedById",
+        "confirmedByName",
+        "confirmedAtIso",
+        "createdAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/platformConfig/{configId}": {
+      "schema": { "$ref": "#/entities/PlatformConfig" },
+      "description": "Global platform pricing, WhatsApp community link, and contact settings."
+    },
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Public user profiles."
+    },
+    "/users/{userId}/private/{docId}": {
+      "schema": { "$ref": "#/entities/UserPrivateInfo" },
+      "description": "Isolated PII subcollection."
+    },
+    "/listings/{listingId}": {
+      "schema": { "$ref": "#/entities/Listing" },
+      "description": "Housing, room, annex, apartment, and shared house offers in Maradi."
+    },
+    "/listings/{listingId}/private/{docId}": {
+      "schema": { "$ref": "#/entities/ListingPrivateContact" },
+      "description": "Isolated landlord phone contact unlocked after Pass Visite verification."
+    },
+    "/listings/{listingId}/videoClips/{clipId}": {
+      "schema": { "$ref": "#/entities/ListingVideoClip" },
+      "description": "Mobile-optimized video tour clips attached to a listing."
+    },
+    "/listings/{listingId}/colocInterests/{userId}": {
+      "schema": { "$ref": "#/entities/ColocInterest" },
+      "description": "Moderated roommate candidates introducing themselves for a shared house or colocation listing."
+    },
+    "/listings/{listingId}/reviews/{reviewId}": {
+      "schema": { "$ref": "#/entities/ListingReview" },
+      "description": "Moderated public user reviews and comments on a housing listing."
+    },
+    "/colocProfiles/{profileId}": {
+      "schema": { "$ref": "#/entities/ColocProfile" },
+      "description": "Moderated community roommate matching board for Maradi."
+    },
+    "/colocProfiles/{profileId}/messages/{messageId}": {
+      "schema": { "$ref": "#/entities/ColocMessage" },
+      "description": "Coordination messages on roommate profiles."
+    },
+    "/colocConversations/{convId}": {
+      "schema": { "$ref": "#/entities/ColocConversation" },
+      "description": "Private 1-to-1 roommate conversations."
+    },
+    "/colocConversations/{convId}/messages/{messageId}": {
+      "schema": { "$ref": "#/entities/ColocPrivateMessage" },
+      "description": "Messages inside an accepted roommate conversation."
+    },
+    "/colocMeetings/{meetingId}": {
+      "schema": { "$ref": "#/entities/ColocMeeting" },
+      "description": "Public-place meeting proposals between future roommates."
+    },
+    "/colocReports/{reportId}": {
+      "schema": { "$ref": "#/entities/ColocReport" },
+      "description": "Abuse and suspicious behavior reports in roommate profiles, chats, or meetings."
+    },
+    "/communityPosts/{postId}": {
+      "schema": { "$ref": "#/entities/CommunityPost" },
+      "description": "Student community mutual aid board."
+    },
+    "/serviceOrders/{orderId}": {
+      "schema": { "$ref": "#/entities/ServiceOrder" },
+      "description": "Pass Visite and TOP boost orders (legacy contract archives read-only)."
+    },
+    "/paymentRefLocks/{refKey}": {
+      "schema": { "$ref": "#/entities/PaymentRefLock" },
+      "description": "Deduplication locks preventing reuse of the same transaction reference."
+    },
+    "/passAccess/{accessId}": {
+      "schema": { "$ref": "#/entities/PassAccess" },
+      "description": "Admin-verified unlock records keyed by {userId}_{listingId}."
+    },
+    "/reports/{reportId}": {
+      "schema": { "$ref": "#/entities/Report" },
+      "description": "User reports of suspicious listings."
+    },
+    "/activities/{activityId}": {
+      "schema": { "$ref": "#/entities/PlatformActivity" },
+      "description": "Chronological admin activity log."
+    },
+    "/notifications/{notifId}": {
+      "schema": { "$ref": "#/entities/UserNotification" },
+      "description": "Private user notifications for listing decisions, payments, roommate requests, and account updates."
+    },
+    "/adminAlerts/{alertId}": {
+      "schema": { "$ref": "#/entities/AdminAlert" },
+      "description": "Admin alerts for newly submitted or resubmitted listings awaiting verification."
+    },
+    "/rentalConfirmations/{confId}": {
+      "schema": { "$ref": "#/entities/RentalConfirmation" },
+      "description": "Confirmed rental agreements granting access to the official WhatsApp community link for confirmed tenants."
+    }
+  }
+}

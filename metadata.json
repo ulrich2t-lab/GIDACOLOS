@@ -1,0 +1,6 @@
+{
+  "name": "Cadence",
+  "description": "Plateforme collaborative de gestion de projets, tâches, documents et suivi d'équipe en temps réel.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
