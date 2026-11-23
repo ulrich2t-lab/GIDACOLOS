@@ -168,37 +168,40 @@ export function UserSpaceView({
 
   if (!user) {
     return (
-      <div className="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        <section className="lg:col-span-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 space-y-4">
-          <h2 className="text-2xl font-bold text-[#0A2540] dark:text-white leading-tight">
+      <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <section className="lg:col-span-6 hero-diamond-pattern text-white border border-indigo-400/20 rounded-3xl p-6 sm:p-8 space-y-4 shadow-xl">
+          <p className="text-xs font-bold uppercase tracking-wider text-teal-300">
+            Compte Membre · GidaColocs
+          </p>
+          <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-white leading-tight text-balance">
             Accédez à votre espace personnel GidaColocs
           </h2>
-          <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+          <p className="text-[15px] font-medium text-slate-200 leading-relaxed">
             Connectez-vous avec votre numéro WhatsApp et un code simple, ou en 1 clic avec Google
             pour :
           </p>
-          <ul className="space-y-2.5 text-sm text-slate-700 dark:text-slate-300 pt-2 border-t border-slate-200 dark:border-slate-800">
-            <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0 mt-0.5" />
+          <ul className="space-y-3 text-sm font-medium text-slate-100 pt-3 border-t border-white/15">
+            <li className="flex items-start gap-2.5">
+              <CheckCircle2 className="w-4 h-4 text-teal-300 shrink-0 mt-0.5" />
               <span>Suivre vos Pass Visite et vos réservations de logement à Maradi.</span>
             </li>
-            <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0 mt-0.5" />
+            <li className="flex items-start gap-2.5">
+              <CheckCircle2 className="w-4 h-4 text-teal-300 shrink-0 mt-0.5" />
               <span>Publier et modifier vos chambres, annexes ou maisons à partager.</span>
             </li>
-            <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0 mt-0.5" />
+            <li className="flex items-start gap-2.5">
+              <CheckCircle2 className="w-4 h-4 text-teal-300 shrink-0 mt-0.5" />
               <span>Associer plusieurs numéros vérifiés et gérer vos annonces de colocation.</span>
             </li>
           </ul>
         </section>
 
-        <section className="lg:col-span-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 space-y-4">
+        <section className="lg:col-span-6 bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-indigo-400/20 rounded-2xl p-6 sm:p-8 space-y-4 shadow-sm">
           <div>
-            <h3 className="text-base font-bold text-slate-900 dark:text-white">
+            <h3 className="font-display text-lg font-extrabold text-slate-900 dark:text-white">
               Connexion utilisateur
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-0.5">
               Numéro WhatsApp + code simple ou Google
             </p>
           </div>
@@ -396,15 +399,15 @@ export function UserSpaceView({
     <div className="space-y-8">
       {/* Top Grid: Profile + Contract Download */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <section className="lg:col-span-7 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 space-y-6">
+        <section className="lg:col-span-7 bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800/90 rounded-2xl p-6 space-y-6 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
+            <div className="flex items-center gap-3.5 min-w-0">
               <Avatar name={actorName} src={profile?.photoURL || user.photoURL || ''} size="lg" />
               <div className="min-w-0">
-                <h2 className="text-base font-bold text-slate-900 dark:text-white truncate">
+                <h2 className="font-display text-lg font-extrabold text-slate-900 dark:text-white truncate">
                   {actorName}
                 </h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400 tabular-nums truncate">
+                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 tabular-nums truncate">
                   {privatePhone ||
                     user.phoneNumber ||
                     (!isSyntheticWhatsAppEmail(user.email) && user.email) ||
@@ -417,7 +420,7 @@ export function UserSpaceView({
             <button
               type="button"
               onClick={() => void signOutUser()}
-              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-red-700 dark:text-red-300 border border-red-200 dark:border-red-900/60 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg transition-colors cursor-pointer shrink-0"
+              className="min-h-[40px] inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-red-700 dark:text-red-300 border border-red-200 dark:border-red-900/60 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-xl transition-colors cursor-pointer shrink-0"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span>Déconnexion</span>
@@ -427,7 +430,7 @@ export function UserSpaceView({
           <form onSubmit={handleSaveProfile} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
                   Nom complet
                 </label>
                 <input
@@ -436,18 +439,18 @@ export function UserSpaceView({
                   maxLength={BLUEPRINT_LIMITS.DISPLAY_NAME_MAX}
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
+                  className="w-full min-h-[46px] px-3.5 py-2 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437]/80 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
                   Profil sur GidaColocs
                 </label>
                 <select
                   value={accountType}
                   onChange={(e) => setAccountType(e.target.value as AccountType)}
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
+                  className="w-full min-h-[46px] px-3.5 py-2 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437]/80 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
                 >
                   <option value="tenant">Étudiant / Locataire</option>
                   <option value="landlord">Propriétaire / Bailleur / Démarcheur</option>
@@ -457,7 +460,7 @@ export function UserSpaceView({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
                   Numéro WhatsApp / Mobile
                 </label>
                 <input
@@ -466,18 +469,18 @@ export function UserSpaceView({
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="70000000"
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
+                  className="w-full min-h-[46px] px-3.5 py-2 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437]/80 text-slate-900 dark:text-white tabular-nums focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
                   Quartier souhaité / principal
                 </label>
                 <select
                   value={neighborhood}
                   onChange={(e) => setNeighborhood(e.target.value)}
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
+                  className="w-full min-h-[46px] px-3.5 py-2 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437]/80 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
                 >
                   <option value="">Non défini</option>
                   {MARADI_NEIGHBORHOODS.map((q) => (
@@ -491,7 +494,7 @@ export function UserSpaceView({
 
             <div className="flex items-center justify-between gap-3 pt-2">
               <span
-                className={`text-xs ${
+                className={`text-xs font-semibold ${
                   profileError
                     ? 'text-red-600 dark:text-red-400'
                     : 'text-emerald-600 dark:text-emerald-400'
@@ -502,9 +505,9 @@ export function UserSpaceView({
               <button
                 type="submit"
                 disabled={savingProfile}
-                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-[#0A2540] hover:bg-slate-800 dark:bg-teal-600 dark:hover:bg-teal-700 rounded-lg cursor-pointer shrink-0"
+                className="min-h-[44px] inline-flex items-center gap-1.5 px-4 py-2 text-sm font-bold text-white bg-[#0B1437] hover:bg-slate-800 dark:bg-[#93A3FF] dark:text-[#0B1437] dark:hover:bg-[#A6B3FF] rounded-xl cursor-pointer shrink-0"
               >
-                <Save className="w-3.5 h-3.5" />
+                <Save className="w-4 h-4" />
                 <span>{savingProfile ? 'Enregistrement...' : 'Enregistrer le profil'}</span>
               </button>
             </div>
@@ -513,7 +516,7 @@ export function UserSpaceView({
           {/* Association de plusieurs numéros vérifiés (Airtel, MTN, Moov) */}
           <div className="pt-5 border-t border-slate-200 dark:border-slate-800 space-y-3">
             <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-900 dark:text-white">
+              <div className="flex items-center gap-1.5 text-[13px] font-bold text-slate-900 dark:text-white">
                 <ShieldCheck className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
                 <span>Numéros de téléphone vérifiés par SMS ({verifiedPhones.length}/5)</span>
               </div>
@@ -529,13 +532,13 @@ export function UserSpaceView({
                   return (
                     <div
                       key={num}
-                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-xs"
+                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#0B1437]/80 text-xs"
                     >
                       <Phone className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
-                      <span className="font-medium text-slate-900 dark:text-white tabular-nums">
+                      <span className="font-bold text-slate-900 dark:text-white tabular-nums">
                         {num}
                       </span>
-                      <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                      <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
                         {info.operatorLabel}
                       </span>
                       {!isPrimaryAuthPhone && (
@@ -553,19 +556,19 @@ export function UserSpaceView({
                 })}
               </div>
             ) : (
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
                 Aucun numéro encore vérifié par SMS sur ce compte. Associez votre numéro Airtel,
                 MTN ou Moov ci-dessous.
               </p>
             )}
 
             {(addPhoneError || authError) && (
-              <p className="text-xs text-red-600 dark:text-red-400">
+              <p className="text-xs font-semibold text-red-600 dark:text-red-400">
                 {addPhoneError || authError}
               </p>
             )}
             {addPhoneFeedback && (
-              <p className="text-xs text-emerald-600 dark:text-emerald-400">{addPhoneFeedback}</p>
+              <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">{addPhoneFeedback}</p>
             )}
 
             {pendingPhoneOtp?.mode === 'link' ? (
@@ -578,12 +581,12 @@ export function UserSpaceView({
                   value={addPhoneOtp}
                   onChange={(e) => setAddPhoneOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                   placeholder="Code SMS (6 chiffres)"
-                  className="flex-1 px-3 py-2 text-xs font-semibold tracking-widest tabular-nums rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
+                  className="flex-1 min-h-[44px] px-3.5 py-2 text-sm font-bold tracking-widest tabular-nums rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437]/80 text-slate-900 dark:text-white"
                 />
                 <button
                   type="submit"
                   disabled={addPhoneBusy || addPhoneOtp.length !== 6}
-                  className="px-3.5 py-2 text-xs font-semibold text-white bg-teal-600 hover:bg-teal-700 disabled:opacity-50 rounded-lg cursor-pointer"
+                  className="min-h-[44px] px-4 py-2 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 disabled:opacity-50 rounded-xl cursor-pointer"
                 >
                   {addPhoneBusy ? 'Validation...' : 'Confirmer'}
                 </button>
@@ -594,7 +597,7 @@ export function UserSpaceView({
                     setAddPhoneOtp('');
                     setAddPhoneFeedback(null);
                   }}
-                  className="px-3 py-2 text-xs text-slate-600 dark:text-slate-300 cursor-pointer"
+                  className="min-h-[44px] px-3 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 cursor-pointer"
                 >
                   Annuler
                 </button>
@@ -606,7 +609,7 @@ export function UserSpaceView({
                     value={addPhonePrefix}
                     onChange={(e) => setAddPhonePrefix(e.target.value)}
                     aria-label="Indicatif du numéro à associer"
-                    className="px-2.5 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white"
+                    className="min-h-[44px] px-3 py-2 text-sm font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-[#0B1437]/80 text-slate-900 dark:text-white"
                   >
                     <option value="+227">Niger (+227)</option>
                     <option value="+229">Bénin (+229)</option>
@@ -622,12 +625,12 @@ export function UserSpaceView({
                       setAddPhoneLocal(e.target.value);
                     }}
                     placeholder="70000000"
-                    className="flex-1 min-w-0 px-3 py-2 text-xs tabular-nums rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
+                    className="flex-1 min-w-0 min-h-[44px] px-3.5 py-2 text-sm font-medium tabular-nums rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437]/80 text-slate-900 dark:text-white"
                   />
                   <button
                     type="submit"
                     disabled={addPhoneBusy || smsCooldownSec > 0}
-                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-[#0A2540] dark:text-white border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 rounded-lg cursor-pointer shrink-0 tabular-nums"
+                    className="min-h-[44px] inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold text-[#0B1437] dark:text-white border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 rounded-xl cursor-pointer shrink-0 tabular-nums"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>
@@ -645,43 +648,43 @@ export function UserSpaceView({
         </section>
 
         {/* Paiements & Tarifs officiels GidaColocs */}
-        <section className="lg:col-span-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 flex flex-col justify-between gap-5">
+        <section className="lg:col-span-5 bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800/90 rounded-2xl p-6 flex flex-col justify-between gap-5 shadow-sm">
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white">
+              <div className="flex items-center gap-2 text-base font-bold text-slate-900 dark:text-white">
                 <Coins className="w-4 h-4 text-teal-600 dark:text-teal-400" />
                 <span>Paiements & Tarifs officiels</span>
               </div>
-              <span className="text-[11px] font-semibold text-teal-700 dark:text-teal-400 tabular-nums">
+              <span className="text-xs font-bold text-teal-700 dark:text-teal-300 tabular-nums">
                 {activePassCount} Pass actif{activePassCount > 1 ? 's' : ''}
               </span>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60">
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">Pass visite</p>
-                <p className="text-base font-bold text-[#0A2540] dark:text-white tabular-nums mt-0.5">
+              <div className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-[#0B1437]/75">
+                <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Pass visite</p>
+                <p className="text-lg font-extrabold text-[#0B1437] dark:text-white tabular-nums mt-0.5">
                   {formatFcfa(config.visitPassPrice)}
                 </p>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
                   Contact vérifié + visite
                 </p>
               </div>
-              <div className="p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60">
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              <div className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-[#0B1437]/75">
+                <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
                   Annonce Top ({topDurationDays} j)
                 </p>
-                <p className="text-base font-bold text-[#0A2540] dark:text-white tabular-nums mt-0.5">
+                <p className="text-lg font-extrabold text-[#0B1437] dark:text-white tabular-nums mt-0.5">
                   {formatFcfa(config.topListingPrice)}
                 </p>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
                   Mise en avant prioritaire
                 </p>
               </div>
             </div>
 
-            <div className="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs space-y-1.5 tabular-nums">
-              <p className="font-semibold text-slate-900 dark:text-white">
+            <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0B1437]/80 text-xs font-medium space-y-1.5 tabular-nums">
+              <p className="font-bold text-slate-900 dark:text-white">
                 Numéros officiels de paiement :
               </p>
               <p className="text-slate-600 dark:text-slate-300">
@@ -705,7 +708,7 @@ export function UserSpaceView({
             </div>
           </div>
 
-          <div className="p-3 rounded-lg bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 text-[11px] text-amber-900 dark:text-amber-200 flex items-start gap-2">
+          <div className="p-4 rounded-xl bg-amber-50/80 dark:bg-amber-950/35 border border-amber-200 dark:border-amber-900/50 text-[13px] font-medium text-amber-900 dark:text-amber-200 flex items-start gap-2.5 leading-relaxed">
             <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5" />
             <span>
               GidaColocs ne vous demandera jamais votre code PIN Mobile Money. Chaque paiement est
@@ -716,13 +719,13 @@ export function UserSpaceView({
       </div>
 
       {/* Adhésion directe au groupe officiel WhatsApp GidaColocs */}
-      <section className="bg-white dark:bg-slate-900 border border-emerald-200 dark:border-emerald-900/60 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white">
-            <MessageCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+      <section className="hero-diamond-pattern text-white border border-indigo-400/20 rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-md">
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-2 text-base font-display font-bold text-white">
+            <MessageCircle className="w-5 h-5 text-emerald-400 shrink-0" />
             <span>Groupe officiel WhatsApp GidaColocs</span>
           </div>
-          <p className="text-xs text-slate-600 dark:text-slate-300">
+          <p className="text-[13.5px] font-medium text-slate-200 leading-relaxed max-w-2xl">
             Rejoignez directement la communauté GidaColocs sur WhatsApp pour suivre les annonces
             vérifiées, poser vos questions et trouver un colocataire à Maradi.
           </p>
@@ -731,7 +734,7 @@ export function UserSpaceView({
           href={config.whatsappGroupUrl || OFFICIAL_WHATSAPP_GROUP_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors whitespace-nowrap shrink-0"
+          className="min-h-[46px] inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-extrabold tracking-wide text-white bg-emerald-600 hover:bg-emerald-500 rounded-xl transition-colors whitespace-nowrap shrink-0 shadow-xs"
         >
           <MessageCircle className="w-4 h-4 shrink-0" />
           <span>REJOINDRE LE GROUPE WHATSAPP</span>
@@ -740,11 +743,11 @@ export function UserSpaceView({
 
       {/* Locations confirmées & Communauté WhatsApp */}
       {myRentalConfirmations.length > 0 && (
-        <section className="bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/60 rounded-xl overflow-hidden">
-          <div className="px-6 py-4 border-b border-emerald-200 dark:border-emerald-900/60 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-700 dark:text-emerald-400 shrink-0" />
-              <h2 className="text-base font-semibold text-emerald-950 dark:text-emerald-100">
+        <section className="bg-emerald-50/75 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/60 rounded-2xl overflow-hidden shadow-xs">
+          <div className="px-5 sm:px-6 py-4 border-b border-emerald-200 dark:border-emerald-900/60 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <CheckCircle2 className="w-5 h-5 text-emerald-700 dark:text-emerald-400 shrink-0" />
+              <h2 className="text-base font-display font-bold text-emerald-950 dark:text-emerald-100">
                 Mes locations confirmées ({myRentalConfirmations.length})
               </h2>
             </div>
@@ -754,27 +757,27 @@ export function UserSpaceView({
             {myRentalConfirmations.map((conf) => (
               <div
                 key={conf.id}
-                className="px-6 py-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4"
+                className="px-5 sm:px-6 py-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4"
               >
                 <div className="space-y-1 min-w-0">
-                  <p className="text-sm font-bold text-slate-900 dark:text-white">
+                  <p className="text-[15px] font-bold text-slate-900 dark:text-white">
                     {conf.listingTitle} · {conf.neighborhood} ({formatFcfa(conf.priceFcfa)}/mois)
                   </p>
-                  <p className="text-xs text-emerald-900 dark:text-emerald-200 leading-relaxed">
+                  <p className="text-[13px] font-medium text-emerald-900 dark:text-emerald-200 leading-relaxed">
                     {conf.welcomeMessage}
                   </p>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 tabular-nums">
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 tabular-nums">
                     Confirmée le {new Date(conf.confirmedAtIso).toLocaleDateString('fr-FR')} par{' '}
                     {conf.confirmedByName}
                   </p>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2 shrink-0">
+                <div className="flex flex-wrap items-center gap-2.5 shrink-0">
                   <a
                     href={config.whatsappGroupUrl || OFFICIAL_WHATSAPP_GROUP_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors whitespace-nowrap"
+                    className="min-h-[44px] inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors whitespace-nowrap"
                   >
                     <MessageCircle className="w-4 h-4 shrink-0" />
                     <span>REJOINDRE NOTRE COMMUNAUTÉ WHATSAPP</span>
@@ -783,7 +786,7 @@ export function UserSpaceView({
                     <button
                       type="button"
                       onClick={() => onOpenRentalConfirmation(conf)}
-                      className="px-3 py-2 text-xs font-semibold text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 rounded-lg cursor-pointer whitespace-nowrap"
+                      className="min-h-[44px] px-3.5 py-2 text-xs font-bold text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 rounded-xl cursor-pointer whitespace-nowrap"
                     >
                       Détails confirmation
                     </button>
@@ -799,15 +802,15 @@ export function UserSpaceView({
       {(() => {
         const unreadIds = notifications.filter((n) => !n.read).map((n) => n.id);
         return (
-          <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
-                <Bell className="w-4 h-4 text-[#0A2540] dark:text-teal-400" />
-                <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+          <section className="bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800/90 rounded-2xl overflow-hidden shadow-xs">
+            <div className="px-5 sm:px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <Bell className="w-4 h-4 text-[#0B1437] dark:text-[#93A3FF]" />
+                <h2 className="text-base font-display font-bold text-slate-900 dark:text-white">
                   Mes notifications ({notifications.length})
                 </h2>
                 {unreadIds.length > 0 && (
-                  <span className="px-2 py-0.5 text-[11px] font-bold rounded bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 tabular-nums">
+                  <span className="px-2.5 py-0.5 text-xs font-bold rounded-lg bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 tabular-nums">
                     {unreadIds.length} non lue{unreadIds.length > 1 ? 's' : ''}
                   </span>
                 )}
@@ -820,7 +823,7 @@ export function UserSpaceView({
                     setMarkingNotifs(true);
                     void markAllNotificationsRead(unreadIds).finally(() => setMarkingNotifs(false));
                   }}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800 hover:bg-teal-50 dark:hover:bg-teal-950/40 rounded-lg cursor-pointer"
+                  className="min-h-[40px] inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800 hover:bg-teal-50 dark:hover:bg-teal-950/40 rounded-xl cursor-pointer"
                 >
                   <CheckCheck className="w-3.5 h-3.5" />
                   <span>Tout marquer lu</span>
@@ -829,33 +832,33 @@ export function UserSpaceView({
             </div>
 
             {notifications.length === 0 ? (
-              <div className="p-6 text-center text-xs text-slate-500 dark:text-slate-400">
+              <div className="p-6 text-center text-[13px] font-medium text-slate-500 dark:text-slate-400">
                 Aucune notification pour le moment. Vous serez averti ici lors de la validation de vos annonces ou paiements.
               </div>
             ) : (
-              <div className="divide-y divide-slate-200 dark:divide-slate-800 max-h-[340px] overflow-y-auto">
+              <div className="divide-y divide-slate-200 dark:divide-slate-800 max-h-[360px] overflow-y-auto">
                 {notifications.map((notif) => (
                   <div
                     key={notif.id}
-                    className={`px-6 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs ${
+                    className={`px-5 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-[13px] ${
                       notif.read
-                        ? 'bg-white dark:bg-slate-900'
-                        : 'bg-teal-50/40 dark:bg-teal-950/20'
+                        ? 'bg-white dark:bg-[#0F172A]'
+                        : 'bg-teal-50/40 dark:bg-[#0B1437]/60'
                     }`}
                   >
-                    <div className="space-y-0.5 min-w-0">
-                      <div className="flex items-center gap-2">
+                    <div className="space-y-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
                         {!notif.read && (
                           <span className="w-2 h-2 rounded-full bg-teal-600 dark:bg-teal-400 shrink-0" />
                         )}
-                        <p className="font-semibold text-slate-900 dark:text-white">
+                        <p className="font-bold text-slate-900 dark:text-white">
                           {notif.title}
                         </p>
-                        <span className="text-[11px] text-slate-400 tabular-nums shrink-0">
+                        <span className="text-xs font-medium text-slate-500 dark:text-slate-400 tabular-nums shrink-0">
                           · {formatTimestamp(notif.createdAt)}
                         </span>
                       </div>
-                      <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+                      <p className="font-medium text-slate-600 dark:text-slate-300 leading-relaxed">
                         {notif.message}
                       </p>
                     </div>
@@ -863,9 +866,9 @@ export function UserSpaceView({
                       <button
                         type="button"
                         onClick={() => void markNotificationAsRead(notif.id)}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg cursor-pointer shrink-0 self-start sm:self-center"
+                        className="min-h-[38px] inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl cursor-pointer shrink-0 self-start sm:self-center"
                       >
-                        <Check className="w-3 h-3" />
+                        <Check className="w-3.5 h-3.5" />
                         <span>Marquer lu</span>
                       </button>
                     )}
@@ -878,15 +881,15 @@ export function UserSpaceView({
       })()}
 
       {/* Mes transactions & Preuves de paiement */}
-      <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
-          <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+      <section className="bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800/90 rounded-2xl overflow-hidden shadow-xs">
+        <div className="px-5 sm:px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+          <h2 className="text-base font-display font-bold text-slate-900 dark:text-white">
             Mes transactions & Preuves de paiement ({myOrders.length})
           </h2>
         </div>
 
         {myOrders.length === 0 ? (
-          <div className="p-8 text-center text-xs text-slate-500 dark:text-slate-400">
+          <div className="p-8 text-center text-[13px] font-medium text-slate-500 dark:text-slate-400">
             Vous n’avez encore effectué aucune demande de Pass visite ou Annonce Top.
           </div>
         ) : (
@@ -894,14 +897,14 @@ export function UserSpaceView({
             {myOrders.map((ord) => (
               <div
                 key={ord.id}
-                className="px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-3 text-sm"
+                className="px-5 sm:px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-3 text-sm"
               >
                 <div className="flex items-start gap-3 min-w-0">
                   {ord.proofImage && (
                     <button
                       type="button"
                       onClick={() => setPreviewProofOrder(ord)}
-                      className="w-12 h-12 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 shrink-0 cursor-pointer"
+                      className="w-12 h-12 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shrink-0 cursor-pointer"
                       title="Agrandir la preuve de paiement"
                     >
                       <img
@@ -914,17 +917,17 @@ export function UserSpaceView({
                     </button>
                   )}
                   <div className="min-w-0">
-                    <p className="font-medium text-slate-900 dark:text-white truncate">
+                    <p className="font-bold text-slate-900 dark:text-white truncate">
                       {ORDER_TYPE_LABELS[ord.orderType]} · {ord.listingTitle}
                     </p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 tabular-nums">
+                    <p className="text-[13px] font-medium text-slate-500 dark:text-slate-400 mt-0.5 tabular-nums">
                       {formatFcfa(ord.amountFcfa)} · {ord.paymentMethod} (Réf : {ord.transactionRef}
                       {ord.beneficiaryPhone ? ` → ${ord.beneficiaryPhone}` : ''}) ·{' '}
                       {formatTimestamp(ord.createdAt)}
                     </p>
                     {(ord.rejectionReason || ord.adminNote) && (
                       <p
-                        className={`text-xs mt-1 ${
+                        className={`text-[13px] font-medium mt-1 ${
                           ord.status === 'rejected' || ord.status === 'failed'
                             ? 'text-red-600 dark:text-red-400'
                             : 'text-slate-600 dark:text-slate-300'
@@ -938,7 +941,7 @@ export function UserSpaceView({
 
                 <div className="flex flex-wrap items-center gap-2.5 shrink-0">
                   <span
-                    className={`text-xs font-semibold ${
+                    className={`text-xs font-bold ${
                       ord.status === 'verified'
                         ? 'text-emerald-600 dark:text-emerald-400'
                         : ord.status === 'rejected' || ord.status === 'failed'
@@ -954,7 +957,7 @@ export function UserSpaceView({
                     <button
                       type="button"
                       onClick={() => downloadPaymentReceipt(ord)}
-                      className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800 hover:bg-teal-100 rounded-lg cursor-pointer"
+                      className="min-h-[38px] inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800 hover:bg-teal-100 rounded-xl cursor-pointer"
                     >
                       <Download className="w-3.5 h-3.5" />
                       <span>Reçu</span>
@@ -969,12 +972,12 @@ export function UserSpaceView({
 
       {/* Mes profils colocataires soumis */}
       {myColocProfiles.length > 0 && (
-        <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
-            <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+        <section className="bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800/90 rounded-2xl overflow-hidden shadow-xs">
+          <div className="px-5 sm:px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+            <h2 className="text-base font-display font-bold text-slate-900 dark:text-white">
               Mes profils colocataires ({myColocProfiles.length})
             </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-[13px] font-medium text-slate-500 dark:text-slate-400 mt-0.5">
               Suivi de validation administrateur de vos fiches colocation
             </p>
           </div>
@@ -984,24 +987,24 @@ export function UserSpaceView({
               return (
                 <div
                   key={p.id}
-                  className="px-6 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs"
+                  className="px-5 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-[13px]"
                 >
                   <div className="space-y-0.5 min-w-0">
-                    <p className="font-semibold text-slate-900 dark:text-white">
+                    <p className="font-bold text-slate-900 dark:text-white">
                       {p.targetNeighborhood} · {COLOC_DESIRED_LABELS[p.desiredType]} · ≤{' '}
                       {formatFcfa(p.maxBudgetFcfa)}
                     </p>
-                    <p className="text-slate-500 dark:text-slate-400 truncate">
+                    <p className="font-medium text-slate-500 dark:text-slate-400 truncate">
                       {p.occupation} · {p.lifestyle}
                     </p>
                     {p.moderationReason && modStatus !== 'approved' && (
-                      <p className="text-[11px] text-amber-700 dark:text-amber-300">
+                      <p className="text-xs font-semibold text-amber-700 dark:text-amber-300">
                         Motif administrateur : {p.moderationReason}
                       </p>
                     )}
                   </div>
                   <span
-                    className={`px-2 py-1 text-[11px] font-semibold rounded shrink-0 self-start sm:self-center ${
+                    className={`px-2.5 py-1 text-xs font-bold rounded-lg shrink-0 self-start sm:self-center ${
                       modStatus === 'approved'
                         ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'
                         : modStatus === 'rejected'
@@ -1019,27 +1022,27 @@ export function UserSpaceView({
       )}
 
       {/* Mes Annonces & Gestion Pris / Réservés */}
-      <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <section className="bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800/90 rounded-2xl overflow-hidden shadow-xs">
+        <div className="px-5 sm:px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+            <h2 className="text-base font-display font-bold text-slate-900 dark:text-white">
               Mes annonces · Disponibles, Réservés & Pris ({myListings.length})
             </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-[13px] font-medium text-slate-500 dark:text-slate-400 mt-0.5">
               Marquez un logement réservé ou pris, ou modifiez vos annonces (toute modification repasse en validation)
             </p>
           </div>
           <button
             type="button"
             onClick={onGoToPublish}
-            className="px-3.5 py-2 text-xs font-semibold text-white bg-[#0A2540] hover:bg-slate-800 rounded-lg cursor-pointer whitespace-nowrap self-start sm:self-auto"
+            className="min-h-[44px] px-4 py-2 text-xs font-bold text-white bg-[#0B1437] hover:bg-slate-800 dark:bg-[#93A3FF] dark:text-[#0B1437] dark:hover:bg-[#A6B3FF] rounded-xl cursor-pointer whitespace-nowrap self-start sm:self-auto"
           >
             + Nouvelle annonce
           </button>
         </div>
 
         {myListings.length > 0 && (
-          <div className="px-6 py-3 bg-slate-50/70 dark:bg-slate-950/50 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center gap-2">
+          <div className="px-5 sm:px-6 py-3.5 bg-slate-50/75 dark:bg-[#0B1437]/55 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center gap-2">
             {(
               [
                 ['all', `Toutes (${myListings.length})`],
@@ -1078,10 +1081,10 @@ export function UserSpaceView({
                 key={key}
                 type="button"
                 onClick={() => setListingFilter(key)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors cursor-pointer tabular-nums ${
+                className={`min-h-[38px] px-3 py-1.5 text-xs font-bold rounded-xl border transition-colors cursor-pointer tabular-nums ${
                   listingFilter === key
-                    ? 'border-[#0A2540] dark:border-teal-500 bg-[#0A2540] dark:bg-teal-600 text-white'
-                    : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300'
+                    ? 'border-[#0B1437] dark:border-[#93A3FF] bg-[#0B1437] dark:bg-[#93A3FF] text-white dark:text-[#0B1437]'
+                    : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0F172A] text-slate-700 dark:text-slate-300'
                 }`}
               >
                 {label}
@@ -1091,18 +1094,18 @@ export function UserSpaceView({
         )}
 
         {listingActionError && (
-          <div className="px-6 py-3 bg-red-50 dark:bg-red-950/40 border-b border-red-200 dark:border-red-900/60 text-xs text-red-700 dark:text-red-300">
+          <div className="px-5 sm:px-6 py-3 bg-red-50 dark:bg-red-950/40 border-b border-red-200 dark:border-red-900/60 text-[13px] font-medium text-red-700 dark:text-red-300">
             {listingActionError}
           </div>
         )}
         {listingActionSuccess && (
-          <div className="px-6 py-3 bg-emerald-50 dark:bg-emerald-950/40 border-b border-emerald-200 dark:border-emerald-900/60 text-xs text-emerald-700 dark:text-emerald-300">
+          <div className="px-5 sm:px-6 py-3 bg-emerald-50 dark:bg-emerald-950/40 border-b border-emerald-200 dark:border-emerald-900/60 text-[13px] font-medium text-emerald-700 dark:text-emerald-300">
             {listingActionSuccess}
           </div>
         )}
 
         {myListings.length === 0 ? (
-          <div className="p-8 text-center text-xs text-slate-500 dark:text-slate-400">
+          <div className="p-8 text-center text-[13px] font-medium text-slate-500 dark:text-slate-400">
             Vous n’avez pas encore soumis d’annonce immobilière à Maradi.
           </div>
         ) : (
@@ -1119,29 +1122,29 @@ export function UserSpaceView({
                 return (
                   <div
                     key={item.id}
-                    className="px-6 py-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4"
+                    className="px-5 sm:px-6 py-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4"
                   >
                     <div className="min-w-0">
                       <button
                         type="button"
                         onClick={() => onSelectListing(item)}
-                        className="text-sm font-semibold text-slate-900 dark:text-white hover:text-teal-700 dark:hover:text-teal-400 text-left truncate block cursor-pointer"
+                        className="text-[15px] font-bold text-slate-900 dark:text-white hover:text-teal-700 dark:hover:text-[#93A3FF] text-left truncate block cursor-pointer"
                       >
                         {item.title}
                       </button>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 tabular-nums">
+                      <p className="text-[13px] font-medium text-slate-500 dark:text-slate-400 mt-0.5 tabular-nums">
                         {item.neighborhood} · {formatFcfa(item.priceFcfa)} / mois ·{' '}
                         <span
                           className={
                             item.status === 'published'
-                              ? 'text-emerald-600 dark:text-emerald-400 font-semibold'
+                              ? 'text-emerald-600 dark:text-emerald-400 font-bold'
                               : item.status === 'reserved'
-                                ? 'text-amber-600 dark:text-amber-400 font-semibold'
+                                ? 'text-amber-600 dark:text-amber-400 font-bold'
                                 : item.status === 'rented'
-                                  ? 'text-slate-600 dark:text-slate-300 font-semibold'
+                                  ? 'text-slate-600 dark:text-slate-300 font-bold'
                                   : item.status === 'rejected' || item.status === 'suspended'
-                                    ? 'text-red-600 dark:text-red-400 font-semibold'
-                                    : 'text-amber-600 dark:text-amber-400 font-medium'
+                                    ? 'text-red-600 dark:text-red-400 font-bold'
+                                    : 'text-amber-600 dark:text-amber-400 font-semibold'
                           }
                         >
                           {LISTING_STATUS_LABELS[item.status]}
@@ -1153,7 +1156,7 @@ export function UserSpaceView({
                         item.status === 'needs_correction') &&
                         item.moderationReason && (
                           <p
-                            className={`text-xs mt-1 ${
+                            className={`text-[13px] font-medium mt-1 ${
                               item.status === 'needs_correction'
                                 ? 'text-amber-700 dark:text-amber-300'
                                 : 'text-red-600 dark:text-red-400'
@@ -1169,7 +1172,7 @@ export function UserSpaceView({
                         <button
                           type="button"
                           onClick={() => onEditListing(item)}
-                          className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg cursor-pointer"
+                          className="min-h-[38px] inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl cursor-pointer"
                         >
                           <Edit3 className="w-3.5 h-3.5" />
                           <span>
@@ -1185,7 +1188,7 @@ export function UserSpaceView({
                           type="button"
                           disabled={busyListingId === item.id}
                           onClick={() => void handleListingStatusChange(item, 'reserved')}
-                          className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-800 hover:bg-amber-50 dark:hover:bg-amber-950/40 disabled:opacity-50 rounded-lg cursor-pointer"
+                          className="min-h-[38px] inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-800 hover:bg-amber-50 dark:hover:bg-amber-950/40 disabled:opacity-50 rounded-xl cursor-pointer"
                         >
                           <BookmarkCheck className="w-3.5 h-3.5" />
                           <span>Marquer réservé</span>
@@ -1197,7 +1200,7 @@ export function UserSpaceView({
                           type="button"
                           disabled={busyListingId === item.id}
                           onClick={() => void handleListingStatusChange(item, 'rented')}
-                          className="px-2.5 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 rounded-lg cursor-pointer"
+                          className="min-h-[38px] px-3 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 rounded-xl cursor-pointer"
                         >
                           Marquer pris (retirer)
                         </button>
@@ -1208,7 +1211,7 @@ export function UserSpaceView({
                           type="button"
                           disabled={busyListingId === item.id}
                           onClick={() => void handleListingStatusChange(item, 'published')}
-                          className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-teal-700 dark:text-teal-300 border border-teal-300 dark:border-teal-800 hover:bg-teal-50 dark:hover:bg-teal-950/40 disabled:opacity-50 rounded-lg cursor-pointer"
+                          className="min-h-[38px] inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-teal-700 dark:text-teal-300 border border-teal-300 dark:border-teal-800 hover:bg-teal-50 dark:hover:bg-teal-950/40 disabled:opacity-50 rounded-xl cursor-pointer"
                         >
                           <RotateCcw className="w-3.5 h-3.5" />
                           <span>Remettre disponible</span>
@@ -1222,7 +1225,7 @@ export function UserSpaceView({
                             setTopError(null);
                             setTopBoostListing(item);
                           }}
-                          className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-800 hover:bg-amber-50 dark:hover:bg-amber-950/40 rounded-lg cursor-pointer"
+                          className="min-h-[38px] inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-800 hover:bg-amber-50 dark:hover:bg-amber-950/40 rounded-xl cursor-pointer"
                         >
                           <Star className="w-3.5 h-3.5" />
                           <span>TOP ({formatFcfa(config.topListingPrice)})</span>
@@ -1235,7 +1238,7 @@ export function UserSpaceView({
                             type="button"
                             disabled={busyListingId === item.id}
                             onClick={() => void handleDeleteListing(item)}
-                            className="px-2.5 py-1.5 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 rounded-lg cursor-pointer"
+                            className="min-h-[38px] px-3 py-1.5 text-xs font-bold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 rounded-xl cursor-pointer"
                           >
                             {busyListingId === item.id ? 'Suppression...' : 'Confirmer suppression'}
                           </button>
@@ -1243,7 +1246,7 @@ export function UserSpaceView({
                             type="button"
                             disabled={busyListingId === item.id}
                             onClick={() => setConfirmDeleteId(null)}
-                            className="px-2 py-1.5 text-xs text-slate-500 hover:text-slate-800 dark:hover:text-white cursor-pointer"
+                            className="min-h-[38px] px-2.5 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer"
                           >
                             Annuler
                           </button>
@@ -1255,7 +1258,7 @@ export function UserSpaceView({
                           onClick={() => setConfirmDeleteId(item.id)}
                           aria-label="Enlever définitivement l'annonce"
                           title="Enlever définitivement"
-                          className="inline-flex items-center gap-1 px-2 py-1.5 text-xs text-slate-500 hover:text-red-600 dark:hover:text-red-400 rounded-lg cursor-pointer"
+                          className="min-h-[38px] inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-slate-500 hover:text-red-600 dark:hover:text-red-400 rounded-xl cursor-pointer"
                         >
                           <Trash2 className="w-4 h-4" />
                           <span className="hidden sm:inline">Enlever</span>
@@ -1273,28 +1276,28 @@ export function UserSpaceView({
       {topBoostListing && (() => {
         const paymentDetails = getPaymentInstructionDetails(topPaymentMethod, config);
         return (
-          <div className="fixed inset-0 z-50 bg-slate-950/50 flex items-center justify-center p-4 overflow-y-auto">
-            <div className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 space-y-4 my-auto">
-              <h3 className="text-base font-bold text-slate-900 dark:text-white">
+          <div className="fixed inset-0 z-50 bg-[#060B1D]/75 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+            <div className="w-full max-w-md bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-indigo-400/20 rounded-2xl p-6 space-y-4 my-auto shadow-2xl">
+              <h3 className="text-base font-display font-bold text-slate-900 dark:text-white">
                 Annonce Top : {topBoostListing.title}
               </h3>
-              <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300 space-y-1">
-                <p className="font-semibold text-slate-900 dark:text-white tabular-nums">
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#0B1437] border border-slate-200 dark:border-slate-700/80 text-[13px] text-slate-600 dark:text-slate-300 space-y-1.5">
+                <p className="font-bold text-slate-900 dark:text-white tabular-nums">
                   Tarif : {formatFcfa(config.topListingPrice)} · Durée : {topDurationDays} jours
                 </p>
-                <p className="text-[11px] leading-relaxed">{paymentDetails.steps}</p>
-                <p className="text-[11px] tabular-nums pt-1 border-t border-slate-200 dark:border-slate-800">
+                <p className="text-xs font-medium leading-relaxed">{paymentDetails.steps}</p>
+                <p className="text-xs font-medium tabular-nums pt-1.5 border-t border-slate-200 dark:border-slate-700/80">
                   Bénéficiaire : <strong>{paymentDetails.beneficiary}</strong>
                 </p>
               </div>
               {topError && (
-                <p className="text-xs text-red-600 dark:text-red-400">{topError}</p>
+                <p className="text-[13px] font-medium text-red-600 dark:text-red-400">{topError}</p>
               )}
               <form onSubmit={handleOrderTop} className="space-y-3">
                 <select
                   value={topPaymentMethod}
                   onChange={(e) => setTopPaymentMethod(e.target.value as PaymentMethod)}
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
+                  className="w-full min-h-[46px] px-3.5 py-2.5 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
                 >
                   {PAYMENT_METHODS.map((pm) => (
                     <option key={pm} value={pm}>
@@ -1308,7 +1311,7 @@ export function UserSpaceView({
                   value={topPhone}
                   onChange={(e) => setTopPhone(e.target.value)}
                   placeholder="Votre numéro payeur"
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
+                  className="w-full min-h-[46px] px-3.5 py-2.5 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
                 />
                 <input
                   type="text"
@@ -1316,28 +1319,28 @@ export function UserSpaceView({
                   value={topRef}
                   onChange={(e) => setTopRef(e.target.value)}
                   placeholder="Référence de transaction"
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
+                  className="w-full min-h-[46px] px-3.5 py-2.5 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
                 />
                 {topProofImage ? (
-                  <div className="flex items-center gap-3 p-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950">
+                  <div className="flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#0B1437]">
                     <img
                       src={topProofImage}
                       alt="Capture preuve"
-                      className="w-12 h-12 rounded object-cover"
+                      className="w-12 h-12 rounded-lg object-cover"
                     />
-                    <span className="text-xs text-slate-600 dark:text-slate-300 flex-1">
+                    <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 flex-1">
                       Capture prête
                     </span>
                     <button
                       type="button"
                       onClick={() => setTopProofImage('')}
-                      className="p-1 text-slate-400 hover:text-red-600 cursor-pointer"
+                      className="min-w-[36px] min-h-[36px] flex items-center justify-center text-slate-400 hover:text-red-600 cursor-pointer"
                     >
                       <X className="w-4 h-4" />
                     </button>
                   </div>
                 ) : (
-                  <label className="flex items-center justify-center gap-2 px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 border border-dashed border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer">
+                  <label className="min-h-[46px] flex items-center justify-center gap-2 px-3.5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 border border-dashed border-slate-300 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-[#0B1437] cursor-pointer">
                     <ImagePlus className="w-4 h-4 text-teal-600 dark:text-teal-400" />
                     <span>
                       {uploadingTopProof
@@ -1353,24 +1356,24 @@ export function UserSpaceView({
                     />
                   </label>
                 )}
-                <p className="text-[11px] text-amber-800 dark:text-amber-300">
+                <p className="text-xs font-medium text-amber-800 dark:text-amber-300">
                   Ne saisissez jamais votre code PIN Mobile Money.
                 </p>
-                <div className="flex justify-end gap-2 pt-2">
+                <div className="flex justify-end gap-2.5 pt-2">
                   <button
                     type="button"
                     onClick={() => {
                       setTopBoostListing(null);
                       setTopProofImage('');
                     }}
-                    className="px-3 py-2 text-xs text-slate-600 dark:text-slate-300 cursor-pointer"
+                    className="min-h-[44px] px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer"
                   >
                     Annuler
                   </button>
                   <button
                     type="submit"
                     disabled={submittingTop || uploadingTopProof}
-                    className="px-4 py-2 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 disabled:opacity-60 rounded-lg cursor-pointer"
+                    className="min-h-[44px] px-5 py-2 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 disabled:opacity-60 rounded-xl cursor-pointer"
                   >
                     {submittingTop ? 'Envoi...' : 'Envoyer la demande'}
                   </button>
@@ -1383,16 +1386,16 @@ export function UserSpaceView({
 
       {/* Modal: Aperçu preuve de paiement */}
       {previewProofOrder && previewProofOrder.proofImage && (
-        <div className="fixed inset-0 z-50 bg-slate-950/70 flex items-center justify-center p-4">
-          <div className="w-full max-w-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 space-y-3">
+        <div className="fixed inset-0 z-50 bg-[#060B1D]/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-lg bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-indigo-400/20 rounded-2xl p-5 space-y-3 shadow-2xl">
             <div className="flex items-center justify-between gap-2">
-              <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">
+              <p className="text-sm font-display font-bold text-slate-900 dark:text-white truncate">
                 Preuve · {previewProofOrder.paymentMethod} ({previewProofOrder.transactionRef})
               </p>
               <button
                 type="button"
                 onClick={() => setPreviewProofOrder(null)}
-                className="p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-white cursor-pointer"
+                className="min-w-[40px] min-h-[40px] flex items-center justify-center rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1400,19 +1403,19 @@ export function UserSpaceView({
             <img
               src={previewProofOrder.proofImage}
               alt="Preuve de paiement"
-              className="w-full max-h-[70vh] object-contain rounded-lg bg-slate-100 dark:bg-slate-950"
+              className="w-full max-h-[70vh] object-contain rounded-xl bg-slate-100 dark:bg-[#060B1D]"
             />
           </div>
         </div>
       )}
 
       {/* Assistance WhatsApp Directe */}
-      <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <section className="bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
         <div>
-          <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+          <h3 className="text-base font-display font-bold text-slate-900 dark:text-white">
             Assistance directe GidaColocs sur WhatsApp
           </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+          <p className="text-[13px] font-medium text-slate-500 dark:text-slate-400 mt-0.5">
             Besoin d’aide pour valider un Pass Visite, publier un logement ou organiser une visite ?
           </p>
         </div>
@@ -1424,9 +1427,9 @@ export function UserSpaceView({
             )}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors tabular-nums"
+            className="min-h-[44px] inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors tabular-nums"
           >
-            <MessageCircle className="w-3.5 h-3.5" />
+            <MessageCircle className="w-4 h-4" />
             <span>WhatsApp {config.whatsappNumber || '2290157382961'}</span>
           </a>
           <a
@@ -1436,9 +1439,9 @@ export function UserSpaceView({
             )}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 rounded-lg transition-colors tabular-nums"
+            className="min-h-[44px] inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 rounded-xl transition-colors tabular-nums"
           >
-            <MessageCircle className="w-3.5 h-3.5" />
+            <MessageCircle className="w-4 h-4" />
             <span>WhatsApp {config.whatsappSecondaryNumber || '22776688125'}</span>
           </a>
         </div>

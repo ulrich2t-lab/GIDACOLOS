@@ -568,53 +568,53 @@ export function ListingDetailModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-[2px] flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
+      className="fixed inset-0 z-50 bg-[#060B1D]/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
       role="dialog"
       aria-modal="true"
       aria-labelledby="listing-modal-title"
     >
-      <div className="w-full max-w-4xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden my-auto max-h-[92vh] flex flex-col">
+      <div className="w-full max-w-4xl bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-indigo-400/20 rounded-2xl overflow-hidden my-auto max-h-[92vh] flex flex-col shadow-2xl">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-4 shrink-0">
-          <div className="min-w-0 flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-            <MapPin className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
-            <span className="font-medium text-slate-800 dark:text-slate-200">
+        <div className="hero-diamond-pattern text-white px-5 sm:px-6 py-3.5 border-b border-indigo-400/20 flex items-center justify-between gap-4 shrink-0">
+          <div className="min-w-0 flex flex-wrap items-center gap-2 text-xs sm:text-[13px] font-semibold text-slate-200">
+            <MapPin className="w-4 h-4 text-teal-300 shrink-0" />
+            <span className="font-bold text-white">
               {listing.neighborhood}
             </span>
-            <span aria-hidden="true">·</span>
+            <span className="text-slate-400" aria-hidden="true">·</span>
             <span>{PROPERTY_TYPE_LABELS[listing.propertyType]}</span>
             {listing.bathroomType && (
               <>
-                <span aria-hidden="true">·</span>
+                <span className="text-slate-400" aria-hidden="true">·</span>
                 <span>{BATHROOM_LABELS[listing.bathroomType]}</span>
               </>
             )}
-            <span aria-hidden="true">·</span>
-            <span>{LISTING_STATUS_LABELS[listing.status]}</span>
+            <span className="text-slate-400" aria-hidden="true">·</span>
+            <span className="text-teal-300 font-bold">{LISTING_STATUS_LABELS[listing.status]}</span>
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Fermer"
-            className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer shrink-0"
+            className="min-w-[42px] min-h-[42px] inline-flex items-center justify-center rounded-xl text-slate-200 hover:text-white hover:bg-white/10 cursor-pointer shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Scrollable Body */}
-        <div className="overflow-y-auto flex-1 p-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="overflow-y-auto flex-1 p-5 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-7 sm:gap-8">
           {/* Left: Gallery (Photos & Vidéos), Real-Estate Specs & Coloc Meeting Space */}
           <div className="lg:col-span-7 space-y-6">
             {videos.length > 0 && (
               <div className="flex items-center justify-between gap-3">
-                <div className="inline-flex items-center p-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                <div className="inline-flex items-center p-1 bg-slate-100 dark:bg-[#0B1437] border border-slate-200 dark:border-slate-700/80 rounded-xl">
                   <button
                     type="button"
                     onClick={() => setMediaTab('photos')}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer whitespace-nowrap ${
+                    className={`min-h-[38px] px-3.5 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
                       mediaTab === 'photos'
-                        ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
+                        ? 'bg-white dark:bg-[#93A3FF] text-slate-900 dark:text-[#0B1437] shadow-xs'
                         : 'text-slate-600 dark:text-slate-300'
                     }`}
                   >
@@ -623,9 +623,9 @@ export function ListingDetailModal({
                   <button
                     type="button"
                     onClick={() => setMediaTab('videos')}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer whitespace-nowrap ${
+                    className={`min-h-[38px] inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
                       mediaTab === 'videos'
-                        ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
+                        ? 'bg-white dark:bg-[#93A3FF] text-slate-900 dark:text-[#0B1437] shadow-xs'
                         : 'text-slate-600 dark:text-slate-300'
                     }`}
                   >
@@ -638,7 +638,7 @@ export function ListingDetailModal({
 
             {mediaTab === 'photos' ? (
               <div className="space-y-2.5">
-                <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-800">
+                <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-slate-100 dark:bg-[#0B1437] border border-slate-200 dark:border-slate-800">
                   {photos.length > 0 ? (
                     <>
                       <img
@@ -655,9 +655,9 @@ export function ListingDetailModal({
                               setPhotoIdx((prev) => (prev === 0 ? photos.length - 1 : prev - 1))
                             }
                             aria-label="Photo précédente"
-                            className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-slate-900/70 text-white hover:bg-slate-900 cursor-pointer"
+                            className="min-w-[40px] min-h-[40px] flex items-center justify-center absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-xl bg-[#060B1D]/75 text-white hover:bg-[#060B1D] cursor-pointer"
                           >
-                            <ChevronLeft className="w-4 h-4" />
+                            <ChevronLeft className="w-5 h-5" />
                           </button>
                           <button
                             type="button"
@@ -665,11 +665,11 @@ export function ListingDetailModal({
                               setPhotoIdx((prev) => (prev === photos.length - 1 ? 0 : prev + 1))
                             }
                             aria-label="Photo suivante"
-                            className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-slate-900/70 text-white hover:bg-slate-900 cursor-pointer"
+                            className="min-w-[40px] min-h-[40px] flex items-center justify-center absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-xl bg-[#060B1D]/75 text-white hover:bg-[#060B1D] cursor-pointer"
                           >
-                            <ChevronRight className="w-4 h-4" />
+                            <ChevronRight className="w-5 h-5" />
                           </button>
-                          <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded-md bg-slate-900/75 text-white text-xs tabular-nums">
+                          <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded-lg bg-[#060B1D]/80 text-white text-xs font-bold tabular-nums">
                             {photoIdx + 1} / {photos.length}
                           </div>
                         </>
@@ -678,7 +678,7 @@ export function ListingDetailModal({
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center text-slate-400">
                       <Home className="w-10 h-10 mb-2" />
-                      <span className="text-xs">Aucune photographie fournie pour ce logement</span>
+                      <span className="text-[13px] font-medium">Aucune photographie fournie pour ce logement</span>
                     </div>
                   )}
                 </div>
@@ -690,9 +690,9 @@ export function ListingDetailModal({
                         key={idx}
                         type="button"
                         onClick={() => setPhotoIdx(idx)}
-                        className={`relative w-16 h-12 rounded-md overflow-hidden border shrink-0 cursor-pointer transition-opacity ${
+                        className={`relative w-16 h-12 rounded-lg overflow-hidden border shrink-0 cursor-pointer transition-opacity ${
                           photoIdx === idx
-                            ? 'border-teal-600 ring-2 ring-teal-600/30 opacity-100'
+                            ? 'border-teal-500 ring-2 ring-teal-500/35 opacity-100'
                             : 'border-slate-200 dark:border-slate-700 opacity-65 hover:opacity-100'
                         }`}
                       >
@@ -711,7 +711,7 @@ export function ListingDetailModal({
               </div>
             ) : (
               <div className="space-y-3">
-                <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-center">
+                <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-[#060B1D] border border-slate-200 dark:border-slate-800 flex items-center justify-center">
                   {activeVideo ? (
                     activeVideo.sourceType === 'clip' ? (
                       clipCache[activeVideo.clipId] ? (
@@ -726,7 +726,7 @@ export function ListingDetailModal({
                       ) : (
                         <div className="text-center text-slate-300 space-y-2 p-6">
                           <Film className="w-8 h-8 mx-auto text-teal-400" />
-                          <p className="text-xs">
+                          <p className="text-[13px] font-medium">
                             {clipError
                               ? clipError
                               : loadingClip
@@ -763,15 +763,15 @@ export function ListingDetailModal({
                         return (
                           <div className="p-6 text-center space-y-3">
                             <Film className="w-10 h-10 text-teal-400 mx-auto" />
-                            <p className="text-sm font-semibold text-white">{activeVideo.title}</p>
-                            <p className="text-xs text-slate-400">
+                            <p className="text-sm font-bold text-white">{activeVideo.title}</p>
+                            <p className="text-xs font-medium text-slate-300">
                               Vidéo hébergée sur {parsed.providerLabel}
                             </p>
                             <a
                               href={parsed.externalUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-lg"
+                              className="min-h-[42px] inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-xl"
                             >
                               <span>Regarder la vidéo</span>
                               <ExternalLink className="w-3.5 h-3.5" />
@@ -790,14 +790,14 @@ export function ListingDetailModal({
                         key={v.id}
                         type="button"
                         onClick={() => setVideoIdx(idx)}
-                        className={`px-3 py-2 rounded-lg border text-left text-xs transition-colors cursor-pointer ${
+                        className={`px-3.5 py-2 rounded-xl border text-left text-xs transition-colors cursor-pointer ${
                           videoIdx === idx
-                            ? 'border-teal-600 bg-teal-50/70 dark:bg-teal-950/50 text-slate-900 dark:text-white'
-                            : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:border-slate-300'
+                            ? 'border-teal-500 bg-teal-50/75 dark:bg-[#0B1437] text-slate-900 dark:text-white'
+                            : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-slate-300'
                         }`}
                       >
-                        <p className="font-semibold truncate max-w-[200px]">{v.title}</p>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400 tabular-nums">
+                        <p className="font-bold truncate max-w-[200px]">{v.title}</p>
+                        <p className="text-xs font-medium text-slate-500 dark:text-slate-400 tabular-nums">
                           {v.sourceType === 'clip'
                             ? `Clip (${formatDurationLabel(v.durationSec)})`
                             : 'Lien vidéo'}
@@ -811,7 +811,7 @@ export function ListingDetailModal({
 
             <div>
               {listing.isVerifiedQolock && (
-                <div className="inline-flex items-center gap-1.5 text-xs font-medium text-teal-700 dark:text-teal-400 mb-2">
+                <div className="inline-flex items-center gap-1.5 text-xs font-bold text-teal-700 dark:text-teal-400 mb-2">
                   <CheckCircle2 className="w-4 h-4" />
                   <span>Logement vérifié physiquement par GidaColocs</span>
                 </div>
@@ -819,12 +819,12 @@ export function ListingDetailModal({
 
               <h2
                 id="listing-modal-title"
-                className="text-2xl font-bold text-slate-900 dark:text-white leading-tight"
+                className="text-2xl font-display font-extrabold text-slate-900 dark:text-white leading-tight tracking-tight"
               >
                 {listing.title}
               </h2>
 
-              <p className="mt-3 text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line">
+              <p className="mt-3 text-[15px] font-medium text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line">
                 {listing.description || 'Aucune description détaillée renseignée.'}
               </p>
             </div>
@@ -832,20 +832,20 @@ export function ListingDetailModal({
             {/* Real Estate Characteristics Grid */}
             <div className="pt-4 border-t border-slate-200 dark:border-slate-800 grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Loyer mensuel</p>
-                <p className="font-bold text-slate-900 dark:text-white tabular-nums mt-0.5">
+                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Loyer mensuel</p>
+                <p className="font-extrabold text-slate-900 dark:text-white tabular-nums mt-0.5">
                   {formatFcfa(listing.priceFcfa)}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Caution / Avance</p>
-                <p className="font-semibold text-slate-900 dark:text-white tabular-nums mt-0.5">
+                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Caution / Avance</p>
+                <p className="font-bold text-slate-900 dark:text-white tabular-nums mt-0.5">
                   {listing.depositMonths === 0 ? 'Aucune' : `${listing.depositMonths} mois`}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Pièces / Places</p>
-                <p className="font-semibold text-slate-900 dark:text-white tabular-nums mt-0.5">
+                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Pièces / Places</p>
+                <p className="font-bold text-slate-900 dark:text-white tabular-nums mt-0.5">
                   {listing.roomsCount ? `${listing.roomsCount} pièce${listing.roomsCount > 1 ? 's' : ''} · ` : ''}
                   {listing.availableSpots} place{listing.availableSpots > 1 ? 's' : ''}
                 </p>
@@ -853,8 +853,8 @@ export function ListingDetailModal({
 
               {listing.locationDetails && (
                 <div className="col-span-2 sm:col-span-3">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Localisation</p>
-                  <p className="font-semibold text-slate-900 dark:text-white mt-0.5">
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Localisation</p>
+                  <p className="font-bold text-slate-900 dark:text-white mt-0.5">
                     {listing.neighborhood} — {listing.locationDetails}
                   </p>
                 </div>
@@ -862,8 +862,8 @@ export function ListingDetailModal({
 
               {listing.availability && (
                 <div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Disponibilité</p>
-                  <p className="font-semibold text-teal-700 dark:text-teal-400 mt-0.5">
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Disponibilité</p>
+                  <p className="font-bold text-teal-700 dark:text-teal-400 mt-0.5">
                     {listing.availability}
                   </p>
                 </div>
@@ -871,8 +871,8 @@ export function ListingDetailModal({
 
               {listing.bathroomType && (
                 <div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Douche</p>
-                  <p className="font-semibold text-slate-900 dark:text-white mt-0.5">
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Douche</p>
+                  <p className="font-bold text-slate-900 dark:text-white mt-0.5">
                     {BATHROOM_LABELS[listing.bathroomType]}
                   </p>
                 </div>
@@ -880,8 +880,8 @@ export function ListingDetailModal({
 
               {listing.toiletType && (
                 <div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Toilettes / WC</p>
-                  <p className="font-semibold text-slate-900 dark:text-white mt-0.5">
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Toilettes / WC</p>
+                  <p className="font-bold text-slate-900 dark:text-white mt-0.5">
                     {TOILET_LABELS[listing.toiletType]}
                   </p>
                 </div>
@@ -889,8 +889,8 @@ export function ListingDetailModal({
 
               {listing.surfaceSqm && listing.surfaceSqm > 0 ? (
                 <div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Surface estimée</p>
-                  <p className="font-semibold text-slate-900 dark:text-white tabular-nums mt-0.5">
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Surface estimée</p>
+                  <p className="font-bold text-slate-900 dark:text-white tabular-nums mt-0.5">
                     {listing.surfaceSqm} m²
                   </p>
                 </div>
@@ -898,8 +898,8 @@ export function ListingDetailModal({
 
               {listing.furnished && (
                 <div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Ameublement</p>
-                  <p className="font-semibold text-slate-900 dark:text-white mt-0.5">
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Ameublement</p>
+                  <p className="font-bold text-slate-900 dark:text-white mt-0.5">
                     {FURNISHED_LABELS[listing.furnished]}
                   </p>
                 </div>
@@ -907,8 +907,8 @@ export function ListingDetailModal({
 
               {listing.waterElectricity && (
                 <div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Eau & Électricité</p>
-                  <p className="font-semibold text-slate-900 dark:text-white mt-0.5">
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Eau & Électricité</p>
+                  <p className="font-bold text-slate-900 dark:text-white mt-0.5">
                     {UTILITY_LABELS[listing.waterElectricity]}
                   </p>
                 </div>
@@ -916,8 +916,8 @@ export function ListingDetailModal({
 
               {listing.roommatePreference && (
                 <div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Profil souhaité</p>
-                  <p className="font-semibold text-slate-900 dark:text-white mt-0.5">
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Profil souhaité</p>
+                  <p className="font-bold text-slate-900 dark:text-white mt-0.5">
                     {ROOMMATE_PREFERENCE_LABELS[listing.roommatePreference]}
                   </p>
                 </div>
@@ -926,19 +926,19 @@ export function ListingDetailModal({
 
             {listing.houseRules && (
               <div className="pt-4 border-t border-slate-200 dark:border-slate-800">
-                <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5">
+                <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">
                   Règles de vie & conditions du bail
                 </h3>
-                <p className="text-sm text-slate-700 dark:text-slate-300">{listing.houseRules}</p>
+                <p className="text-sm font-medium text-slate-700 dark:text-slate-300 leading-relaxed">{listing.houseRules}</p>
               </div>
             )}
 
             {listing.amenities.length > 0 && (
               <div className="pt-4 border-t border-slate-200 dark:border-slate-800">
-                <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2">
+                <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-2">
                   Équipements & atouts immobiliers
                 </h3>
-                <p className="text-sm text-slate-800 dark:text-slate-200">
+                <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">
                   {listing.amenities.join(' · ')}
                 </p>
               </div>
@@ -947,15 +947,15 @@ export function ListingDetailModal({
             {/* Espace de rencontre des futurs colocataires pour ce logement */}
             {showColocMeetingSpace && (
               <div className="pt-5 border-t border-slate-200 dark:border-slate-800 space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                   <div>
-                    <h3 className="text-sm font-bold text-[#0A2540] dark:text-white flex items-center gap-2">
+                    <h3 className="text-sm font-display font-bold text-[#0B1437] dark:text-white flex items-center gap-2">
                       <Users className="w-4 h-4 text-teal-600 dark:text-teal-400" />
                       <span>
                         Espace Rencontre Colocataires ({colocInterests.length})
                       </span>
                     </h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    <p className="text-[13px] font-medium text-slate-500 dark:text-slate-400 mt-0.5">
                       Faites connaissance avec les personnes souhaitant partager ce logement.
                     </p>
                   </div>
@@ -964,7 +964,7 @@ export function ListingDetailModal({
                     <button
                       type="button"
                       onClick={openAuthModal}
-                      className="px-3 py-1.5 text-xs font-semibold text-teal-800 dark:text-teal-300 border border-teal-300 dark:border-teal-800 rounded-lg cursor-pointer self-start"
+                      className="min-h-[40px] px-3.5 py-2 text-xs font-bold text-teal-800 dark:text-teal-300 border border-teal-300 dark:border-teal-800 hover:bg-teal-50 dark:hover:bg-teal-950/40 rounded-xl cursor-pointer self-start"
                     >
                       Se connecter pour se présenter
                     </button>
@@ -973,7 +973,7 @@ export function ListingDetailModal({
                       <button
                         type="button"
                         onClick={handleOpenInterestForm}
-                        className="px-3 py-1.5 text-xs font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-lg cursor-pointer self-start"
+                        className="min-h-[40px] px-3.5 py-2 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-xl cursor-pointer self-start"
                       >
                         {myInterest ? 'Modifier ma présentation' : 'Me présenter pour partager'}
                       </button>
@@ -984,10 +984,10 @@ export function ListingDetailModal({
                 {showInterestForm && user && (
                   <form
                     onSubmit={handleSaveInterest}
-                    className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 space-y-3"
+                    className="p-4 rounded-2xl border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-[#0B1437] space-y-3"
                   >
                     {interestError && (
-                      <p className="text-xs text-red-600 dark:text-red-400">{interestError}</p>
+                      <p className="text-[13px] font-medium text-red-600 dark:text-red-400">{interestError}</p>
                     )}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <input
@@ -997,7 +997,7 @@ export function ListingDetailModal({
                         value={interestOccupation}
                         onChange={(e) => setInterestOccupation(e.target.value)}
                         placeholder="Statut (ex. Étudiant UDM L2)"
-                        className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                        className="w-full min-h-[44px] px-3.5 py-2 text-sm font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
                       />
                       <input
                         type="number"
@@ -1007,7 +1007,7 @@ export function ListingDetailModal({
                         value={interestBudget}
                         onChange={(e) => setInterestBudget(e.target.value)}
                         placeholder="Budget (FCFA)"
-                        className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white tabular-nums"
+                        className="w-full min-h-[44px] px-3.5 py-2 text-sm font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white tabular-nums focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
                       />
                     </div>
                     <input
@@ -1017,7 +1017,7 @@ export function ListingDetailModal({
                       value={interestHabits}
                       onChange={(e) => setInterestHabits(e.target.value)}
                       placeholder="Habitudes (ex. Calme, non-fumeur, propre)"
-                      className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                      className="w-full min-h-[44px] px-3.5 py-2 text-sm font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
                     />
                     <textarea
                       rows={2}
@@ -1026,20 +1026,20 @@ export function ListingDetailModal({
                       value={interestMsg}
                       onChange={(e) => setInterestMsg(e.target.value)}
                       placeholder="Présentez-vous aux autres futurs colocataires..."
-                      className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                      className="w-full px-3.5 py-2.5 text-sm font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
                     />
-                    <div className="flex items-center justify-end gap-2">
+                    <div className="flex items-center justify-end gap-2.5">
                       <button
                         type="button"
                         onClick={() => setShowInterestForm(false)}
-                        className="px-3 py-1.5 text-xs text-slate-600 dark:text-slate-300 cursor-pointer"
+                        className="min-h-[40px] px-3.5 py-1.5 text-xs font-bold text-slate-600 dark:text-slate-300 cursor-pointer"
                       >
                         Annuler
                       </button>
                       <button
                         type="submit"
                         disabled={savingInterest}
-                        className="px-3.5 py-1.5 text-xs font-semibold text-white bg-[#0A2540] hover:bg-slate-800 rounded-lg cursor-pointer"
+                        className="min-h-[40px] px-4 py-1.5 text-xs font-bold text-white bg-[#0B1437] hover:bg-slate-800 dark:bg-[#93A3FF] dark:text-[#0B1437] dark:hover:bg-[#A6B3FF] rounded-xl cursor-pointer"
                       >
                         {savingInterest ? 'Envoi...' : 'Soumettre pour validation'}
                       </button>
@@ -1048,15 +1048,15 @@ export function ListingDetailModal({
                 )}
 
                 {interestNotice && (
-                  <div className="p-3 rounded-lg border border-emerald-200 dark:border-emerald-900/60 bg-emerald-50 dark:bg-emerald-950/40 text-xs text-emerald-700 dark:text-emerald-300">
+                  <div className="p-3.5 rounded-xl border border-emerald-200 dark:border-emerald-900/60 bg-emerald-50 dark:bg-emerald-950/40 text-[13px] font-medium text-emerald-700 dark:text-emerald-300">
                     {interestNotice}
                   </div>
                 )}
 
                 {myInterest && (myInterest.moderationStatus || 'pending') !== 'approved' && (
-                  <div className="p-3.5 rounded-xl border border-amber-200 dark:border-amber-900/60 bg-amber-50/70 dark:bg-amber-950/30 text-xs space-y-1.5">
+                  <div className="p-4 rounded-xl border border-amber-200 dark:border-amber-900/60 bg-amber-50/75 dark:bg-amber-950/30 text-[13px] space-y-1.5">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="font-semibold text-amber-900 dark:text-amber-200">
+                      <span className="font-bold text-amber-900 dark:text-amber-200">
                         Ma candidature colocation ·{' '}
                         {CONTENT_MODERATION_LABELS[myInterest.moderationStatus || 'pending']}
                       </span>
@@ -1064,14 +1064,14 @@ export function ListingDetailModal({
                         type="button"
                         onClick={() => void handleRemoveInterest()}
                         aria-label="Retirer ma demande"
-                        className="p-1 text-slate-400 hover:text-red-600 cursor-pointer"
+                        className="p-1.5 text-slate-400 hover:text-red-600 cursor-pointer"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
-                    <p className="text-slate-700 dark:text-slate-300">{myInterest.message}</p>
+                    <p className="font-medium text-slate-700 dark:text-slate-300">{myInterest.message}</p>
                     {myInterest.moderationReason && (
-                      <p className="text-[11px] text-amber-800 dark:text-amber-300">
+                      <p className="text-xs font-semibold text-amber-800 dark:text-amber-300">
                         Message administrateur : {myInterest.moderationReason}
                       </p>
                     )}
@@ -1079,28 +1079,28 @@ export function ListingDetailModal({
                 )}
 
                 {colocInterests.length === 0 ? (
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                  <p className="text-[13px] font-medium text-slate-500 dark:text-slate-400">
                     Aucun candidat approuvé ne s’est encore présenté pour ce logement.
                   </p>
                 ) : (
-                  <div className="divide-y divide-slate-200 dark:divide-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+                  <div className="divide-y divide-slate-200 dark:divide-slate-800 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden">
                     {colocInterests.map((c) => (
-                      <div key={c.id} className="p-4 bg-white dark:bg-slate-900 space-y-1.5">
+                      <div key={c.id} className="p-4 bg-white dark:bg-[#0B1437]/50 space-y-1.5">
                         <div className="flex items-center justify-between gap-2">
-                          <div className="text-xs">
-                            <span className="font-semibold text-slate-900 dark:text-white">
+                          <div className="text-[13px]">
+                            <span className="font-bold text-slate-900 dark:text-white">
                               {c.userName}
                             </span>
                             <span className="text-slate-400 mx-1.5" aria-hidden="true">
                               ·
                             </span>
-                            <span className="text-teal-700 dark:text-teal-400 font-medium">
+                            <span className="text-teal-700 dark:text-teal-400 font-semibold">
                               {c.occupation}
                             </span>
                             <span className="text-slate-400 mx-1.5" aria-hidden="true">
                               ·
                             </span>
-                            <span className="tabular-nums text-slate-600 dark:text-slate-300">
+                            <span className="tabular-nums font-medium text-slate-600 dark:text-slate-300">
                               Budget {formatFcfa(c.budgetFcfa)}
                             </span>
                           </div>
@@ -1109,14 +1109,14 @@ export function ListingDetailModal({
                               type="button"
                               onClick={() => void handleRemoveInterest()}
                               aria-label="Retirer cette présentation"
-                              className="p-1 text-slate-400 hover:text-red-600 cursor-pointer"
+                              className="p-1.5 text-slate-400 hover:text-red-600 cursor-pointer"
                             >
-                              <Trash2 className="w-3.5 h-3.5" />
+                              <Trash2 className="w-4 h-4" />
                             </button>
                           )}
                         </div>
-                        <p className="text-xs text-slate-600 dark:text-slate-300">{c.message}</p>
-                        <p className="text-[11px] text-slate-400">Habitudes : {c.habits}</p>
+                        <p className="text-[13px] font-medium text-slate-600 dark:text-slate-300">{c.message}</p>
+                        <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Habitudes : {c.habits}</p>
                       </div>
                     ))}
                   </div>
@@ -1126,15 +1126,15 @@ export function ListingDetailModal({
 
             {/* Avis et commentaires publics (soumis à validation administrateur) */}
             <div className="pt-5 border-t border-slate-200 dark:border-slate-800 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                 <div>
-                  <h3 className="text-sm font-bold text-[#0A2540] dark:text-white flex items-center gap-2">
+                  <h3 className="text-sm font-display font-bold text-[#0B1437] dark:text-white flex items-center gap-2">
                     <Star className="w-4 h-4 text-amber-500" />
                     <span>
                       Avis & commentaires publics ({publicReviews.length})
                     </span>
                   </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  <p className="text-[13px] font-medium text-slate-500 dark:text-slate-400 mt-0.5">
                     Les avis publiés sont modérés par l’administrateur avant affichage.
                   </p>
                 </div>
@@ -1143,7 +1143,7 @@ export function ListingDetailModal({
                   <button
                     type="button"
                     onClick={openAuthModal}
-                    className="px-3 py-1.5 text-xs font-semibold text-teal-800 dark:text-teal-300 border border-teal-300 dark:border-teal-800 rounded-lg cursor-pointer self-start"
+                    className="min-h-[40px] px-3.5 py-2 text-xs font-bold text-teal-800 dark:text-teal-300 border border-teal-300 dark:border-teal-800 hover:bg-teal-50 dark:hover:bg-teal-950/40 rounded-xl cursor-pointer self-start"
                   >
                     Se connecter pour laisser un avis
                   </button>
@@ -1158,7 +1158,7 @@ export function ListingDetailModal({
                         setReviewError(null);
                         setShowReviewForm(true);
                       }}
-                      className="px-3 py-1.5 text-xs font-semibold text-white bg-[#0A2540] hover:bg-slate-800 dark:bg-teal-600 dark:hover:bg-teal-700 rounded-lg cursor-pointer self-start"
+                      className="min-h-[40px] px-3.5 py-2 text-xs font-bold text-white bg-[#0B1437] hover:bg-slate-800 dark:bg-[#93A3FF] dark:text-[#0B1437] dark:hover:bg-[#A6B3FF] rounded-xl cursor-pointer self-start"
                     >
                       Laisser un avis
                     </button>
@@ -1167,7 +1167,7 @@ export function ListingDetailModal({
               </div>
 
               {reviewNotice && (
-                <div className="p-3 rounded-lg border border-emerald-200 dark:border-emerald-900/60 bg-emerald-50 dark:bg-emerald-950/40 text-xs text-emerald-700 dark:text-emerald-300">
+                <div className="p-3.5 rounded-xl border border-emerald-200 dark:border-emerald-900/60 bg-emerald-50 dark:bg-emerald-950/40 text-[13px] font-medium text-emerald-700 dark:text-emerald-300">
                   {reviewNotice}
                 </div>
               )}
@@ -1175,13 +1175,13 @@ export function ListingDetailModal({
               {showReviewForm && user && (
                 <form
                   onSubmit={handleSubmitReview}
-                  className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 space-y-3"
+                  className="p-4 rounded-2xl border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-[#0B1437] space-y-3"
                 >
                   {reviewError && (
-                    <p className="text-xs text-red-600 dark:text-red-400">{reviewError}</p>
+                    <p className="text-[13px] font-medium text-red-600 dark:text-red-400">{reviewError}</p>
                   )}
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">
                       Note :
                     </span>
                     <div className="flex items-center gap-1">
@@ -1191,7 +1191,7 @@ export function ListingDetailModal({
                           type="button"
                           onClick={() => setReviewRating(starVal)}
                           aria-label={`Noter ${starVal} sur 5`}
-                          className={`p-1 rounded cursor-pointer ${
+                          className={`p-1.5 rounded-lg cursor-pointer ${
                             starVal <= reviewRating
                               ? 'text-amber-500'
                               : 'text-slate-300 dark:text-slate-600'
@@ -1209,23 +1209,23 @@ export function ListingDetailModal({
                     value={reviewComment}
                     onChange={(e) => setReviewComment(e.target.value)}
                     placeholder="Partagez votre avis sur ce logement ou la visite..."
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                    className="w-full px-3.5 py-2.5 text-sm font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
                   />
-                  <div className="flex items-center justify-end gap-2">
+                  <div className="flex items-center justify-end gap-2.5">
                     <button
                       type="button"
                       onClick={() => {
                         setShowReviewForm(false);
                         setEditingReviewId(null);
                       }}
-                      className="px-3 py-1.5 text-xs text-slate-600 dark:text-slate-300 cursor-pointer"
+                      className="min-h-[40px] px-3.5 py-1.5 text-xs font-bold text-slate-600 dark:text-slate-300 cursor-pointer"
                     >
                       Annuler
                     </button>
                     <button
                       type="submit"
                       disabled={savingReview || !reviewComment.trim()}
-                      className="px-3.5 py-1.5 text-xs font-semibold text-white bg-teal-600 hover:bg-teal-700 disabled:opacity-50 rounded-lg cursor-pointer"
+                      className="min-h-[40px] px-4 py-1.5 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 disabled:opacity-50 rounded-xl cursor-pointer"
                     >
                       {savingReview ? 'Envoi...' : 'Soumettre l’avis'}
                     </button>
@@ -1234,16 +1234,16 @@ export function ListingDetailModal({
               )}
 
               {myPendingOrRejectedReviews.length > 0 && (
-                <div className="space-y-2">
+                <div className="space-y-2.5">
                   {myPendingOrRejectedReviews.map((rev) => {
                     const modStatus = rev.moderationStatus || 'pending';
                     return (
                       <div
                         key={rev.id}
-                        className="p-3.5 rounded-xl border border-amber-200 dark:border-amber-900/60 bg-amber-50/70 dark:bg-amber-950/30 text-xs space-y-1.5"
+                        className="p-4 rounded-xl border border-amber-200 dark:border-amber-900/60 bg-amber-50/75 dark:bg-amber-950/30 text-[13px] space-y-1.5"
                       >
                         <div className="flex items-center justify-between gap-2">
-                          <span className="font-semibold text-amber-900 dark:text-amber-200">
+                          <span className="font-bold text-amber-900 dark:text-amber-200">
                             Mon avis · {CONTENT_MODERATION_LABELS[modStatus]} · {rev.rating}/5
                           </span>
                           <div className="flex items-center gap-2">
@@ -1255,7 +1255,7 @@ export function ListingDetailModal({
                                 setReviewComment(rev.comment);
                                 setShowReviewForm(true);
                               }}
-                              className="text-[11px] font-semibold text-teal-700 dark:text-teal-300 hover:underline cursor-pointer"
+                              className="text-xs font-bold text-teal-700 dark:text-teal-300 hover:underline cursor-pointer"
                             >
                               Modifier
                             </button>
@@ -1263,15 +1263,15 @@ export function ListingDetailModal({
                               type="button"
                               onClick={() => void handleDeleteReview(rev.id)}
                               aria-label="Supprimer mon avis"
-                              className="p-1 text-slate-400 hover:text-red-600 cursor-pointer"
+                              className="p-1.5 text-slate-400 hover:text-red-600 cursor-pointer"
                             >
-                              <Trash2 className="w-3.5 h-3.5" />
+                              <Trash2 className="w-4 h-4" />
                             </button>
                           </div>
                         </div>
-                        <p className="text-slate-700 dark:text-slate-300">{rev.comment}</p>
+                        <p className="font-medium text-slate-700 dark:text-slate-300">{rev.comment}</p>
                         {rev.moderationReason && (
-                          <p className="text-[11px] text-amber-800 dark:text-amber-300">
+                          <p className="text-xs font-semibold text-amber-800 dark:text-amber-300">
                             Motif administrateur : {rev.moderationReason}
                           </p>
                         )}
@@ -1282,24 +1282,24 @@ export function ListingDetailModal({
               )}
 
               {publicReviews.length === 0 ? (
-                <p className="text-xs text-slate-500 dark:text-slate-400">
+                <p className="text-[13px] font-medium text-slate-500 dark:text-slate-400">
                   Aucun avis public approuvé pour ce logement pour le moment.
                 </p>
               ) : (
-                <div className="divide-y divide-slate-200 dark:divide-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+                <div className="divide-y divide-slate-200 dark:divide-slate-800 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden">
                   {publicReviews.map((rev) => (
-                    <div key={rev.id} className="p-4 bg-white dark:bg-slate-900 space-y-1">
-                      <div className="flex items-center justify-between gap-2 text-xs">
+                    <div key={rev.id} className="p-4 bg-white dark:bg-[#0B1437]/50 space-y-1">
+                      <div className="flex items-center justify-between gap-2 text-[13px]">
                         <div className="flex items-center gap-2">
-                          <span className="font-semibold text-slate-900 dark:text-white">
+                          <span className="font-bold text-slate-900 dark:text-white">
                             {rev.authorName}
                           </span>
-                          <span className="text-amber-500 font-semibold tabular-nums">
+                          <span className="text-amber-500 font-bold tabular-nums">
                             {rev.rating}/5 ★
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-[11px] text-slate-400 tabular-nums">
+                          <span className="text-xs font-medium text-slate-500 dark:text-slate-400 tabular-nums">
                             {formatTimestamp(rev.createdAt)}
                           </span>
                           {user && (user.uid === rev.authorId || isAdmin) && (
@@ -1309,12 +1309,12 @@ export function ListingDetailModal({
                               aria-label="Supprimer cet avis"
                               className="p-1 text-slate-400 hover:text-red-600 cursor-pointer"
                             >
-                              <Trash2 className="w-3.5 h-3.5" />
+                              <Trash2 className="w-4 h-4" />
                             </button>
                           )}
                         </div>
                       </div>
-                      <p className="text-xs text-slate-600 dark:text-slate-300">{rev.comment}</p>
+                      <p className="text-[13px] font-medium text-slate-600 dark:text-slate-300">{rev.comment}</p>
                     </div>
                   ))}
                 </div>
@@ -1325,24 +1325,24 @@ export function ListingDetailModal({
           {/* Right: WhatsApp Support, Pass Visite & Unlocked Contact */}
           <div className="lg:col-span-5 space-y-5">
             {/* Direct WhatsApp Assistance */}
-            <div className="p-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 space-y-4">
+            <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-[#0B1437] space-y-4">
               <div>
-                <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                   {isSharedListingType(listing.propertyType)
                     ? 'Part mensuelle estimée'
                     : 'Loyer mensuel'}
                 </p>
-                <p className="text-2xl font-bold text-[#0A2540] dark:text-white tabular-nums">
+                <p className="text-2xl font-display font-extrabold text-[#0B1437] dark:text-white tabular-nums mt-0.5">
                   {formatFcfa(listing.priceFcfa)}
                 </p>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 <a
                   href={whatsappUrlPrimary}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors tabular-nums"
+                  className="w-full min-h-[46px] inline-flex items-center justify-center gap-2 px-4 py-2.5 text-[13px] sm:text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors tabular-nums"
                 >
                   <MessageCircle className="w-4 h-4 shrink-0" />
                   <span>Assistance WhatsApp ({config.whatsappNumber || '2290157382961'})</span>
@@ -1352,9 +1352,9 @@ export function ListingDetailModal({
                     href={whatsappUrlSecondary}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 text-xs font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-950/70 rounded-lg transition-colors tabular-nums"
+                    className="w-full min-h-[44px] inline-flex items-center justify-center gap-2 px-4 py-2 text-[13px] font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-950/70 rounded-xl transition-colors tabular-nums"
                   >
-                    <MessageCircle className="w-3.5 h-3.5 shrink-0" />
+                    <MessageCircle className="w-4 h-4 shrink-0" />
                     <span>WhatsApp Niger ({whatsappSecondary})</span>
                   </a>
                 )}
@@ -1367,7 +1367,7 @@ export function ListingDetailModal({
                     <CheckCircle2 className="w-4 h-4 shrink-0" />
                     <span>Location officiellement confirmée</span>
                   </div>
-                  <p className="text-xs text-emerald-950 dark:text-emerald-100 leading-relaxed">
+                  <p className="text-[13px] font-medium text-emerald-950 dark:text-emerald-100 leading-relaxed">
                     {rentalConfirmation.welcomeMessage}
                   </p>
                   <div className="flex flex-col gap-2">
@@ -1375,7 +1375,7 @@ export function ListingDetailModal({
                       href={config.whatsappGroupUrl || OFFICIAL_WHATSAPP_GROUP_URL}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors text-center"
+                      className="w-full min-h-[44px] inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors text-center"
                     >
                       <MessageCircle className="w-4 h-4 shrink-0" />
                       <span>REJOINDRE NOTRE COMMUNAUTÉ WHATSAPP</span>
@@ -1384,7 +1384,7 @@ export function ListingDetailModal({
                       <button
                         type="button"
                         onClick={() => onOpenRentalConfirmation(rentalConfirmation)}
-                        className="w-full px-3 py-1.5 text-[11px] font-semibold text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 rounded-lg cursor-pointer"
+                        className="w-full min-h-[40px] px-3 py-1.5 text-xs font-bold text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 rounded-xl cursor-pointer"
                       >
                         Voir ma confirmation de location
                       </button>
@@ -1396,10 +1396,10 @@ export function ListingDetailModal({
               {/* Status notices for reserved / rented listings */}
               {(listing.status === 'reserved' || listing.status === 'rented') && (
                 <div
-                  className={`p-3.5 rounded-lg border text-xs leading-relaxed ${
+                  className={`p-3.5 rounded-xl border text-[13px] font-medium leading-relaxed ${
                     listing.status === 'reserved'
                       ? 'border-amber-200 dark:border-amber-900/60 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300'
-                      : 'border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300'
+                      : 'border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-[#0F172A] text-slate-700 dark:text-slate-300'
                   }`}
                 >
                   {listing.status === 'reserved' ? (
@@ -1419,34 +1419,34 @@ export function ListingDetailModal({
 
               {/* Unlocked Contact vs Pass Visite Flow */}
               {hasUnlockedContact ? (
-                <div className="p-4 rounded-lg border border-teal-200 dark:border-teal-800 bg-teal-50/70 dark:bg-teal-950/40 space-y-1.5">
-                  <div className="flex items-center gap-1.5 text-xs font-semibold text-teal-800 dark:text-teal-300">
+                <div className="p-4 rounded-xl border border-teal-200 dark:border-teal-800 bg-teal-50/75 dark:bg-teal-950/40 space-y-1.5">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-teal-800 dark:text-teal-300">
                     <ShieldCheck className="w-4 h-4" />
                     <span>Contact bailleur débloqué</span>
                   </div>
                   {loadingContact ? (
-                    <p className="text-xs text-slate-500">Chargement des coordonnées...</p>
+                    <p className="text-[13px] font-medium text-slate-500">Chargement des coordonnées...</p>
                   ) : contactError ? (
-                    <p className="text-xs text-red-600 dark:text-red-400">{contactError}</p>
+                    <p className="text-[13px] font-medium text-red-600 dark:text-red-400">{contactError}</p>
                   ) : privateContact ? (
                     <>
-                      <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                      <p className="text-sm font-bold text-slate-900 dark:text-white">
                         {privateContact.contactName || listing.ownerName}
                       </p>
-                      <p className="text-sm font-mono font-semibold text-[#0A2540] dark:text-teal-200 flex items-center gap-1.5">
+                      <p className="text-sm font-mono font-bold text-[#0B1437] dark:text-teal-200 flex items-center gap-1.5">
                         <Phone className="w-3.5 h-3.5" />
                         <span>{privateContact.contactPhone || 'Voir support WhatsApp'}</span>
                       </p>
                     </>
                   ) : (
-                    <p className="text-xs text-slate-600 dark:text-slate-300">
+                    <p className="text-[13px] font-medium text-slate-600 dark:text-slate-300">
                       Contact disponible auprès du support WhatsApp.
                     </p>
                   )}
                 </div>
               ) : (
-                <div className="pt-3 border-t border-slate-200 dark:border-slate-800 space-y-3">
-                  <div className="flex items-start gap-2 text-xs text-slate-600 dark:text-slate-300">
+                <div className="pt-3.5 border-t border-slate-200 dark:border-slate-700/80 space-y-3">
+                  <div className="flex items-start gap-2.5 text-[13px] font-medium text-slate-600 dark:text-slate-300 leading-relaxed">
                     <Lock className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
                     <span>
                       Le numéro direct du bailleur est protégé contre les arnaques. Obtenez un{' '}
@@ -1456,18 +1456,18 @@ export function ListingDetailModal({
                   </div>
 
                   {existingOrder && (
-                    <div className="p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs space-y-2">
+                    <div className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0F172A] text-[13px] space-y-2">
                       <div className="flex items-center justify-between gap-2">
-                        <p className="font-semibold text-slate-800 dark:text-slate-200">
+                        <p className="font-bold text-slate-800 dark:text-slate-200">
                           Pass visite : {ORDER_STATUS_LABELS[existingOrder.status]}
                         </p>
                         {existingOrder.receiptNumber && (
-                          <span className="text-[11px] font-mono text-teal-700 dark:text-teal-400">
+                          <span className="text-xs font-mono font-semibold text-teal-700 dark:text-teal-400">
                             {existingOrder.receiptNumber}
                           </span>
                         )}
                       </div>
-                      <p className="text-slate-500 dark:text-slate-400 tabular-nums">
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 tabular-nums">
                         {existingOrder.paymentMethod} · Réf : {existingOrder.transactionRef}
                         {existingOrder.beneficiaryPhone
                           ? ` → ${existingOrder.beneficiaryPhone}`
@@ -1475,11 +1475,11 @@ export function ListingDetailModal({
                       </p>
                       {(existingOrder.rejectionReason || existingOrder.adminNote) && (
                         <p
-                          className={
+                          className={`text-xs font-medium ${
                             existingOrder.status === 'rejected' || existingOrder.status === 'failed'
                               ? 'text-red-600 dark:text-red-400'
                               : 'text-slate-600 dark:text-slate-300'
-                          }
+                          }`}
                         >
                           {existingOrder.rejectionReason || existingOrder.adminNote}
                         </p>
@@ -1488,7 +1488,7 @@ export function ListingDetailModal({
                         <button
                           type="button"
                           onClick={() => downloadPaymentReceipt(existingOrder)}
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] font-semibold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800 rounded-lg cursor-pointer"
+                          className="min-h-[38px] inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800 rounded-xl cursor-pointer"
                         >
                           <Download className="w-3.5 h-3.5" />
                           <span>Télécharger mon reçu</span>
@@ -1498,7 +1498,7 @@ export function ListingDetailModal({
                   )}
 
                   {orderMessage && (
-                    <div className="p-3 rounded-lg border border-emerald-200 dark:border-emerald-900/60 bg-emerald-50 dark:bg-emerald-950/40 text-xs text-emerald-700 dark:text-emerald-300">
+                    <div className="p-3.5 rounded-xl border border-emerald-200 dark:border-emerald-900/60 bg-emerald-50 dark:bg-emerald-950/40 text-[13px] font-medium text-emerald-700 dark:text-emerald-300">
                       {orderMessage}
                     </div>
                   )}
@@ -1508,7 +1508,7 @@ export function ListingDetailModal({
                       <button
                         type="button"
                         onClick={openAuthModal}
-                        className="w-full px-4 py-2.5 text-sm font-semibold text-white bg-[#0A2540] hover:bg-slate-800 rounded-lg cursor-pointer"
+                        className="w-full min-h-[48px] px-4 py-2.5 text-sm font-bold text-white bg-[#0B1437] hover:bg-slate-800 dark:bg-[#93A3FF] dark:text-[#0B1437] dark:hover:bg-[#A6B3FF] rounded-xl cursor-pointer"
                       >
                         Se connecter pour demander une visite
                       </button>
@@ -1516,7 +1516,7 @@ export function ListingDetailModal({
                       <button
                         type="button"
                         onClick={() => setShowPassForm(true)}
-                        className="w-full px-4 py-2.5 text-sm font-semibold text-white bg-[#0A2540] hover:bg-slate-800 dark:bg-teal-600 dark:hover:bg-teal-700 rounded-lg cursor-pointer"
+                        className="w-full min-h-[48px] px-4 py-2.5 text-sm font-bold text-white bg-[#0B1437] hover:bg-slate-800 dark:bg-[#93A3FF] dark:text-[#0B1437] dark:hover:bg-[#A6B3FF] rounded-xl cursor-pointer"
                       >
                         Acheter un Pass visite ({formatFcfa(config.visitPassPrice)})
                       </button>
@@ -1531,16 +1531,16 @@ export function ListingDetailModal({
                 return (
                   <form
                     onSubmit={handleSubmitPassOrder}
-                    className="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-3"
+                    className="pt-4 border-t border-slate-200 dark:border-slate-700/80 space-y-3.5"
                   >
-                    <div className="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300 space-y-1.5">
-                      <p className="font-semibold text-slate-900 dark:text-white tabular-nums">
+                    <div className="p-3.5 rounded-xl bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-700/80 text-[13px] text-slate-600 dark:text-slate-300 space-y-1.5">
+                      <p className="font-bold text-slate-900 dark:text-white tabular-nums">
                         Montant à régler : {formatFcfa(config.visitPassPrice)}
                       </p>
-                      <p className="text-[11px] leading-relaxed text-slate-600 dark:text-slate-300">
+                      <p className="text-xs font-medium leading-relaxed text-slate-600 dark:text-slate-300">
                         {paymentDetails.steps}
                       </p>
-                      <div className="pt-1.5 border-t border-slate-100 dark:border-slate-800 space-y-0.5 text-[11px] tabular-nums">
+                      <div className="pt-1.5 border-t border-slate-100 dark:border-slate-800 space-y-0.5 text-xs font-medium tabular-nums">
                         <p>
                           Airtel Money / NITA :{' '}
                           <strong>{config.airtelNumber || '+22776688125'}</strong>
@@ -1552,7 +1552,7 @@ export function ListingDetailModal({
                       </div>
                     </div>
 
-                    <div className="p-2.5 rounded-lg bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 text-[11px] text-amber-900 dark:text-amber-200 flex items-start gap-2">
+                    <div className="p-3 rounded-xl bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 text-xs font-medium text-amber-900 dark:text-amber-200 flex items-start gap-2">
                       <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5" />
                       <span>
                         Ne saisissez jamais votre code PIN Mobile Money ici. GidaColocs vérifie
@@ -1561,17 +1561,17 @@ export function ListingDetailModal({
                     </div>
 
                     {orderError && (
-                      <p className="text-xs text-red-600 dark:text-red-400">{orderError}</p>
+                      <p className="text-[13px] font-medium text-red-600 dark:text-red-400">{orderError}</p>
                     )}
 
                     <div>
-                      <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                         Moyen de paiement utilisé
                       </label>
                       <select
                         value={paymentMethod}
                         onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
-                        className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                        className="w-full min-h-[46px] px-3.5 py-2.5 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
                       >
                         {PAYMENT_METHODS.map((pm) => (
                           <option key={pm} value={pm}>
@@ -1582,7 +1582,7 @@ export function ListingDetailModal({
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                         Votre numéro payeur (WhatsApp / Téléphone)
                       </label>
                       <input
@@ -1592,12 +1592,12 @@ export function ListingDetailModal({
                         value={userPhone}
                         onChange={(e) => setUserPhone(e.target.value)}
                         placeholder="70000000"
-                        className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                        className="w-full min-h-[46px] px-3.5 py-2.5 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                         Référence / ID de transaction
                       </label>
                       <input
@@ -1607,35 +1607,35 @@ export function ListingDetailModal({
                         value={transactionRef}
                         onChange={(e) => setTransactionRef(e.target.value)}
                         placeholder="Ex. MP261118.1430.A12345"
-                        className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                        className="w-full min-h-[46px] px-3.5 py-2.5 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                         Capture d’écran du paiement (facultatif)
                       </label>
                       {proofImage ? (
-                        <div className="flex items-center gap-3 p-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+                        <div className="flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0F172A]">
                           <img
                             src={proofImage}
                             alt="Preuve de paiement"
-                            className="w-14 h-14 rounded object-cover border border-slate-200 dark:border-slate-700"
+                            className="w-14 h-14 rounded-lg object-cover border border-slate-200 dark:border-slate-700"
                           />
-                          <div className="flex-1 min-w-0 text-[11px] text-slate-600 dark:text-slate-300">
+                          <div className="flex-1 min-w-0 text-xs font-semibold text-slate-600 dark:text-slate-300">
                             Capture jointe prête à être vérifiée.
                           </div>
                           <button
                             type="button"
                             onClick={() => setProofImage('')}
-                            className="p-1 text-slate-400 hover:text-red-600 cursor-pointer"
+                            className="min-w-[36px] min-h-[36px] flex items-center justify-center text-slate-400 hover:text-red-600 cursor-pointer"
                             aria-label="Retirer la capture"
                           >
                             <X className="w-4 h-4" />
                           </button>
                         </div>
                       ) : (
-                        <label className="flex items-center justify-center gap-2 px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 border border-dashed border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-900 cursor-pointer">
+                        <label className="min-h-[46px] flex items-center justify-center gap-2 px-3.5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 border border-dashed border-slate-300 dark:border-slate-700 rounded-xl hover:bg-slate-100 dark:hover:bg-[#0F172A] cursor-pointer">
                           <ImagePlus className="w-4 h-4 text-teal-600 dark:text-teal-400" />
                           <span>
                             {uploadingProof
@@ -1654,29 +1654,29 @@ export function ListingDetailModal({
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                         Date souhaitée pour la visite
                       </label>
                       <input
                         type="date"
                         value={preferredDate}
                         onChange={(e) => setPreferredDate(e.target.value)}
-                        className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                        className="w-full min-h-[46px] px-3.5 py-2.5 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
                       />
                     </div>
 
-                    <div className="flex items-center justify-end gap-2 pt-1">
+                    <div className="flex items-center justify-end gap-2.5 pt-1">
                       <button
                         type="button"
                         onClick={() => setShowPassForm(false)}
-                        className="px-3 py-2 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-800 rounded-lg cursor-pointer"
+                        className="min-h-[44px] px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-800 rounded-xl cursor-pointer"
                       >
                         Annuler
                       </button>
                       <button
                         type="submit"
                         disabled={submittingOrder || uploadingProof}
-                        className="px-4 py-2 text-xs font-semibold text-white bg-teal-600 hover:bg-teal-700 disabled:opacity-60 rounded-lg cursor-pointer"
+                        className="min-h-[44px] px-5 py-2 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 disabled:opacity-60 rounded-xl cursor-pointer"
                       >
                         {submittingOrder ? 'Envoi...' : 'Envoyer la preuve'}
                       </button>
@@ -1687,9 +1687,9 @@ export function ListingDetailModal({
             </div>
 
             {/* Report Suspicious Listing */}
-            <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+            <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0F172A]">
               {reportMessage ? (
-                <p className="text-xs text-emerald-600 dark:text-emerald-400">{reportMessage}</p>
+                <p className="text-[13px] font-medium text-emerald-600 dark:text-emerald-400">{reportMessage}</p>
               ) : !showReportForm ? (
                 <button
                   type="button"
@@ -1700,23 +1700,23 @@ export function ListingDetailModal({
                       setShowReportForm(true);
                     }
                   }}
-                  className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 cursor-pointer"
+                  className="inline-flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 cursor-pointer"
                 >
-                  <Flag className="w-3.5 h-3.5" />
+                  <Flag className="w-4 h-4" />
                   <span>Signaler une annonce suspecte ou déjà louée</span>
                 </button>
               ) : (
                 <form onSubmit={handleSubmitReport} className="space-y-3">
-                  <p className="text-xs font-semibold text-slate-900 dark:text-white">
+                  <p className="text-[13px] font-bold text-slate-900 dark:text-white">
                     Signaler ce logement
                   </p>
                   {reportError && (
-                    <p className="text-xs text-red-600 dark:text-red-400">{reportError}</p>
+                    <p className="text-[13px] font-medium text-red-600 dark:text-red-400">{reportError}</p>
                   )}
                   <select
                     value={reportReason}
                     onChange={(e) => setReportReason(e.target.value as ReportReason)}
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
+                    className="w-full min-h-[44px] px-3.5 py-2 text-sm font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
                   >
                     {REPORT_REASONS.map((r) => (
                       <option key={r.value} value={r.value}>
@@ -1731,20 +1731,20 @@ export function ListingDetailModal({
                     value={reportDetails}
                     onChange={(e) => setReportDetails(e.target.value)}
                     placeholder="Précisez votre constat..."
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
+                    className="w-full px-3.5 py-2.5 text-sm font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
                   />
-                  <div className="flex items-center justify-end gap-2">
+                  <div className="flex items-center justify-end gap-2.5">
                     <button
                       type="button"
                       onClick={() => setShowReportForm(false)}
-                      className="px-3 py-1.5 text-xs text-slate-600 dark:text-slate-300 cursor-pointer"
+                      className="min-h-[40px] px-3.5 py-1.5 text-xs font-bold text-slate-600 dark:text-slate-300 cursor-pointer"
                     >
                       Annuler
                     </button>
                     <button
                       type="submit"
                       disabled={submittingReport}
-                      className="px-3 py-1.5 text-xs font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg cursor-pointer"
+                      className="min-h-[40px] px-4 py-1.5 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl cursor-pointer"
                     >
                       {submittingReport ? 'Envoi...' : 'Envoyer le signalement'}
                     </button>

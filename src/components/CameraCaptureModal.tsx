@@ -332,22 +332,22 @@ export function CameraCaptureModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-[2px] flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
+      className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-3.5 sm:p-6 overflow-y-auto"
       role="dialog"
       aria-modal="true"
       aria-labelledby="camera-capture-title"
     >
-      <div className="w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xl my-auto">
+      <div className="w-full max-w-2xl bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-indigo-400/20 rounded-2xl overflow-hidden shadow-2xl my-auto">
         {/* Header */}
-        <div className="px-5 py-3.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3">
+        <div className="hero-diamond-pattern text-white px-5 py-4 flex items-center justify-between gap-3">
           <div>
             <h2
               id="camera-capture-title"
-              className="text-sm sm:text-base font-bold text-slate-900 dark:text-white"
+              className="text-base font-extrabold text-white"
             >
               Enregistrer la chambre en direct
             </h2>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+            <p className="text-xs font-medium text-slate-200 mt-0.5">
               Filmez la pièce, la douche et la cour ou prenez une photo nette
             </p>
           </div>
@@ -355,7 +355,7 @@ export function CameraCaptureModal({
             type="button"
             onClick={onClose}
             aria-label="Fermer la caméra"
-            className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+            className="min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded-xl text-slate-200 hover:text-white hover:bg-white/10 cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -363,32 +363,32 @@ export function CameraCaptureModal({
 
         {/* Mode Switcher */}
         {!hasPreview && (
-          <div className="px-5 pt-4 flex items-center justify-between gap-3">
-            <div className="inline-flex items-center p-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
+          <div className="px-5 pt-4 flex flex-wrap items-center justify-between gap-3">
+            <div className="inline-flex items-center p-1 bg-slate-100 dark:bg-slate-800/90 rounded-xl">
               <button
                 type="button"
                 disabled={!canAddPhoto || isRecording}
                 onClick={() => setMode('photo')}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer disabled:opacity-45 ${
+                className={`min-h-[40px] inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-lg transition-colors cursor-pointer disabled:opacity-45 ${
                   mode === 'photo'
-                    ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
+                    ? 'bg-white dark:bg-[#0B1437] text-slate-900 dark:text-white shadow-xs'
                     : 'text-slate-600 dark:text-slate-300'
                 }`}
               >
-                <Camera className="w-3.5 h-3.5" />
+                <Camera className="w-4 h-4" />
                 <span>Photo</span>
               </button>
               <button
                 type="button"
                 disabled={!canAddVideo || isRecording}
                 onClick={() => setMode('video')}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer disabled:opacity-45 ${
+                className={`min-h-[40px] inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-lg transition-colors cursor-pointer disabled:opacity-45 ${
                   mode === 'video'
-                    ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
+                    ? 'bg-white dark:bg-[#0B1437] text-slate-900 dark:text-white shadow-xs'
                     : 'text-slate-600 dark:text-slate-300'
                 }`}
               >
-                <Video className="w-3.5 h-3.5" />
+                <Video className="w-4 h-4" />
                 <span>Vidéo (max {MAX_RECORD_SECONDS}s)</span>
               </button>
             </div>
@@ -399,9 +399,9 @@ export function CameraCaptureModal({
               onClick={() =>
                 setFacingMode((prev) => (prev === 'environment' ? 'user' : 'environment'))
               }
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg cursor-pointer disabled:opacity-45"
+              className="min-h-[40px] inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl cursor-pointer disabled:opacity-45"
             >
-              <RefreshCw className="w-3.5 h-3.5" />
+              <RefreshCw className="w-4 h-4" />
               <span>Changer caméra</span>
             </button>
           </div>
@@ -410,21 +410,21 @@ export function CameraCaptureModal({
         {/* Viewport */}
         <div className="p-5 space-y-4">
           {cameraError ? (
-            <div className="aspect-[4/3] rounded-xl border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/30 p-6 flex flex-col items-center justify-center text-center gap-3">
+            <div className="aspect-[4/3] rounded-2xl border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/30 p-6 flex flex-col items-center justify-center text-center gap-3">
               <Camera className="w-9 h-9 text-red-500" />
-              <p className="text-xs sm:text-sm text-red-700 dark:text-red-300 max-w-md">
+              <p className="text-sm font-medium text-red-700 dark:text-red-300 max-w-md">
                 {cameraError}
               </p>
               <button
                 type="button"
                 onClick={() => void startStream()}
-                className="px-4 py-2 text-xs font-semibold text-white bg-[#0A2540] hover:bg-slate-800 rounded-lg cursor-pointer"
+                className="min-h-[44px] px-4 py-2 text-sm font-bold text-white bg-[#0B1437] hover:bg-slate-800 rounded-xl cursor-pointer"
               >
                 Réessayer l’accès caméra
               </button>
             </div>
           ) : (
-            <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-center">
+            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-center">
               {previewPhoto ? (
                 <img
                   src={previewPhoto}
@@ -450,13 +450,13 @@ export function CameraCaptureModal({
               )}
 
               {isRecording && (
-                <div className="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-red-600 text-white text-xs font-mono font-semibold tabular-nums">
+                <div className="absolute top-3 left-3 px-3 py-1 rounded-lg bg-red-600 text-white text-xs font-mono font-bold tabular-nums">
                   REC 00:{String(recordSeconds).padStart(2, '0')} / 00:{MAX_RECORD_SECONDS}
                 </div>
               )}
 
               {processingVideo && (
-                <div className="absolute inset-0 bg-slate-950/70 flex items-center justify-center text-xs font-medium text-white">
+                <div className="absolute inset-0 bg-slate-950/75 flex items-center justify-center text-sm font-semibold text-white">
                   Préparation de la vidéo enregistrée...
                 </div>
               )}
@@ -473,15 +473,15 @@ export function CameraCaptureModal({
                     setPreviewPhoto(null);
                     setPreviewVideo(null);
                   }}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg cursor-pointer"
+                  className="min-h-[44px] inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl cursor-pointer"
                 >
-                  <RotateCcw className="w-3.5 h-3.5" />
+                  <RotateCcw className="w-4 h-4" />
                   <span>Recommencer</span>
                 </button>
                 <button
                   type="button"
                   onClick={handleConfirmCapture}
-                  className="inline-flex items-center gap-1.5 px-5 py-2.5 text-xs sm:text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-lg cursor-pointer"
+                  className="min-h-[44px] inline-flex items-center gap-1.5 px-5 py-2.5 text-sm font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-xl cursor-pointer"
                 >
                   <Check className="w-4 h-4" />
                   <span>
@@ -496,7 +496,7 @@ export function CameraCaptureModal({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-300 cursor-pointer"
+                  className="min-h-[44px] px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-300 cursor-pointer"
                 >
                   Fermer
                 </button>
@@ -506,7 +506,7 @@ export function CameraCaptureModal({
                     type="button"
                     disabled={!cameraReady || Boolean(cameraError)}
                     onClick={handleTakePhoto}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-semibold text-white bg-[#0A2540] hover:bg-slate-800 dark:bg-teal-600 dark:hover:bg-teal-700 disabled:opacity-50 rounded-lg cursor-pointer"
+                    className="min-h-[44px] inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-[#0B1437] hover:bg-slate-800 dark:bg-teal-500 dark:hover:bg-teal-400 dark:text-[#0B1437] disabled:opacity-50 rounded-xl cursor-pointer"
                   >
                     <Camera className="w-4 h-4" />
                     <span>Prendre la photo</span>
@@ -515,7 +515,7 @@ export function CameraCaptureModal({
                   <button
                     type="button"
                     onClick={handleStopRecording}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-lg cursor-pointer"
+                    className="min-h-[44px] inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl cursor-pointer"
                   >
                     <Square className="w-4 h-4 fill-current" />
                     <span>Arrêter l’enregistrement ({recordSeconds}s)</span>
@@ -525,7 +525,7 @@ export function CameraCaptureModal({
                     type="button"
                     disabled={!cameraReady || Boolean(cameraError) || processingVideo}
                     onClick={handleStartRecording}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 disabled:opacity-50 rounded-lg cursor-pointer"
+                    className="min-h-[44px] inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-teal-600 hover:bg-teal-700 disabled:opacity-50 rounded-xl cursor-pointer"
                   >
                     <Video className="w-4 h-4" />
                     <span>Démarrer la vidéo</span>

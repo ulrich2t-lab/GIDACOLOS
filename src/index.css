@@ -3,20 +3,32 @@
 
 @layer base {
   :root {
-    --font-display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-    --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-display: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-sans: 'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
   }
 
   html {
     font-family: var(--font-sans);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    font-size: 16px;
+    text-rendering: optimizeLegibility;
+    -webkit-text-size-adjust: 100%;
     scroll-behavior: smooth;
+  }
+
+  body {
+    font-weight: 500;
+    line-height: 1.55;
+  }
+
+  .dark body {
+    font-weight: 500;
+    -webkit-font-smoothing: auto;
   }
 
   h1, h2, h3, h4, .font-display {
     font-family: var(--font-display);
+    letter-spacing: -0.02em;
   }
 
   code, pre, .font-mono {
@@ -28,13 +40,62 @@
   input:focus-visible,
   select:focus-visible,
   textarea:focus-visible {
-    outline: 2px solid #0d9488;
+    outline: 2px solid #818cf8;
     outline-offset: 2px;
   }
 }
 
 .tabular-nums {
   font-variant-numeric: tabular-nums;
+}
+
+/* Deep navy architectural geometric diamond pattern for Hero */
+.hero-diamond-pattern {
+  background-color: #0b1437;
+  background-image:
+    radial-gradient(circle at 88% 14%, rgba(99, 102, 241, 0.22), transparent 46%),
+    radial-gradient(circle at 12% 84%, rgba(20, 184, 166, 0.14), transparent 44%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='none' stroke='%2394a3b8' stroke-opacity='0.12' stroke-width='1'%3E%3Cpath d='M32 4 L60 32 L32 60 L4 32 Z'/%3E%3Cpath d='M32 16 L48 32 L32 48 L16 32 Z'/%3E%3C/g%3E%3Crect x='28' y='28' width='8' height='8' transform='rotate(45 32 32)' fill='%2394a3b8' fill-opacity='0.16'/%3E%3C/svg%3E");
+  background-size: auto, auto, 56px 56px;
+}
+
+/* Tactile budget range slider for Android & Desktop */
+.budget-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  border-radius: 9999px;
+  outline: none;
+  cursor: pointer;
+}
+
+.budget-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  background: #6366f1;
+  border: 2.5px solid #ffffff;
+  box-shadow: 0 2px 10px rgba(99, 102, 241, 0.45);
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.budget-slider::-webkit-slider-thumb:hover,
+.budget-slider::-webkit-slider-thumb:active {
+  transform: scale(1.1);
+  background: #818cf8;
+}
+
+.budget-slider::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  background: #6366f1;
+  border: 2.5px solid #ffffff;
+  box-shadow: 0 2px 10px rgba(99, 102, 241, 0.45);
+  cursor: pointer;
 }
 
 @media (prefers-reduced-motion: reduce) {

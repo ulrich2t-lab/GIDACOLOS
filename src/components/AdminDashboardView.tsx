@@ -713,7 +713,7 @@ export function AdminDashboardView({
   const isDark = theme === 'dark';
   const axisTickColor = isDark ? '#94A3B8' : '#64748B';
   const gridStrokeColor = isDark ? '#1E293B' : '#E2E8F0';
-  const rentedBarColor = isDark ? '#38BDF8' : '#0A2540';
+  const rentedBarColor = isDark ? '#93A3FF' : '#0B1437';
 
   const handleSaveConfig = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -954,23 +954,26 @@ export function AdminDashboardView({
   return (
     <div className="space-y-8">
       {/* Header & Primary Action */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="hero-diamond-pattern text-white border border-indigo-400/20 rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-md">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+          <p className="text-xs font-bold uppercase tracking-wider text-teal-300">
+            Espace Administration
+          </p>
+          <h2 className="text-2xl font-display font-extrabold text-white mt-0.5">
             Administration GidaColocs
           </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
+          <p className="text-[13px] font-medium text-slate-200 mt-0.5">
             Modération des logements, commissions, réservations, réclamations, utilisateurs et audit
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2.5">
           {allListings.length === 0 && (
             <button
               type="button"
               disabled={seeding}
               onClick={handleSeedStarters}
-              className="px-3.5 py-2 text-xs font-medium text-teal-800 dark:text-teal-200 bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800 hover:bg-teal-100 rounded-lg cursor-pointer whitespace-nowrap"
+              className="min-h-[42px] px-4 py-2 text-xs font-bold text-[#0B1437] bg-teal-300 hover:bg-teal-200 rounded-xl cursor-pointer whitespace-nowrap"
             >
               {seeding ? 'Initialisation...' : 'Initialiser 4 logements Maradi'}
             </button>
@@ -978,7 +981,7 @@ export function AdminDashboardView({
           <button
             type="button"
             onClick={onGoToPublish}
-            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-[#0A2540] hover:bg-slate-800 dark:bg-teal-600 dark:hover:bg-teal-700 rounded-lg cursor-pointer whitespace-nowrap"
+            className="min-h-[42px] inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-[#0B1437] bg-[#93A3FF] hover:bg-[#A6B3FF] rounded-xl cursor-pointer whitespace-nowrap"
           >
             <Plus className="w-4 h-4" />
             <span>Ajouter un logement</span>
@@ -986,7 +989,7 @@ export function AdminDashboardView({
           <button
             type="button"
             onClick={() => void (onSignOut ? onSignOut() : signOutUser())}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 hover:bg-red-100 dark:hover:bg-red-950/60 rounded-lg cursor-pointer whitespace-nowrap"
+            className="min-h-[42px] inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-red-200 bg-red-500/20 border border-red-400/30 hover:bg-red-500/30 rounded-xl cursor-pointer whitespace-nowrap"
           >
             <LogOut className="w-4 h-4" />
             <span>Se déconnecter</span>
@@ -995,14 +998,14 @@ export function AdminDashboardView({
       </div>
 
       {/* 4-Column Admin KPI Strip */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 divide-y sm:divide-y-0 sm:divide-x divide-slate-200 dark:divide-slate-800">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border border-slate-200 dark:border-slate-800/90 rounded-2xl bg-white dark:bg-[#0F172A] divide-y sm:divide-y-0 sm:divide-x divide-slate-200 dark:divide-slate-800 shadow-xs">
         <div className="p-5">
-          <p className="text-xs text-slate-500 dark:text-slate-400">Annonces & Top</p>
-          <p className="text-2xl font-bold text-slate-900 dark:text-white tabular-nums mt-1">
+          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Annonces & Top</p>
+          <p className="text-2xl font-display font-extrabold text-slate-900 dark:text-white tabular-nums mt-1">
             {allListings.length}
           </p>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 tabular-nums">
-            <span className="text-amber-600 dark:text-amber-400 font-medium">
+          <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1 tabular-nums">
+            <span className="text-amber-600 dark:text-amber-400 font-bold">
               {pendingListingsCount} attente
             </span>{' '}
             · {approvedListingsCount} appr. · {rejectedListingsCount} ref. · {topActiveCount} Top
@@ -1010,15 +1013,15 @@ export function AdminDashboardView({
         </div>
 
         <div className="p-5">
-          <p className="text-xs text-slate-500 dark:text-slate-400">Pass Visite, Réserv. & Paiements</p>
-          <p className="text-2xl font-bold text-slate-900 dark:text-white tabular-nums mt-1">
+          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Pass Visite, Réserv. & Paiements</p>
+          <p className="text-2xl font-display font-extrabold text-slate-900 dark:text-white tabular-nums mt-1">
             {allOrders.length}{' '}
-            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
               ({visitReservations.length} Pass · {reservedListingsCount} rés.)
             </span>
           </p>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 tabular-nums">
-            <span className="text-amber-600 dark:text-amber-400 font-medium">
+          <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1 tabular-nums">
+            <span className="text-amber-600 dark:text-amber-400 font-bold">
               {pendingOrdersCount} attente
             </span>{' '}
             · {verifiedOrdersCount} conf. · {rejectedOrdersCount} ref.
@@ -1026,11 +1029,11 @@ export function AdminDashboardView({
         </div>
 
         <div className="p-5">
-          <p className="text-xs text-slate-500 dark:text-slate-400">Commissions encaissées</p>
-          <p className="text-2xl font-bold text-teal-700 dark:text-teal-400 tabular-nums mt-1">
+          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Commissions encaissées</p>
+          <p className="text-2xl font-display font-extrabold text-teal-700 dark:text-teal-400 tabular-nums mt-1">
             {formatFcfa(commissionStats.verifiedTotal)}
           </p>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 tabular-nums">
+          <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1 tabular-nums">
             Générées : {formatFcfa(commissionStats.generatedTotal)}
             {commissionStats.pendingRevenue > 0
               ? ` (+${formatFcfa(commissionStats.pendingRevenue)} attente)`
@@ -1039,15 +1042,15 @@ export function AdminDashboardView({
         </div>
 
         <div className="p-5">
-          <p className="text-xs text-slate-500 dark:text-slate-400">Utilisateurs, Coloc & Réclam.</p>
-          <p className="text-2xl font-bold text-slate-900 dark:text-white tabular-nums mt-1">
+          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Utilisateurs, Coloc & Réclam.</p>
+          <p className="text-2xl font-display font-extrabold text-slate-900 dark:text-white tabular-nums mt-1">
             {allUsers.length}{' '}
-            <span className="text-xs font-medium text-teal-700 dark:text-teal-400">
+            <span className="text-xs font-bold text-teal-700 dark:text-teal-400">
               (+{recentUsersCount} / 7j)
             </span>
           </p>
           <p
-            className={`text-xs mt-1 tabular-nums ${
+            className={`text-xs font-medium mt-1 tabular-nums ${
               openReportsCount > 0 ? 'text-red-600 dark:text-red-400' : 'text-slate-500 dark:text-slate-400'
             }`}
           >
@@ -1058,16 +1061,16 @@ export function AdminDashboardView({
       </div>
 
       {/* Notifications Administrateur */}
-      <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-3">
+      <section className="bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800/90 rounded-2xl p-5 sm:p-6 space-y-3.5 shadow-xs">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <Bell className="w-4 h-4 text-[#0A2540] dark:text-teal-400" />
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+            <Bell className="w-4 h-4 text-[#0B1437] dark:text-[#93A3FF]" />
+            <h3 className="text-base font-display font-bold text-slate-900 dark:text-white">
               Notifications administrateur
             </h3>
           </div>
           <span
-            className={`text-xs font-semibold tabular-nums ${
+            className={`text-xs font-bold tabular-nums ${
               totalNotifications > 0
                 ? 'text-amber-600 dark:text-amber-400'
                 : 'text-emerald-600 dark:text-emerald-400'
@@ -1087,15 +1090,15 @@ export function AdminDashboardView({
               setModerationStatusFilter('pending');
               setTab('pending_queue');
             }}
-            className="text-left p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-teal-500 dark:hover:border-teal-500 transition-colors cursor-pointer"
+            className="text-left p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0B1437]/70 hover:border-teal-500 dark:hover:border-[#93A3FF] transition-colors cursor-pointer"
           >
-            <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
               Publications à valider
             </p>
-            <p className="text-lg font-bold text-slate-900 dark:text-white tabular-nums mt-0.5">
+            <p className="text-lg font-display font-extrabold text-slate-900 dark:text-white tabular-nums mt-0.5">
               {totalPendingModerationCount}
               {unreadAdminAlertsCount > 0 && (
-                <span className="ml-1.5 text-xs font-semibold text-amber-600 dark:text-amber-400">
+                <span className="ml-1.5 text-xs font-bold text-amber-600 dark:text-amber-400">
                   ({unreadAdminAlertsCount} nouvelle{unreadAdminAlertsCount > 1 ? 's' : ''})
                 </span>
               )}
@@ -1109,12 +1112,12 @@ export function AdminDashboardView({
               setOrderTypeFilter('all');
               setTab('orders');
             }}
-            className="text-left p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-teal-500 dark:hover:border-teal-500 transition-colors cursor-pointer"
+            className="text-left p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0B1437]/70 hover:border-teal-500 dark:hover:border-[#93A3FF] transition-colors cursor-pointer"
           >
-            <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
               Paiements à vérifier
             </p>
-            <p className="text-lg font-bold text-slate-900 dark:text-white tabular-nums mt-0.5">
+            <p className="text-lg font-display font-extrabold text-slate-900 dark:text-white tabular-nums mt-0.5">
               {pendingOrdersCount}
             </p>
           </button>
@@ -1125,12 +1128,12 @@ export function AdminDashboardView({
               setListingStatusFilter('top_requested');
               setTab('listings');
             }}
-            className="text-left p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-teal-500 dark:hover:border-teal-500 transition-colors cursor-pointer"
+            className="text-left p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0B1437]/70 hover:border-teal-500 dark:hover:border-[#93A3FF] transition-colors cursor-pointer"
           >
-            <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
               Demandes Annonce TOP
             </p>
-            <p className="text-lg font-bold text-slate-900 dark:text-white tabular-nums mt-0.5">
+            <p className="text-lg font-display font-extrabold text-slate-900 dark:text-white tabular-nums mt-0.5">
               {topRequestedCount}
             </p>
           </button>
@@ -1141,13 +1144,13 @@ export function AdminDashboardView({
               setReportStatusFilter('open');
               setTab('reports');
             }}
-            className="text-left p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:border-teal-500 dark:hover:border-teal-500 transition-colors cursor-pointer"
+            className="text-left p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0B1437]/70 hover:border-teal-500 dark:hover:border-[#93A3FF] transition-colors cursor-pointer"
           >
-            <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
               Réclamations ouvertes
             </p>
             <p
-              className={`text-lg font-bold tabular-nums mt-0.5 ${
+              className={`text-lg font-display font-extrabold tabular-nums mt-0.5 ${
                 openReportsCount > 0 ? 'text-red-600 dark:text-red-400' : 'text-slate-900 dark:text-white'
               }`}
             >
@@ -1160,17 +1163,17 @@ export function AdminDashboardView({
       {/* Data Visualization Analytics Grid (Recharts) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Chart 1: Volume d'annonces par quartier */}
-        <section className="lg:col-span-7 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 flex flex-col justify-between gap-4">
+        <section className="lg:col-span-7 bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800/90 rounded-2xl p-6 flex flex-col justify-between gap-4 shadow-xs">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h3 className="text-base font-semibold text-slate-900 dark:text-white">
+              <h3 className="text-base font-display font-bold text-slate-900 dark:text-white">
                 Volume d’annonces par quartier
               </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              <p className="text-[13px] font-medium text-slate-500 dark:text-slate-400 mt-0.5">
                 Répartition des biens immobiliers sur les zones de Maradi
               </p>
             </div>
-            <div className="flex flex-wrap items-center gap-3 text-[11px] text-slate-600 dark:text-slate-300">
+            <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-slate-600 dark:text-slate-300">
               <span className="inline-flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-sm bg-[#0D9488]" />
                 <span>Disponibles</span>
@@ -1223,8 +1226,8 @@ export function AdminDashboardView({
                     if (!active || !payload || payload.length === 0) return null;
                     const point = payload[0].payload as NeighborhoodChartPoint;
                     return (
-                      <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2.5 shadow-md text-xs space-y-1">
-                        <p className="font-semibold text-slate-900 dark:text-white">
+                      <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0F172A] px-3.5 py-2.5 shadow-md text-xs space-y-1">
+                        <p className="font-bold text-slate-900 dark:text-white">
                           {point.neighborhood}
                         </p>
                         <p className="text-teal-700 dark:text-teal-400 tabular-nums">
@@ -1258,24 +1261,24 @@ export function AdminDashboardView({
         </section>
 
         {/* Chart 2: Évolution des inscriptions d'utilisateurs */}
-        <section className="lg:col-span-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 flex flex-col justify-between gap-4">
+        <section className="lg:col-span-5 bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800/90 rounded-2xl p-6 flex flex-col justify-between gap-4 shadow-xs">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h3 className="text-base font-semibold text-slate-900 dark:text-white">
+              <h3 className="text-base font-display font-bold text-slate-900 dark:text-white">
                 Évolution des inscriptions
               </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 tabular-nums">
+              <p className="text-[13px] font-medium text-slate-500 dark:text-slate-400 mt-0.5 tabular-nums">
                 {tenantUsersCount} locataire{tenantUsersCount > 1 ? 's' : ''} ·{' '}
                 {landlordUsersCount} bailleur{landlordUsersCount > 1 ? 's' : ''}
               </p>
             </div>
-            <span className="text-xs font-semibold text-teal-700 dark:text-teal-400 tabular-nums">
+            <span className="text-xs font-bold text-teal-700 dark:text-teal-400 tabular-nums">
               {allUsers.length} inscrit{allUsers.length > 1 ? 's' : ''}
             </span>
           </div>
 
           {userGrowthChartData.length === 0 ? (
-            <div className="h-[270px] flex items-center justify-center text-xs text-slate-500 dark:text-slate-400 border border-dashed border-slate-200 dark:border-slate-800 rounded-lg">
+            <div className="h-[270px] flex items-center justify-center text-[13px] font-medium text-slate-500 dark:text-slate-400 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
               Les courbes apparaîtront dès les premières inscriptions.
             </div>
           ) : (
@@ -1310,8 +1313,8 @@ export function AdminDashboardView({
                       if (!active || !payload || payload.length === 0) return null;
                       const pt = payload[0].payload as UserGrowthChartPoint;
                       return (
-                        <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2.5 shadow-md text-xs space-y-1">
-                          <p className="font-semibold text-slate-900 dark:text-white">
+                        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0F172A] px-3.5 py-2.5 shadow-md text-xs space-y-1">
+                          <p className="font-bold text-slate-900 dark:text-white">
                             {pt.dateLabel}
                           </p>
                           <p className="text-teal-700 dark:text-teal-400 tabular-nums">
@@ -1337,7 +1340,7 @@ export function AdminDashboardView({
                     fillOpacity={1}
                     fill="url(#gidaColocsUsersGradient)"
                     dot={{ r: 3.5, fill: '#0D9488', strokeWidth: 0 }}
-                    activeDot={{ r: 5, fill: '#0A2540', stroke: '#0D9488', strokeWidth: 2 }}
+                    activeDot={{ r: 5, fill: '#0B1437', stroke: '#0D9488', strokeWidth: 2 }}
                   />
                 </AreaChart>
               </ResponsiveContainer>
@@ -1347,7 +1350,7 @@ export function AdminDashboardView({
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex items-center gap-1 p-1 bg-slate-200/70 dark:bg-slate-800 rounded-lg overflow-x-auto">
+      <div className="flex items-center gap-1.5 p-1.5 bg-slate-200/75 dark:bg-[#0F172A] border border-slate-200/60 dark:border-slate-800/90 rounded-2xl overflow-x-auto">
         {(
           [
             ['pending_queue', `Modération des publications (${totalPendingModerationCount})`],
@@ -1368,9 +1371,9 @@ export function AdminDashboardView({
             key={key}
             type="button"
             onClick={() => setTab(key)}
-            className={`px-3.5 py-2 text-xs font-medium rounded-md whitespace-nowrap cursor-pointer ${
+            className={`min-h-[40px] px-4 py-2 text-xs font-bold rounded-xl whitespace-nowrap cursor-pointer transition-colors ${
               tab === key
-                ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm'
+                ? 'bg-white dark:bg-[#0B1437] text-slate-900 dark:text-white shadow-xs border border-slate-200/80 dark:border-indigo-400/25'
                 : 'text-slate-600 dark:text-slate-300'
             }`}
           >
@@ -1380,7 +1383,7 @@ export function AdminDashboardView({
       </div>
 
       {adminError && (
-        <div className="p-3.5 rounded-xl border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 text-xs text-red-700 dark:text-red-300">
+        <div className="p-4 rounded-2xl border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 text-[13px] font-medium text-red-700 dark:text-red-300">
           {adminError}
         </div>
       )}
@@ -1394,10 +1397,10 @@ export function AdminDashboardView({
       {tab === 'pending_queue' && (
         <div className="space-y-6">
           {/* Alertes en temps réel */}
-          <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
-            <div className="px-5 py-3.5 bg-slate-50/70 dark:bg-slate-950/50 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
+          <section className="bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+            <div className="px-5 py-3.5 bg-slate-50/70 dark:bg-[#0B1437]/50 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
-                <Bell className="w-4 h-4 text-[#0A2540] dark:text-teal-400" />
+                <Bell className="w-4 h-4 text-[#0B1437] dark:text-teal-400" />
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
                   Alertes de nouvelles soumissions ({unreadAdminAlertsCount} non lue
                   {unreadAdminAlertsCount > 1 ? 's' : ''})
@@ -1472,7 +1475,7 @@ export function AdminDashboardView({
                               if (!alert.read) void markAdminAlertRead(alert.id).catch(() => {});
                               setInspectListing(linkedListing);
                             }}
-                            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-white bg-[#0A2540] hover:bg-slate-800 dark:bg-teal-600 dark:hover:bg-teal-700 rounded-lg cursor-pointer"
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-white bg-[#0B1437] hover:bg-slate-800 dark:bg-[#93A3FF] dark:text-[#0B1437] dark:hover:bg-[#A6B3FF] rounded-lg cursor-pointer"
                           >
                             <Eye className="w-3.5 h-3.5" />
                             <span>Examiner le dossier</span>
@@ -1485,7 +1488,7 @@ export function AdminDashboardView({
                               setModerationCategoryFilter(targetCategory);
                               setModerationStatusFilter('pending');
                             }}
-                            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-white bg-[#0A2540] hover:bg-slate-800 dark:bg-teal-600 dark:hover:bg-teal-700 rounded-lg cursor-pointer"
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-white bg-[#0B1437] hover:bg-slate-800 dark:bg-[#93A3FF] dark:text-[#0B1437] dark:hover:bg-[#A6B3FF] rounded-lg cursor-pointer"
                           >
                             <Eye className="w-3.5 h-3.5" />
                             <span>Voir modération</span>
@@ -1515,16 +1518,16 @@ export function AdminDashboardView({
           </section>
 
           {/* Hub centralisé « Modération des publications » */}
-          <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
-            <div className="px-5 py-4 bg-slate-50/70 dark:bg-slate-950/50 border-b border-slate-200 dark:border-slate-800 space-y-3">
+          <section className="bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+            <div className="px-5 py-4 bg-slate-50/70 dark:bg-[#0B1437]/50 border-b border-slate-200 dark:border-slate-800 space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-[#0A2540] dark:text-teal-400" />
+                  <ShieldCheck className="w-4 h-4 text-[#0B1437] dark:text-teal-400" />
                   <div>
                     <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
                       Modération des publications ({totalPendingModerationCount} en attente)
                     </h3>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
                       Aucun contenu public n’est affiché aux visiteurs sans validation préalable de l’administrateur.
                     </p>
                   </div>
@@ -1560,8 +1563,8 @@ export function AdminDashboardView({
                     onClick={() => setModerationCategoryFilter(key)}
                     className={`px-2.5 py-1 text-xs font-medium rounded-lg border cursor-pointer tabular-nums ${
                       moderationCategoryFilter === key
-                        ? 'border-[#0A2540] dark:border-teal-500 bg-[#0A2540] dark:bg-teal-600 text-white'
-                        : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300'
+                        ? 'border-[#0B1437] dark:border-[#93A3FF] bg-[#0B1437] dark:bg-[#93A3FF] text-white dark:text-[#0B1437] font-semibold'
+                        : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0F172A] text-slate-600 dark:text-slate-300'
                     }`}
                   >
                     {label}
@@ -1591,8 +1594,8 @@ export function AdminDashboardView({
                             ? 'border-red-600 bg-red-600 text-white'
                             : key === 'needs_correction'
                               ? 'border-amber-600 bg-amber-600 text-white'
-                              : 'border-[#0A2540] dark:border-teal-500 bg-[#0A2540] dark:bg-teal-600 text-white'
-                        : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300'
+                              : 'border-[#0B1437] dark:border-[#93A3FF] bg-[#0B1437] dark:bg-[#93A3FF] text-white dark:text-[#0B1437] font-semibold'
+                        : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0F172A] text-slate-600 dark:text-slate-300'
                     }`}
                   >
                     {label}
@@ -1643,7 +1646,7 @@ export function AdminDashboardView({
               const renderContentHistory = (history?: ContentModerationEntry[]) => {
                 if (!history || history.length === 0) return null;
                 return (
-                  <details className="mt-2 text-[11px]">
+                  <details className="mt-2 text-xs">
                     <summary className="cursor-pointer font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 inline-flex items-center gap-1">
                       <History className="w-3 h-3" />
                       <span>Historique des validations ({history.length})</span>
@@ -1697,10 +1700,10 @@ export function AdminDashboardView({
 
                           <div className="min-w-0 space-y-1">
                             <div className="flex flex-wrap items-center gap-2">
-                              <span className="px-2 py-0.5 text-[10px] font-semibold uppercase rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200">
+                              <span className="px-2 py-0.5 text-[11px] font-semibold uppercase rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200">
                                 {PROPERTY_TYPE_LABELS[item.propertyType]}
                               </span>
-                              <span className="text-[11px] font-semibold text-amber-700 dark:text-amber-400">
+                              <span className="text-xs font-semibold text-amber-700 dark:text-amber-400">
                                 {LISTING_STATUS_LABELS[item.status]}
                               </span>
                             </div>
@@ -1724,12 +1727,12 @@ export function AdminDashboardView({
                               </p>
                             )}
                             {item.moderationReason && (
-                              <p className="text-[11px] text-amber-700 dark:text-amber-300">
+                              <p className="text-xs text-amber-700 dark:text-amber-300">
                                 Motif : {item.moderationReason}
                               </p>
                             )}
                             {item.moderationHistory && item.moderationHistory.length > 0 && (
-                              <details className="mt-1 text-[11px]">
+                              <details className="mt-1 text-xs">
                                 <summary className="cursor-pointer font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 inline-flex items-center gap-1">
                                   <History className="w-3 h-3" />
                                   <span>
@@ -1760,7 +1763,7 @@ export function AdminDashboardView({
                           <button
                             type="button"
                             onClick={() => setInspectListing(item)}
-                            className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold text-white bg-[#0A2540] hover:bg-slate-800 dark:bg-teal-600 dark:hover:bg-teal-700 rounded-lg cursor-pointer"
+                            className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold text-white bg-[#0B1437] hover:bg-slate-800 dark:bg-[#93A3FF] dark:text-[#0B1437] dark:hover:bg-[#A6B3FF] rounded-lg cursor-pointer"
                           >
                             <Eye className="w-3.5 h-3.5" />
                             <span>Examiner dossier</span>
@@ -1868,10 +1871,10 @@ export function AdminDashboardView({
                       >
                         <div className="min-w-0 space-y-1">
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className="px-2 py-0.5 text-[10px] font-semibold uppercase rounded bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-800">
+                            <span className="px-2 py-0.5 text-[11px] font-semibold uppercase rounded bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-800">
                               Profil colocataire
                             </span>
-                            <span className="text-[11px] font-semibold text-amber-700 dark:text-amber-400">
+                            <span className="text-xs font-semibold text-amber-700 dark:text-amber-400">
                               {CONTENT_MODERATION_LABELS[modStatus]}
                             </span>
                           </div>
@@ -1886,11 +1889,11 @@ export function AdminDashboardView({
                           <p className="text-xs text-slate-600 dark:text-slate-300">
                             {cp.lifestyle} — {cp.bio}
                           </p>
-                          <p className="text-[11px] text-slate-400 tabular-nums">
+                          <p className="text-xs text-slate-400 tabular-nums">
                             Soumis {formatTimestamp(cp.createdAt)}
                           </p>
                           {cp.moderationReason && (
-                            <p className="text-[11px] text-amber-700 dark:text-amber-300">
+                            <p className="text-xs text-amber-700 dark:text-amber-300">
                               Motif : {cp.moderationReason}
                             </p>
                           )}
@@ -1972,10 +1975,10 @@ export function AdminDashboardView({
                       >
                         <div className="min-w-0 space-y-1">
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className="px-2 py-0.5 text-[10px] font-semibold uppercase rounded bg-indigo-50 dark:bg-indigo-950/60 text-indigo-800 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                            <span className="px-2 py-0.5 text-[11px] font-semibold uppercase rounded bg-indigo-50 dark:bg-indigo-950/60 text-indigo-800 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
                               Demande de colocation
                             </span>
-                            <span className="text-[11px] font-semibold text-amber-700 dark:text-amber-400">
+                            <span className="text-xs font-semibold text-amber-700 dark:text-amber-400">
                               {CONTENT_MODERATION_LABELS[modStatus]}
                             </span>
                           </div>
@@ -1990,11 +1993,11 @@ export function AdminDashboardView({
                           <p className="text-xs text-slate-600 dark:text-slate-300">
                             « {interest.message} »
                           </p>
-                          <p className="text-[11px] text-slate-400 tabular-nums">
+                          <p className="text-xs text-slate-400 tabular-nums">
                             Soumis {formatTimestamp(interest.createdAt)}
                           </p>
                           {interest.moderationReason && (
-                            <p className="text-[11px] text-amber-700 dark:text-amber-300">
+                            <p className="text-xs text-amber-700 dark:text-amber-300">
                               Motif : {interest.moderationReason}
                             </p>
                           )}
@@ -2075,10 +2078,10 @@ export function AdminDashboardView({
                       >
                         <div className="min-w-0 space-y-1">
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className="px-2 py-0.5 text-[10px] font-semibold uppercase rounded bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                            <span className="px-2 py-0.5 text-[11px] font-semibold uppercase rounded bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
                               Avis public ({review.rating}/5 ★)
                             </span>
-                            <span className="text-[11px] font-semibold text-amber-700 dark:text-amber-400">
+                            <span className="text-xs font-semibold text-amber-700 dark:text-amber-400">
                               {CONTENT_MODERATION_LABELS[modStatus]}
                             </span>
                           </div>
@@ -2088,11 +2091,11 @@ export function AdminDashboardView({
                           <p className="text-xs text-slate-600 dark:text-slate-300">
                             « {review.comment} »
                           </p>
-                          <p className="text-[11px] text-slate-400 tabular-nums">
+                          <p className="text-xs text-slate-400 tabular-nums">
                             Soumis {formatTimestamp(review.createdAt)}
                           </p>
                           {review.moderationReason && (
-                            <p className="text-[11px] text-amber-700 dark:text-amber-300">
+                            <p className="text-xs text-amber-700 dark:text-amber-300">
                               Motif : {review.moderationReason}
                             </p>
                           )}
@@ -2174,10 +2177,10 @@ export function AdminDashboardView({
                       >
                         <div className="min-w-0 space-y-1">
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className="px-2 py-0.5 text-[10px] font-semibold uppercase rounded bg-sky-50 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
+                            <span className="px-2 py-0.5 text-[11px] font-semibold uppercase rounded bg-sky-50 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
                               Commentaire colocation
                             </span>
-                            <span className="text-[11px] font-semibold text-amber-700 dark:text-amber-400">
+                            <span className="text-xs font-semibold text-amber-700 dark:text-amber-400">
                               {CONTENT_MODERATION_LABELS[modStatus]}
                             </span>
                           </div>
@@ -2190,11 +2193,11 @@ export function AdminDashboardView({
                           <p className="text-xs text-slate-600 dark:text-slate-300">
                             « {msg.message} »
                           </p>
-                          <p className="text-[11px] text-slate-400 tabular-nums">
+                          <p className="text-xs text-slate-400 tabular-nums">
                             Soumis {formatTimestamp(msg.createdAt)}
                           </p>
                           {msg.moderationReason && (
-                            <p className="text-[11px] text-amber-700 dark:text-amber-300">
+                            <p className="text-xs text-amber-700 dark:text-amber-300">
                               Motif : {msg.moderationReason}
                             </p>
                           )}
@@ -2272,8 +2275,8 @@ export function AdminDashboardView({
 
       {/* Tab 1: Listings Moderation */}
       {tab === 'listings' && (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
-          <div className="px-5 py-3.5 bg-slate-50/70 dark:bg-slate-950/50 border-b border-slate-200 dark:border-slate-800 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+        <div className="bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+          <div className="px-5 py-3.5 bg-slate-50/70 dark:bg-[#0B1437]/50 border-b border-slate-200 dark:border-slate-800 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-1.5">
               {(
                 [
@@ -2296,8 +2299,8 @@ export function AdminDashboardView({
                   onClick={() => setListingStatusFilter(key)}
                   className={`px-2.5 py-1 text-xs font-medium rounded-lg border cursor-pointer tabular-nums ${
                     listingStatusFilter === key
-                      ? 'border-[#0A2540] dark:border-teal-500 bg-[#0A2540] dark:bg-teal-600 text-white'
-                      : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300'
+                      ? 'border-[#0B1437] dark:border-[#93A3FF] bg-[#0B1437] dark:bg-[#93A3FF] text-white dark:text-[#0B1437] font-semibold'
+                      : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0F172A] text-slate-600 dark:text-slate-300'
                   }`}
                 >
                   {label}
@@ -2312,7 +2315,7 @@ export function AdminDashboardView({
                 value={listingSearch}
                 onChange={(e) => setListingSearch(e.target.value)}
                 placeholder="Rechercher logement, quartier..."
-                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white"
               />
             </div>
           </div>
@@ -2367,12 +2370,12 @@ export function AdminDashboardView({
                         item.status === 'suspended' ||
                         item.status === 'needs_correction') &&
                         item.moderationReason && (
-                          <p className="text-[11px] text-red-600 dark:text-red-400 mt-1">
+                          <p className="text-xs text-red-600 dark:text-red-400 mt-1">
                             Motif : {item.moderationReason}
                           </p>
                         )}
                       {item.validatedByName && item.validatedAtIso && (
-                        <p className="text-[11px] text-slate-400 mt-0.5 tabular-nums">
+                        <p className="text-xs text-slate-400 mt-0.5 tabular-nums">
                           Décision : {item.validatedByName} ({new Date(item.validatedAtIso).toLocaleDateString('fr-FR')})
                         </p>
                       )}
@@ -2448,7 +2451,7 @@ export function AdminDashboardView({
                         <button
                           type="button"
                           onClick={() => openConfirmRentalModal(item)}
-                          className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-white bg-[#0A2540] hover:bg-slate-800 dark:bg-teal-600 dark:hover:bg-teal-700 rounded-lg cursor-pointer"
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-white bg-[#0B1437] hover:bg-slate-800 dark:bg-[#93A3FF] dark:text-[#0B1437] dark:hover:bg-[#A6B3FF] rounded-lg cursor-pointer"
                         >
                           <KeyRound className="w-3.5 h-3.5" />
                           <span>Confirmer location</span>
@@ -2665,7 +2668,7 @@ export function AdminDashboardView({
       {/* Tab 2: Réservations, Visites & Pris */}
       {tab === 'availability' && (
         <div className="space-y-6">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div>
               <h3 className="text-base font-semibold text-slate-900 dark:text-white">
                 Espace Pris & Réservés
@@ -2714,8 +2717,8 @@ export function AdminDashboardView({
             )}
           </div>
 
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
-            <div className="px-5 py-3 bg-slate-50/70 dark:bg-slate-950/50 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center gap-2">
+          <div className="bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+            <div className="px-5 py-3 bg-slate-50/70 dark:bg-[#0B1437]/50 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center gap-2">
               {(
                 [
                   [
@@ -2733,8 +2736,8 @@ export function AdminDashboardView({
                   onClick={() => setAvailabilityFilter(key)}
                   className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors cursor-pointer tabular-nums ${
                     availabilityFilter === key
-                      ? 'border-[#0A2540] dark:border-teal-500 bg-[#0A2540] dark:bg-teal-600 text-white'
-                      : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300'
+                      ? 'border-[#0B1437] dark:border-[#93A3FF] bg-[#0B1437] dark:bg-[#93A3FF] text-white dark:text-[#0B1437] font-semibold'
+                      : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0F172A] text-slate-600 dark:text-slate-300'
                   }`}
                 >
                   {label}
@@ -2910,15 +2913,15 @@ export function AdminDashboardView({
           </div>
 
           {/* Demandes de visite & Réservations Pass Visite */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+          <div className="bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
             <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <CalendarClock className="w-4 h-4 text-[#0A2540] dark:text-teal-400" />
+                <CalendarClock className="w-4 h-4 text-[#0B1437] dark:text-teal-400" />
                 <div>
                   <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
                     Demandes de visite & Réservations (Pass Visite)
                   </h3>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     Suivi des rendez-vous de visite demandés par les locataires et étudiants
                   </p>
                 </div>
@@ -2950,7 +2953,7 @@ export function AdminDashboardView({
                         {formatTimestamp(ord.createdAt)}
                       </p>
                       {ord.receiptNumber && (
-                        <p className="text-[11px] text-emerald-700 dark:text-emerald-400 mt-0.5 tabular-nums">
+                        <p className="text-xs text-emerald-700 dark:text-emerald-400 mt-0.5 tabular-nums">
                           Reçu : {ord.receiptNumber}
                         </p>
                       )}
@@ -3014,7 +3017,7 @@ export function AdminDashboardView({
                             <button
                               type="button"
                               onClick={() => downloadPaymentReceipt(ord)}
-                              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-[#0A2540] dark:text-teal-300 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-[#0B1437] dark:text-teal-300 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                             >
                               <Download className="w-3.5 h-3.5" />
                               <span>Reçu</span>
@@ -3039,7 +3042,7 @@ export function AdminDashboardView({
           </div>
 
           {/* Locations officiellement confirmées */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+          <div className="bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
             <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <KeyRound className="w-4 h-4 text-teal-600 dark:text-teal-400" />
@@ -3047,7 +3050,7 @@ export function AdminDashboardView({
                   <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
                     Locations confirmées & accès communauté WhatsApp
                   </h3>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     Chaque confirmation débloque le message de bienvenue et le bouton communautaire WhatsApp pour le locataire concerné
                   </p>
                 </div>
@@ -3077,7 +3080,7 @@ export function AdminDashboardView({
                         {conf.tenantPhone ? ` (${conf.tenantPhone})` : ''} · Bailleur :{' '}
                         {conf.landlordName}
                       </p>
-                      <p className="text-[11px] text-slate-400 tabular-nums">
+                      <p className="text-xs text-slate-400 tabular-nums">
                         Confirmée le {new Date(conf.confirmedAtIso).toLocaleString('fr-FR')} par{' '}
                         {conf.confirmedByName}
                       </p>
@@ -3104,7 +3107,7 @@ export function AdminDashboardView({
       {tab === 'orders' && (
         <div className="space-y-6">
           {/* Suivi des commissions */}
-          <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-4">
+          <section className="bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <Coins className="w-4 h-4 text-teal-600 dark:text-teal-400" />
@@ -3120,49 +3123,49 @@ export function AdminDashboardView({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               <div className="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800">
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   Commissions Pass visite
                 </p>
                 <p className="text-base font-bold text-slate-900 dark:text-white tabular-nums mt-0.5">
                   {formatFcfa(commissionStats.visitPassRevenue)}
                 </p>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 tabular-nums">
+                <p className="text-xs text-slate-500 dark:text-slate-400 tabular-nums">
                   {commissionStats.visitPassCount} pass confirmé{commissionStats.visitPassCount > 1 ? 's' : ''}
                 </p>
               </div>
 
               <div className="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800">
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   Commissions Annonces Top
                 </p>
                 <p className="text-base font-bold text-slate-900 dark:text-white tabular-nums mt-0.5">
                   {formatFcfa(commissionStats.topListingRevenue)}
                 </p>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 tabular-nums">
+                <p className="text-xs text-slate-500 dark:text-slate-400 tabular-nums">
                   {commissionStats.topListingCount} boost{commissionStats.topListingCount > 1 ? 's' : ''} confirmé{commissionStats.topListingCount > 1 ? 's' : ''}
                 </p>
               </div>
 
               <div className="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800">
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   Commissions en attente
                 </p>
                 <p className="text-base font-bold text-amber-600 dark:text-amber-400 tabular-nums mt-0.5">
                   {formatFcfa(commissionStats.pendingRevenue)}
                 </p>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 tabular-nums">
+                <p className="text-xs text-slate-500 dark:text-slate-400 tabular-nums">
                   {pendingOrdersCount} paiement{pendingOrdersCount > 1 ? 's' : ''} à vérifier
                 </p>
               </div>
 
               <div className="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800">
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   Total encaissé
                 </p>
                 <p className="text-base font-bold text-teal-700 dark:text-teal-400 tabular-nums mt-0.5">
                   {formatFcfa(commissionStats.verifiedTotal)}
                 </p>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 tabular-nums">
+                <p className="text-xs text-slate-500 dark:text-slate-400 tabular-nums">
                   {commissionStats.contractCount > 0
                     ? `dont ${formatFcfa(commissionStats.contractRevenue)} d’archives contrat`
                     : `${commissionStats.visitPassCount + commissionStats.topListingCount} paiement(s) confirmé(s)`}
@@ -3188,8 +3191,8 @@ export function AdminDashboardView({
           </section>
 
           {/* Liste des paiements */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
-            <div className="px-5 py-3.5 bg-slate-50/70 dark:bg-slate-950/50 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+            <div className="px-5 py-3.5 bg-slate-50/70 dark:bg-[#0B1437]/50 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex flex-wrap items-center gap-1.5">
                 {(
                   [
@@ -3207,8 +3210,8 @@ export function AdminDashboardView({
                     onClick={() => setOrderStatusFilter(key)}
                     className={`px-2.5 py-1 text-xs font-medium rounded-lg border cursor-pointer tabular-nums ${
                       orderStatusFilter === key
-                        ? 'border-[#0A2540] dark:border-teal-500 bg-[#0A2540] dark:bg-teal-600 text-white'
-                        : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300'
+                        ? 'border-[#0B1437] dark:border-[#93A3FF] bg-[#0B1437] dark:bg-[#93A3FF] text-white dark:text-[#0B1437] font-semibold'
+                        : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0F172A] text-slate-600 dark:text-slate-300'
                     }`}
                   >
                     {label}
@@ -3220,7 +3223,7 @@ export function AdminDashboardView({
                 value={orderTypeFilter}
                 onChange={(e) => setOrderTypeFilter(e.target.value as 'all' | OrderType)}
                 aria-label="Filtrer par type de service"
-                className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200"
+                className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0F172A] text-slate-800 dark:text-slate-200"
               >
                 <option value="all">Tous les services</option>
                 <option value="visit_pass">Pass visite</option>
@@ -3269,18 +3272,18 @@ export function AdminDashboardView({
                           {ord.preferredDate ? ` · Visite souhaitée : ${ord.preferredDate}` : ''}
                         </p>
                         {ord.beneficiaryPhone && (
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 tabular-nums">
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 tabular-nums">
                             Compte destinataire : {ord.beneficiaryPhone}
                             {ord.receiptNumber ? ` · Reçu : ${ord.receiptNumber}` : ''}
                           </p>
                         )}
                         {!ord.beneficiaryPhone && ord.receiptNumber && (
-                          <p className="text-[11px] text-emerald-700 dark:text-emerald-400 mt-0.5 tabular-nums">
+                          <p className="text-xs text-emerald-700 dark:text-emerald-400 mt-0.5 tabular-nums">
                             Reçu officiel : {ord.receiptNumber}
                           </p>
                         )}
                         {(ord.rejectionReason || ord.adminNote) && (
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                             Note : {ord.rejectionReason || ord.adminNote}
                           </p>
                         )}
@@ -3343,7 +3346,7 @@ export function AdminDashboardView({
                           <button
                             type="button"
                             onClick={() => downloadPaymentReceipt(ord)}
-                            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-[#0A2540] dark:text-teal-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg cursor-pointer"
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-[#0B1437] dark:text-teal-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg cursor-pointer"
                           >
                             <Download className="w-3.5 h-3.5" />
                             <span>Reçu</span>
@@ -3382,8 +3385,8 @@ export function AdminDashboardView({
 
       {/* Tab 3b: Recherches de colocataires */}
       {tab === 'coloc' && (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
-          <div className="px-5 py-3.5 bg-slate-50/70 dark:bg-slate-950/50 border-b border-slate-200 dark:border-slate-800 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+        <div className="bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+          <div className="px-5 py-3.5 bg-slate-50/70 dark:bg-[#0B1437]/50 border-b border-slate-200 dark:border-slate-800 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-1.5">
               {(
                 [
@@ -3398,8 +3401,8 @@ export function AdminDashboardView({
                   onClick={() => setColocStatusFilter(key)}
                   className={`px-2.5 py-1 text-xs font-medium rounded-lg border cursor-pointer tabular-nums ${
                     colocStatusFilter === key
-                      ? 'border-[#0A2540] dark:border-teal-500 bg-[#0A2540] dark:bg-teal-600 text-white'
-                      : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300'
+                      ? 'border-[#0B1437] dark:border-[#93A3FF] bg-[#0B1437] dark:bg-[#93A3FF] text-white dark:text-[#0B1437] font-semibold'
+                      : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0F172A] text-slate-600 dark:text-slate-300'
                   }`}
                 >
                   {label}
@@ -3414,7 +3417,7 @@ export function AdminDashboardView({
                 value={colocSearch}
                 onChange={(e) => setColocSearch(e.target.value)}
                 placeholder="Rechercher profil, quartier..."
-                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white"
               />
             </div>
           </div>
@@ -3440,12 +3443,12 @@ export function AdminDashboardView({
                           {cp.authorName}
                         </p>
                         {cp.statusCategory && (
-                          <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                          <span className="text-xs text-slate-500 dark:text-slate-400">
                             ({COLOC_STATUS_CATEGORY_LABELS[cp.statusCategory]})
                           </span>
                         )}
                         <span
-                          className={`px-2 py-0.5 text-[11px] font-semibold rounded-md border ${
+                          className={`px-2 py-0.5 text-xs font-semibold rounded-md border ${
                             cp.status === 'active'
                               ? 'border-emerald-200 dark:border-emerald-900/60 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300'
                               : 'border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
@@ -3454,7 +3457,7 @@ export function AdminDashboardView({
                           {cp.status === 'active' ? 'Active' : 'Coloc trouvé'}
                         </span>
                         <span
-                          className={`px-2 py-0.5 text-[11px] font-semibold rounded-md border ${
+                          className={`px-2 py-0.5 text-xs font-semibold rounded-md border ${
                             modStatus === 'approved'
                               ? 'border-emerald-200 dark:border-emerald-900/60 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300'
                               : modStatus === 'rejected'
@@ -3474,11 +3477,11 @@ export function AdminDashboardView({
                         {cp.occupation} · {cp.lifestyle} — {cp.bio}
                       </p>
                       {cp.moderationReason && modStatus !== 'approved' && (
-                        <p className="text-[11px] text-amber-700 dark:text-amber-300">
+                        <p className="text-xs text-amber-700 dark:text-amber-300">
                           Motif modération : {cp.moderationReason}
                         </p>
                       )}
-                      <p className="text-[11px] text-slate-400 tabular-nums">
+                      <p className="text-xs text-slate-400 tabular-nums">
                         Publié {formatTimestamp(cp.createdAt)}
                         {cp.availability ? ` · Dispo : ${cp.availability}` : ''}
                       </p>
@@ -3563,7 +3566,7 @@ export function AdminDashboardView({
                               : 'Recherche réactivée.',
                           )
                         }
-                        className="px-3 py-1.5 text-xs font-medium text-[#0A2540] dark:text-teal-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg cursor-pointer"
+                        className="px-3 py-1.5 text-xs font-medium text-[#0B1437] dark:text-teal-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg cursor-pointer"
                       >
                         {cp.status === 'active' ? 'Clôturer (trouvé)' : 'Réactiver'}
                       </button>
@@ -3617,8 +3620,8 @@ export function AdminDashboardView({
       {/* Tab 4: Réclamations & Signalements (Annonces + Colocation) */}
       {tab === 'reports' && (
         <div className="space-y-6">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
-            <div className="px-5 py-3.5 bg-slate-50/70 dark:bg-slate-950/50 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
+          <div className="bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+            <div className="px-5 py-3.5 bg-slate-50/70 dark:bg-[#0B1437]/50 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
               <div className="flex flex-wrap items-center gap-1.5">
                 {(
                   [
@@ -3634,15 +3637,15 @@ export function AdminDashboardView({
                     onClick={() => setReportStatusFilter(key)}
                     className={`px-2.5 py-1 text-xs font-medium rounded-lg border cursor-pointer tabular-nums ${
                       reportStatusFilter === key
-                        ? 'border-[#0A2540] dark:border-teal-500 bg-[#0A2540] dark:bg-teal-600 text-white'
-                        : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300'
+                        ? 'border-[#0B1437] dark:border-[#93A3FF] bg-[#0B1437] dark:bg-[#93A3FF] text-white dark:text-[#0B1437] font-semibold'
+                        : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0F172A] text-slate-600 dark:text-slate-300'
                     }`}
                   >
                     {label}
                   </button>
                 ))}
               </div>
-              <span className="text-[11px] text-slate-500 dark:text-slate-400 tabular-nums">
+              <span className="text-xs text-slate-500 dark:text-slate-400 tabular-nums">
                 {allReports.length} annonce(s) · {allColocReports.length} colocation(s)
               </span>
             </div>
@@ -3669,7 +3672,7 @@ export function AdminDashboardView({
                                 : 'text-slate-400'
                             }`}
                           />
-                          <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase">
+                          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">
                             Annonce
                           </span>
                           <p className="text-sm font-semibold text-slate-900 dark:text-white">
@@ -3680,7 +3683,7 @@ export function AdminDashboardView({
                           Par <strong>{rep.reporterName}</strong> · Motif :{' '}
                           {REPORT_REASON_LABELS[rep.reason] || rep.reason} — {rep.details}
                         </p>
-                        <p className="text-[11px] text-slate-400 mt-1 tabular-nums">
+                        <p className="text-xs text-slate-400 mt-1 tabular-nums">
                           {formatTimestamp(rep.createdAt)} · Statut :{' '}
                           {REPORT_STATUS_LABELS[rep.status]}
                         </p>
@@ -3778,7 +3781,7 @@ export function AdminDashboardView({
                   return (
                     <div
                       key={crep.id}
-                      className="p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-slate-50/40 dark:bg-slate-950/30"
+                      className="p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-slate-50/40 dark:bg-[#0B1437]/30"
                     >
                       <div>
                         <div className="flex items-center gap-2">
@@ -3789,7 +3792,7 @@ export function AdminDashboardView({
                                 : 'text-slate-400'
                             }`}
                           />
-                          <span className="text-[11px] font-semibold text-teal-700 dark:text-teal-400 uppercase">
+                          <span className="text-xs font-semibold text-teal-700 dark:text-teal-400 uppercase">
                             Colocation ({crep.contextType.replace('coloc_', '')})
                           </span>
                           <p className="text-sm font-semibold text-slate-900 dark:text-white">
@@ -3800,7 +3803,7 @@ export function AdminDashboardView({
                           Par <strong>{crep.reporterName}</strong> · Motif : {crep.reason} —{' '}
                           {crep.details}
                         </p>
-                        <p className="text-[11px] text-slate-400 mt-1 tabular-nums">
+                        <p className="text-xs text-slate-400 mt-1 tabular-nums">
                           {formatTimestamp(crep.createdAt)} · Statut :{' '}
                           {REPORT_STATUS_LABELS[crep.status]}
                         </p>
@@ -3884,8 +3887,8 @@ export function AdminDashboardView({
 
       {/* Tab 5: Gestion des utilisateurs */}
       {tab === 'users' && (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
-          <div className="px-5 py-3.5 bg-slate-50/70 dark:bg-slate-950/50 border-b border-slate-200 dark:border-slate-800 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+        <div className="bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+          <div className="px-5 py-3.5 bg-slate-50/70 dark:bg-[#0B1437]/50 border-b border-slate-200 dark:border-slate-800 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-1.5">
               {(
                 [
@@ -3900,8 +3903,8 @@ export function AdminDashboardView({
                   onClick={() => setUserRoleFilter(key)}
                   className={`px-2.5 py-1 text-xs font-medium rounded-lg border cursor-pointer tabular-nums ${
                     userRoleFilter === key
-                      ? 'border-[#0A2540] dark:border-teal-500 bg-[#0A2540] dark:bg-teal-600 text-white'
-                      : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300'
+                      ? 'border-[#0B1437] dark:border-[#93A3FF] bg-[#0B1437] dark:bg-[#93A3FF] text-white dark:text-[#0B1437] font-semibold'
+                      : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0F172A] text-slate-600 dark:text-slate-300'
                   }`}
                 >
                   {label}
@@ -3924,7 +3927,7 @@ export function AdminDashboardView({
                   className={`px-2.5 py-1 text-xs font-medium rounded-lg border cursor-pointer tabular-nums ${
                     userStatusFilter === key
                       ? 'border-red-600 bg-red-600 text-white'
-                      : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300'
+                      : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0F172A] text-slate-600 dark:text-slate-300'
                   }`}
                 >
                   {label}
@@ -3939,7 +3942,7 @@ export function AdminDashboardView({
                 value={userSearch}
                 onChange={(e) => setUserSearch(e.target.value)}
                 placeholder="Rechercher nom, quartier..."
-                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white"
               />
             </div>
           </div>
@@ -3969,7 +3972,7 @@ export function AdminDashboardView({
                           {u.displayName}
                         </p>
                         <span
-                          className={`px-2 py-0.5 text-[11px] font-semibold rounded-md border ${
+                          className={`px-2 py-0.5 text-xs font-semibold rounded-md border ${
                             isUserSuspended
                               ? 'border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300'
                               : 'border-emerald-200 dark:border-emerald-900/60 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300'
@@ -3985,7 +3988,7 @@ export function AdminDashboardView({
                         {ordersCount > 1 ? 's' : ''} · {formatTimestamp(u.createdAt)}
                       </p>
                       {isUserSuspended && u.suspendedReason && (
-                        <p className="text-[11px] text-red-600 dark:text-red-400 mt-0.5">
+                        <p className="text-xs text-red-600 dark:text-red-400 mt-0.5">
                           Motif suspension : {u.suspendedReason}
                         </p>
                       )}
@@ -4038,7 +4041,7 @@ export function AdminDashboardView({
                             'Type de compte mis à jour.',
                           )
                         }
-                        className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200 cursor-pointer"
+                        className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0B1437] text-slate-800 dark:text-slate-200 cursor-pointer"
                       >
                         <option value="tenant">Étudiant / Locataire</option>
                         <option value="landlord">Propriétaire / Démarcheur</option>
@@ -4087,8 +4090,8 @@ export function AdminDashboardView({
 
       {/* Tab 6: Historique dédié des opérations */}
       {tab === 'history' && (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
-          <div className="px-5 py-3.5 bg-slate-50/70 dark:bg-slate-950/50 border-b border-slate-200 dark:border-slate-800 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+        <div className="bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+          <div className="px-5 py-3.5 bg-slate-50/70 dark:bg-[#0B1437]/50 border-b border-slate-200 dark:border-slate-800 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-1.5">
               {(Object.keys(ACTIVITY_TYPE_LABELS) as Array<'all' | ActivityTargetType>).map(
                 (key) => (
@@ -4098,8 +4101,8 @@ export function AdminDashboardView({
                     onClick={() => setHistoryTypeFilter(key)}
                     className={`px-2.5 py-1 text-xs font-medium rounded-lg border cursor-pointer ${
                       historyTypeFilter === key
-                        ? 'border-[#0A2540] dark:border-teal-500 bg-[#0A2540] dark:bg-teal-600 text-white'
-                        : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300'
+                        ? 'border-[#0B1437] dark:border-[#93A3FF] bg-[#0B1437] dark:bg-[#93A3FF] text-white dark:text-[#0B1437] font-semibold'
+                        : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0F172A] text-slate-600 dark:text-slate-300'
                     }`}
                   >
                     {ACTIVITY_TYPE_LABELS[key]}
@@ -4115,7 +4118,7 @@ export function AdminDashboardView({
                 value={historySearch}
                 onChange={(e) => setHistorySearch(e.target.value)}
                 placeholder="Filtrer acteur, action, cible..."
-                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white"
               />
             </div>
           </div>
@@ -4145,10 +4148,10 @@ export function AdminDashboardView({
                     </div>
                   </div>
                   <div className="text-right shrink-0">
-                    <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                    <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
                       {ACTIVITY_TYPE_LABELS[act.targetType] || act.targetType}
                     </span>
-                    <p className="text-[11px] text-slate-400 tabular-nums mt-0.5">
+                    <p className="text-xs text-slate-400 tabular-nums mt-0.5">
                       {formatTimestamp(act.createdAt)}
                     </p>
                   </div>
@@ -4162,7 +4165,7 @@ export function AdminDashboardView({
       {/* Tab 7: Paramètres de la plateforme */}
       {tab === 'settings' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <section className="lg:col-span-7 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6">
+          <section className="lg:col-span-7 bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 rounded-xl p-6">
             <h3 className="text-base font-semibold text-slate-900 dark:text-white mb-4">
               Paramètres de la plateforme (tarifs & numéros locaux)
             </h3>
@@ -4178,7 +4181,7 @@ export function AdminDashboardView({
                     min={0}
                     value={visitPassPrice}
                     onChange={(e) => setVisitPassPrice(e.target.value)}
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white tabular-nums"
+                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437] text-slate-900 dark:text-white tabular-nums"
                   />
                 </div>
                 <div>
@@ -4191,7 +4194,7 @@ export function AdminDashboardView({
                     min={0}
                     value={topListingPrice}
                     onChange={(e) => setTopListingPrice(e.target.value)}
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white tabular-nums"
+                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437] text-slate-900 dark:text-white tabular-nums"
                   />
                 </div>
                 <div>
@@ -4205,7 +4208,7 @@ export function AdminDashboardView({
                     max={90}
                     value={topListingDurationDays}
                     onChange={(e) => setTopListingDurationDays(e.target.value)}
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white tabular-nums"
+                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437] text-slate-900 dark:text-white tabular-nums"
                   />
                 </div>
               </div>
@@ -4221,7 +4224,7 @@ export function AdminDashboardView({
                     value={whatsappNumber}
                     onChange={(e) => setWhatsappNumber(e.target.value)}
                     placeholder="+2290157382961"
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white tabular-nums"
+                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437] text-slate-900 dark:text-white tabular-nums"
                   />
                 </div>
                 <div>
@@ -4233,7 +4236,7 @@ export function AdminDashboardView({
                     value={whatsappSecondaryNumber}
                     onChange={(e) => setWhatsappSecondaryNumber(e.target.value)}
                     placeholder="+22776688125"
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white tabular-nums"
+                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437] text-slate-900 dark:text-white tabular-nums"
                   />
                 </div>
               </div>
@@ -4250,7 +4253,7 @@ export function AdminDashboardView({
                     value={whatsappGroupUrl}
                     onChange={(e) => setWhatsappGroupUrl(e.target.value)}
                     placeholder={OFFICIAL_WHATSAPP_GROUP_URL}
-                    className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
+                    className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437] text-slate-900 dark:text-white"
                   />
                 </div>
               </div>
@@ -4266,7 +4269,7 @@ export function AdminDashboardView({
                     value={mtnNumber}
                     onChange={(e) => setMtnNumber(e.target.value)}
                     placeholder="+2290157382961"
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white tabular-nums"
+                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437] text-slate-900 dark:text-white tabular-nums"
                   />
                 </div>
                 <div>
@@ -4279,7 +4282,7 @@ export function AdminDashboardView({
                     value={airtelNumber}
                     onChange={(e) => setAirtelNumber(e.target.value)}
                     placeholder="+22776688125"
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white tabular-nums"
+                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437] text-slate-900 dark:text-white tabular-nums"
                   />
                 </div>
               </div>
@@ -4295,7 +4298,7 @@ export function AdminDashboardView({
                     value={nitaAccount}
                     onChange={(e) => setNitaAccount(e.target.value)}
                     placeholder="+22776688125"
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white tabular-nums"
+                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437] text-slate-900 dark:text-white tabular-nums"
                   />
                 </div>
                 <div>
@@ -4308,7 +4311,7 @@ export function AdminDashboardView({
                     value={moovNumber}
                     onChange={(e) => setMoovNumber(e.target.value)}
                     placeholder="+22776688125"
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white tabular-nums"
+                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437] text-slate-900 dark:text-white tabular-nums"
                   />
                 </div>
               </div>
@@ -4326,7 +4329,7 @@ export function AdminDashboardView({
                 <button
                   type="submit"
                   disabled={savingConfig}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-[#0A2540] hover:bg-slate-800 rounded-lg cursor-pointer shrink-0"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-[#0B1437] hover:bg-slate-800 dark:bg-[#93A3FF] dark:text-[#0B1437] dark:hover:bg-[#A6B3FF] rounded-lg cursor-pointer shrink-0"
                 >
                   <Save className="w-3.5 h-3.5" />
                   <span>{savingConfig ? 'Enregistrement...' : 'Sauvegarder la config'}</span>
@@ -4335,7 +4338,7 @@ export function AdminDashboardView({
             </form>
           </section>
 
-          <section className="lg:col-span-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+          <section className="lg:col-span-5 bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
               <h3 className="text-base font-semibold text-slate-900 dark:text-white">
                 Dernières opérations
@@ -4379,8 +4382,8 @@ export function AdminDashboardView({
       )}
       {/* Modale de motif de refus / échec / remboursement */}
       {orderActionTarget && (
-        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl overflow-hidden">
+        <div className="fixed inset-0 z-50 bg-[#060B1D]/75 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl overflow-hidden">
             <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
               <h4 className="text-sm font-semibold text-slate-900 dark:text-white">
                 {orderActionTarget.nextStatus === 'refunded'
@@ -4448,7 +4451,7 @@ export function AdminDashboardView({
                         ? 'Ex : Transaction expirée ou annulée sur le réseau...'
                         : 'Ex : Référence introuvable ou montant différent de celui attendu...'
                   }
-                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437] text-slate-900 dark:text-white"
                 />
               </div>
               <div className="flex items-center justify-end gap-2">
@@ -4474,14 +4477,14 @@ export function AdminDashboardView({
 
       {/* Modale d'inspection de preuve & historique de vérification */}
       {previewProofOrder && (
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl">
+        <div className="fixed inset-0 z-50 bg-[#060B1D]/75 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl">
             <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
               <div>
                 <h4 className="text-sm font-semibold text-slate-900 dark:text-white">
                   Preuve & Suivi — {ORDER_TYPE_LABELS[previewProofOrder.orderType]}
                 </h4>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 tabular-nums">
+                <p className="text-xs text-slate-500 dark:text-slate-400 tabular-nums">
                   Réf : {previewProofOrder.transactionRef} · Statut :{' '}
                   {ORDER_STATUS_LABELS[previewProofOrder.status]}
                 </p>
@@ -4497,7 +4500,7 @@ export function AdminDashboardView({
             </div>
 
             <div className="p-5 space-y-4 text-xs">
-              <div className="grid grid-cols-2 gap-2.5 p-3 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+              <div className="grid grid-cols-2 gap-2.5 p-3 rounded-lg bg-slate-50 dark:bg-[#0B1437] border border-slate-200 dark:border-slate-800">
                 <div>
                   <span className="text-slate-500 dark:text-slate-400 block">Client / Payeur</span>
                   <strong className="text-slate-900 dark:text-white">
@@ -4529,7 +4532,7 @@ export function AdminDashboardView({
                   <p className="font-medium text-slate-700 dark:text-slate-200">
                     Capture d’écran fournie :
                   </p>
-                  <div className="rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-950">
+                  <div className="rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-[#0B1437]">
                     <img
                       src={previewProofOrder.proofImage}
                       alt={`Preuve ${previewProofOrder.transactionRef}`}
@@ -4560,11 +4563,11 @@ export function AdminDashboardView({
                               {ORDER_STATUS_LABELS[entry.status]}
                             </span>{' '}
                             · <span className="text-slate-600 dark:text-slate-300">{entry.note}</span>
-                            <p className="text-[11px] text-slate-400 mt-0.5">
+                            <p className="text-xs text-slate-400 mt-0.5">
                               Par {entry.actorName}
                             </p>
                           </div>
-                          <span className="text-[11px] text-slate-400 tabular-nums shrink-0">
+                          <span className="text-xs text-slate-400 tabular-nums shrink-0">
                             {new Date(entry.atIso).toLocaleString('fr-FR')}
                           </span>
                         </div>
@@ -4578,7 +4581,7 @@ export function AdminDashboardView({
                   <button
                     type="button"
                     onClick={() => downloadPaymentReceipt(previewProofOrder)}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-[#0A2540] hover:bg-slate-800 dark:bg-teal-600 dark:hover:bg-teal-700 rounded-lg cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-[#0B1437] hover:bg-slate-800 dark:bg-[#93A3FF] dark:text-[#0B1437] dark:hover:bg-[#A6B3FF] rounded-lg cursor-pointer"
                   >
                     <Download className="w-3.5 h-3.5" />
                     <span>Télécharger le reçu</span>
@@ -4592,14 +4595,14 @@ export function AdminDashboardView({
 
       {/* Modale d'inspection complète d'une annonce, coordonnées privées du déposant & historique */}
       {inspectListing && (
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-3xl max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl">
+        <div className="fixed inset-0 z-50 bg-[#060B1D]/75 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-3xl max-h-[90vh] overflow-y-auto bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl">
             <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <h4 className="text-sm font-semibold text-slate-900 dark:text-white truncate">
                   Inspection — {inspectListing.title}
                 </h4>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 tabular-nums mt-0.5">
+                <p className="text-xs text-slate-500 dark:text-slate-400 tabular-nums mt-0.5">
                   {inspectListing.neighborhood} · {PROPERTY_TYPE_LABELS[inspectListing.propertyType]} ·{' '}
                   {formatFcfa(inspectListing.priceFcfa)} / mois · {LISTING_STATUS_LABELS[inspectListing.status]}
                 </p>
@@ -4620,7 +4623,7 @@ export function AdminDashboardView({
                 <div className="space-y-1.5">
                   <p className="font-semibold text-slate-900 dark:text-white flex items-center justify-between">
                     <span>Photos du logement ({inspectListing.photos.length})</span>
-                    <span className="text-[11px] font-normal text-slate-500 dark:text-slate-400">
+                    <span className="text-xs font-normal text-slate-500 dark:text-slate-400">
                       Cliquez sur une photo pour l’agrandir
                     </span>
                   </p>
@@ -4630,14 +4633,14 @@ export function AdminDashboardView({
                         type="button"
                         key={`${inspectListing.id}-photo-${idx}`}
                         onClick={() => setInspectLightboxIdx(idx)}
-                        className="group relative aspect-[4/3] rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-950 cursor-pointer"
+                        className="group relative aspect-[4/3] rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-[#0B1437] cursor-pointer"
                       >
                         <img
                           src={src}
                           alt={`Photo ${idx + 1} - ${inspectListing.title}`}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                         />
-                        <span className="absolute bottom-2 right-2 inline-flex items-center gap-1 px-2 py-1 rounded bg-slate-950/75 text-white text-[10px] font-medium">
+                        <span className="absolute bottom-2 right-2 inline-flex items-center gap-1 px-2 py-1 rounded bg-[#060B1D]/80 text-white text-xs font-medium">
                           <ZoomIn className="w-3 h-3" />
                           <span>Zoom</span>
                         </span>
@@ -4653,7 +4656,7 @@ export function AdminDashboardView({
 
               {/* Vidéos jointes & lecteur */}
               {inspectListing.videos && inspectListing.videos.length > 0 && (
-                <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-2.5">
+                <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-[#0B1437] border border-slate-200 dark:border-slate-800 space-y-2.5">
                   <p className="font-semibold text-slate-900 dark:text-white flex items-center gap-1.5">
                     <Film className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
                     <span>Vidéos jointes ({inspectListing.videos.length})</span>
@@ -4665,7 +4668,7 @@ export function AdminDashboardView({
                         return (
                           <div
                             key={v.id}
-                            className="p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 space-y-2"
+                            className="p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0F172A] space-y-2"
                           >
                             <div className="flex items-center justify-between gap-2">
                               <span className="font-medium text-slate-800 dark:text-slate-200">
@@ -4678,7 +4681,7 @@ export function AdminDashboardView({
                                   onClick={() =>
                                     void handleLoadInspectVideoClip(inspectListing.id, v.clipId)
                                   }
-                                  className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold text-white bg-[#0A2540] dark:bg-teal-600 rounded cursor-pointer"
+                                  className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-white bg-[#0B1437] dark:bg-[#93A3FF] dark:text-[#0B1437] rounded cursor-pointer"
                                 >
                                   <Play className="w-3 h-3" />
                                   <span>
@@ -4704,13 +4707,13 @@ export function AdminDashboardView({
                       return (
                         <div
                           key={v.id}
-                          className="p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between gap-2"
+                          className="p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0F172A] flex items-center justify-between gap-2"
                         >
                           <div className="min-w-0">
                             <p className="font-medium text-slate-800 dark:text-slate-200 truncate">
                               {v.title}
                             </p>
-                            <p className="text-[11px] text-slate-400 truncate">{v.url}</p>
+                            <p className="text-xs text-slate-400 truncate">{v.url}</p>
                           </div>
                           <a
                             href={
@@ -4722,7 +4725,7 @@ export function AdminDashboardView({
                             }
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800 rounded shrink-0"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800 rounded shrink-0"
                           >
                             <ExternalLink className="w-3 h-3" />
                             <span>Ouvrir ({parsed.providerLabel})</span>
@@ -4739,11 +4742,11 @@ export function AdminDashboardView({
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <UserCheck className="w-4 h-4 text-teal-700 dark:text-teal-400" />
-                    <h5 className="text-xs font-bold text-[#0A2540] dark:text-white uppercase tracking-wide">
+                    <h5 className="text-xs font-bold text-[#0B1437] dark:text-white uppercase tracking-wide">
                       Coordonnées privées & justificatif du déposant
                     </h5>
                   </div>
-                  <span className="text-[11px] text-teal-700 dark:text-teal-300 font-medium">
+                  <span className="text-xs text-teal-700 dark:text-teal-300 font-medium">
                     Jamais affichées publiquement
                   </span>
                 </div>
@@ -4805,7 +4808,7 @@ export function AdminDashboardView({
                     <div className="flex flex-wrap items-center gap-2 pt-1">
                       <a
                         href={`tel:${inspectVerification.contactPhone.replace(/[^0-9+]/g, '')}`}
-                        className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-white bg-[#0A2540] hover:bg-slate-800 rounded-lg"
+                        className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-white bg-[#0B1437] hover:bg-slate-800 dark:bg-[#93A3FF] dark:text-[#0B1437] dark:hover:bg-[#A6B3FF] rounded-lg"
                       >
                         <Phone className="w-3.5 h-3.5" />
                         <span>Appeler ({inspectVerification.contactPhone})</span>
@@ -4832,7 +4835,7 @@ export function AdminDashboardView({
               </div>
 
               {/* Caractéristiques détaillées du logement */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 p-3.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 p-3.5 rounded-lg bg-slate-50 dark:bg-[#0B1437] border border-slate-200 dark:border-slate-800">
                 <div>
                   <span className="text-slate-500 dark:text-slate-400 block">Déposant (public)</span>
                   <strong className="text-slate-900 dark:text-white">{inspectListing.ownerName}</strong>
@@ -4910,7 +4913,7 @@ export function AdminDashboardView({
                   {inspectListing.amenities.map((a) => (
                     <span
                       key={a}
-                      className="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px]"
+                      className="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs"
                     >
                       {a}
                     </span>
@@ -4919,7 +4922,7 @@ export function AdminDashboardView({
               )}
 
               {inspectListing.validatedByName && inspectListing.validatedAtIso && (
-                <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-300 tabular-nums">
+                <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#0B1437] border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300 tabular-nums">
                   Dernière décision enregistrée par <strong>{inspectListing.validatedByName}</strong>
                   {inspectListing.validatedByEmail ? ` (${inspectListing.validatedByEmail})` : ''} le{' '}
                   {new Date(inspectListing.validatedAtIso).toLocaleString('fr-FR')}
@@ -4948,12 +4951,12 @@ export function AdminDashboardView({
                             {LISTING_STATUS_LABELS[entry.status] || entry.status}
                           </span>{' '}
                           · <span className="text-slate-600 dark:text-slate-300">{entry.reason}</span>
-                          <p className="text-[11px] text-slate-400 mt-0.5">
+                          <p className="text-xs text-slate-400 mt-0.5">
                             Par {entry.actorName}
                             {entry.actorEmail ? ` (${entry.actorEmail})` : ''}
                           </p>
                         </div>
-                        <span className="text-[11px] text-slate-400 tabular-nums shrink-0">
+                        <span className="text-xs text-slate-400 tabular-nums shrink-0">
                           {new Date(entry.atIso).toLocaleString('fr-FR')}
                         </span>
                       </div>
@@ -5097,7 +5100,7 @@ export function AdminDashboardView({
                       setInspectListing(null);
                       openConfirmRentalModal(target);
                     }}
-                    className="inline-flex items-center gap-1 px-3.5 py-2 text-xs font-semibold text-white bg-[#0A2540] hover:bg-slate-800 dark:bg-teal-600 dark:hover:bg-teal-700 rounded-lg cursor-pointer"
+                    className="inline-flex items-center gap-1 px-3.5 py-2 text-xs font-semibold text-white bg-[#0B1437] hover:bg-slate-800 dark:bg-[#93A3FF] dark:text-[#0B1437] dark:hover:bg-[#A6B3FF] rounded-lg cursor-pointer"
                   >
                     <KeyRound className="w-3.5 h-3.5" />
                     <span>Confirmer une location</span>
@@ -5115,7 +5118,7 @@ export function AdminDashboardView({
           role="dialog"
           aria-modal="true"
           aria-label="Agrandissement photo logement"
-          className="fixed inset-0 z-[60] bg-slate-950/95 flex flex-col items-center justify-center p-4"
+          className="fixed inset-0 z-[60] bg-[#060B1D]/95 flex flex-col items-center justify-center p-4"
         >
           <div className="w-full max-w-5xl flex items-center justify-between text-white text-xs mb-3">
             <span className="font-semibold truncate">
@@ -5169,8 +5172,8 @@ export function AdminDashboardView({
 
       {/* Modale de motif (Demande de corrections, Refus ou Suspension) */}
       {listingModerationTarget && (
-        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl overflow-hidden">
+        <div className="fixed inset-0 z-50 bg-[#060B1D]/75 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl overflow-hidden">
             <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
               <h4 className="text-sm font-semibold text-slate-900 dark:text-white">
                 {listingModerationTarget.nextStatus === 'needs_correction'
@@ -5250,7 +5253,7 @@ export function AdminDashboardView({
                         ? 'Ex : Signalements répétés, logement déjà occupé ou informations à mettre à jour...'
                         : 'Ex : Photos non réelles, informations fausses ou logement non conforme...'
                   }
-                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437] text-slate-900 dark:text-white"
                 />
               </div>
               <div className="flex items-center justify-end gap-2">
@@ -5283,8 +5286,8 @@ export function AdminDashboardView({
 
       {/* Modale de motif obligatoire pour profils colocataires, demandes colocation, commentaires et avis */}
       {contentModerationTarget && (
-        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl overflow-hidden">
+        <div className="fixed inset-0 z-50 bg-[#060B1D]/75 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl overflow-hidden">
             <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
               <h4 className="text-sm font-semibold text-slate-900 dark:text-white">
                 {contentModerationTarget.decision === 'needs_correction'
@@ -5372,7 +5375,7 @@ export function AdminDashboardView({
                         ? `Commentaire — ${contentModerationTarget.item.authorName}`
                         : `Avis public — ${contentModerationTarget.item.authorName} (${contentModerationTarget.item.listingTitle})`}
                 </p>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   La publication reste invisible publiquement tant qu’elle n’est pas approuvée.
                 </p>
               </div>
@@ -5391,7 +5394,7 @@ export function AdminDashboardView({
                       ? 'Ex : Précisez votre quartier ou reformulez votre message sans numéro personnel...'
                       : 'Ex : Contenu non conforme aux règles de GidaColocs...'
                   }
-                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437] text-slate-900 dark:text-white"
                 />
               </div>
               <div className="flex items-center justify-end gap-2">
@@ -5421,8 +5424,8 @@ export function AdminDashboardView({
 
       {/* Modale de confirmation officielle de location (débloque lien communautaire WhatsApp au locataire) */}
       {confirmRentalTarget && (
-        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl">
+        <div className="fixed inset-0 z-50 bg-[#060B1D]/75 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl">
             <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <KeyRound className="w-4 h-4 text-teal-600 dark:text-teal-400" />
@@ -5476,7 +5479,7 @@ export function AdminDashboardView({
               }}
               className="p-5 space-y-4 text-xs"
             >
-              <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+              <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#0B1437] border border-slate-200 dark:border-slate-800">
                 <p className="font-semibold text-slate-900 dark:text-white">
                   {confirmRentalTarget.title}
                 </p>
@@ -5495,7 +5498,7 @@ export function AdminDashboardView({
                   value={rentalTenantSearch}
                   onChange={(e) => setRentalTenantSearch(e.target.value)}
                   placeholder="Filtrer par nom ou quartier..."
-                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0B1437] text-slate-900 dark:text-white"
                 />
                 <select
                   required
@@ -5505,7 +5508,7 @@ export function AdminDashboardView({
                     const info = userContacts[e.target.value];
                     if (info?.phone) setRentalTenantPhone(info.phone);
                   }}
-                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437] text-slate-900 dark:text-white"
                 >
                   <option value="">-- Choisir le compte du locataire --</option>
                   {allUsers
@@ -5535,7 +5538,7 @@ export function AdminDashboardView({
                   value={rentalTenantPhone}
                   onChange={(e) => setRentalTenantPhone(e.target.value)}
                   placeholder="Ex : +227 96 00 00 00"
-                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white tabular-nums"
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437] text-slate-900 dark:text-white tabular-nums"
                 />
               </div>
 
@@ -5548,7 +5551,7 @@ export function AdminDashboardView({
                   maxLength={450}
                   value={rentalWelcomeMessage}
                   onChange={(e) => setRentalWelcomeMessage(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437] text-slate-900 dark:text-white"
                 />
               </div>
 
@@ -5582,8 +5585,8 @@ export function AdminDashboardView({
 
       {/* Modale récapitulative post-confirmation de location */}
       {confirmedRentalResult && (
-        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl overflow-hidden">
+        <div className="fixed inset-0 z-50 bg-[#060B1D]/75 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl overflow-hidden">
             <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
@@ -5601,7 +5604,7 @@ export function AdminDashboardView({
               </button>
             </div>
             <div className="p-5 space-y-4 text-xs">
-              <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+              <div className="p-3 rounded-lg bg-slate-50 dark:bg-[#0B1437] border border-slate-200 dark:border-slate-800">
                 <p className="font-semibold text-slate-900 dark:text-white">
                   {confirmedRentalResult.listingTitle} ({confirmedRentalResult.neighborhood})
                 </p>
@@ -5641,8 +5644,8 @@ export function AdminDashboardView({
 
       {/* Modale de suspension d'un compte utilisateur */}
       {userSuspendTarget && (
-        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl overflow-hidden">
+        <div className="fixed inset-0 z-50 bg-[#060B1D]/75 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl overflow-hidden">
             <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
               <h4 className="text-sm font-semibold text-slate-900 dark:text-white">
                 Suspendre ce compte utilisateur
@@ -5679,7 +5682,7 @@ export function AdminDashboardView({
                   Compte : <strong>{userSuspendTarget.displayName}</strong> (
                   {ACCOUNT_TYPE_LABELS[userSuspendTarget.accountType]})
                 </p>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   L’utilisateur ne pourra plus publier d’annonces, commander de Pass Visite ni poster de messages jusqu’à réactivation.
                 </p>
               </div>
@@ -5694,7 +5697,7 @@ export function AdminDashboardView({
                   value={userSuspendReason}
                   onChange={(e) => setUserSuspendReason(e.target.value)}
                   placeholder="Ex : Fausses annonces répétées, comportement abusif ou non-respect des règles..."
-                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437] text-slate-900 dark:text-white"
                 />
               </div>
               <div className="flex items-center justify-end gap-2">

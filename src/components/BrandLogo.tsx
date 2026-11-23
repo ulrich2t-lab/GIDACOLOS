@@ -8,8 +8,8 @@ interface BrandLogoProps {
 }
 
 const SIZE_MAP = {
-  sm: { box: 'w-8 h-8 rounded-lg', icon: 'w-5 h-5', title: 'text-base', sub: 'text-[10px]' },
-  md: { box: 'w-9 h-9 rounded-xl', icon: 'w-5 h-5', title: 'text-base sm:text-lg', sub: 'text-[11px]' },
+  sm: { box: 'w-8 h-8 rounded-lg', icon: 'w-5 h-5', title: 'text-base', sub: 'text-[11px]' },
+  md: { box: 'w-9 h-9 rounded-xl', icon: 'w-5 h-5', title: 'text-base sm:text-lg', sub: 'text-xs' },
   lg: { box: 'w-12 h-12 rounded-2xl', icon: 'w-7 h-7', title: 'text-xl', sub: 'text-xs' },
 } as const;
 
@@ -26,7 +26,7 @@ export function BrandLogo({
       className={`${s.box} inline-flex items-center justify-center shrink-0 border transition-colors ${
         inverted
           ? 'bg-teal-500/15 border-teal-400/35 text-teal-300'
-          : 'bg-[#0A2540] dark:bg-teal-600 border-[#0A2540]/15 dark:border-teal-500/40 text-white'
+          : 'bg-[#0B1437] dark:bg-teal-600 border-[#0B1437]/15 dark:border-teal-500/40 text-white'
       }`}
       aria-hidden="true"
     >
@@ -71,7 +71,7 @@ export function BrandLogo({
       <span className="flex flex-col leading-none">
         <span
           className={`${s.title} font-extrabold tracking-tight font-display whitespace-nowrap ${
-            inverted ? 'text-white' : 'text-[#0A2540] dark:text-white'
+            inverted ? 'text-white' : 'text-[#0B1437] dark:text-white'
           }`}
         >
           Gida<span className={inverted ? 'text-teal-300' : 'text-teal-700 dark:text-teal-400'}>Colocs</span>

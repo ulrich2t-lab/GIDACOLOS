@@ -251,40 +251,43 @@ export function PublishListingView({
   if (!user) {
     return (
       <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        <section className="lg:col-span-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 space-y-5">
-          <div className="space-y-2">
-            <h2 className="text-2xl font-bold text-[#0A2540] dark:text-white leading-tight">
+        <section className="lg:col-span-6 hero-diamond-pattern text-white border border-indigo-400/20 rounded-3xl p-6 sm:p-8 space-y-5 shadow-xl">
+          <div className="space-y-2.5">
+            <p className="text-xs font-bold uppercase tracking-wider text-teal-300">
+              Publication Gratuite · Maradi
+            </p>
+            <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-white leading-tight text-balance">
               Publiez votre logement gratuitement à Maradi
             </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+            <p className="text-[15px] font-medium text-slate-200 leading-relaxed">
               Chambres, studios, appartements, maisons, annexes ou autres logements : publication
               100 % gratuite pour tous, avec vérification administrative avant mise en ligne.
             </p>
           </div>
 
-          <div className="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-800 text-sm text-slate-700 dark:text-slate-300">
+          <div className="space-y-3.5 pt-4 border-t border-white/15 text-sm font-medium text-slate-100">
             <div className="flex items-start gap-2.5">
-              <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+              <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
               <span>Aucun paiement demandé pour déposer une annonce ordinaire.</span>
             </div>
             <div className="flex items-start gap-2.5">
-              <Camera className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0 mt-0.5" />
+              <Camera className="w-4 h-4 text-teal-300 shrink-0 mt-0.5" />
               <span>Photos réelles et vidéos ajoutées facilement depuis votre téléphone.</span>
             </div>
             <div className="flex items-start gap-2.5">
-              <Check className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0 mt-0.5" />
+              <Check className="w-4 h-4 text-teal-300 shrink-0 mt-0.5" />
               <span>Vos coordonnées personnelles restent strictement confidentielles.</span>
             </div>
           </div>
         </section>
 
-        <section className="lg:col-span-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 space-y-4">
+        <section className="lg:col-span-6 bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-indigo-400/20 rounded-2xl p-6 sm:p-8 space-y-4 shadow-sm">
           <div>
-            <h3 className="text-base font-bold text-slate-900 dark:text-white">
+            <h3 className="font-display text-lg font-extrabold text-slate-900 dark:text-white">
               Connectez votre espace pour publier
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Connexion rapide par code SMS, WhatsApp + code secret ou Google en 1 clic.
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-0.5">
+              Connexion rapide par code WhatsApp + code secret ou Google en 1 clic.
             </p>
           </div>
           <AuthPanel defaultAccountType="landlord" />
@@ -295,17 +298,17 @@ export function PublishListingView({
 
   if (isSuspended && !isAdmin) {
     return (
-      <div className="max-w-2xl mx-auto bg-white dark:bg-slate-900 border border-red-200 dark:border-red-900/60 rounded-xl p-6 sm:p-8 space-y-3 text-center">
+      <div className="max-w-2xl mx-auto bg-white dark:bg-[#0F172A] border border-red-200 dark:border-red-900/60 rounded-2xl p-6 sm:p-8 space-y-3 text-center shadow-sm">
         <AlertTriangle className="w-8 h-8 text-red-600 dark:text-red-400 mx-auto" />
-        <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+        <h2 className="font-display text-lg font-extrabold text-slate-900 dark:text-white">
           Publication désactivée — Compte suspendu
         </h2>
-        <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+        <p className="text-sm font-medium text-slate-600 dark:text-slate-300 leading-relaxed">
           Votre compte est actuellement suspendu par l’administration GidaColocs. Vous ne pouvez pas
           publier ni modifier d’annonce tant que votre compte n’est pas réactivé.
         </p>
         {profile?.suspendedReason && (
-          <p className="text-xs text-red-700 dark:text-red-300 font-medium">
+          <p className="text-sm text-red-700 dark:text-red-300 font-semibold">
             Motif : {profile.suspendedReason}
           </p>
         )}
@@ -607,13 +610,16 @@ export function PublishListingView({
   const isShared = propertyType === 'maison_partagee' || propertyType === 'colocation';
 
   return (
-    <div className="max-w-3xl mx-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 sm:p-8">
-      <div className="mb-5 pb-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-4">
+    <div className="max-w-3xl mx-auto bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800/90 rounded-2xl overflow-hidden shadow-sm">
+      <div className="hero-diamond-pattern text-white px-6 py-6 sm:px-8 border-b border-indigo-400/20 flex items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+          <p className="text-xs font-bold uppercase tracking-wider text-teal-300 mb-1">
+            Dépôt d’annonce · Maradi
+          </p>
+          <h2 className="font-display text-xl sm:text-2xl font-extrabold text-white">
             {editingListing ? 'Modifier l’annonce immobilière' : 'Publier un logement à Maradi'}
           </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-sm font-medium text-slate-200 mt-1">
             {isAdmin
               ? 'Mode Administrateur : publication directe ou mise en validation.'
               : 'Publication 100 % gratuite — Validation administrateur obligatoire avant affichage public.'}
@@ -623,20 +629,21 @@ export function PublishListingView({
           <button
             type="button"
             onClick={onCancelEdit}
-            className="px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer whitespace-nowrap shrink-0"
+            className="min-h-[42px] px-4 py-2 text-xs font-bold text-white border border-white/25 hover:bg-white/10 rounded-xl cursor-pointer whitespace-nowrap shrink-0"
           >
             Annuler
           </button>
         )}
       </div>
 
+      <div className="p-6 sm:p-8">
       {/* Publication gratuite & validation banner */}
       {!editingListing && (
-        <div className="mb-5 p-3.5 rounded-lg border border-emerald-200 dark:border-emerald-900/60 bg-emerald-50/70 dark:bg-emerald-950/30 text-xs text-emerald-900 dark:text-emerald-200 space-y-1">
-          <p className="font-semibold">
+        <div className="mb-6 p-4 rounded-2xl border border-emerald-200 dark:border-emerald-900/60 bg-emerald-50/75 dark:bg-emerald-950/35 text-sm text-emerald-900 dark:text-emerald-200 space-y-1.5">
+          <p className="font-bold">
             Publication ordinaire 100 % gratuite (0 FCFA) — Aucun paiement demandé
           </p>
-          <p className="text-[11px] leading-relaxed">
+          <p className="text-xs font-medium leading-relaxed">
             Déposez gratuitement chambres, studios, appartements, maisons, maisons à partager,
             annexes ou autres logements. Votre annonce reçoit le statut « En attente de validation »
             et devient publique uniquement après vérification par l’administrateur. L’option
@@ -646,8 +653,8 @@ export function PublishListingView({
       )}
 
       {editingListing && !isAdmin && (
-        <div className="mb-5 p-3.5 rounded-lg border border-amber-200 dark:border-amber-900/60 bg-amber-50 dark:bg-amber-950/40 text-xs text-amber-800 dark:text-amber-200 space-y-1">
-          <p className="font-semibold">
+        <div className="mb-6 p-4 rounded-2xl border border-amber-200 dark:border-amber-900/60 bg-amber-50 dark:bg-amber-950/40 text-sm text-amber-800 dark:text-amber-200 space-y-1.5">
+          <p className="font-bold">
             {editingListing.status === 'needs_correction'
               ? 'Corrections demandées par l’administrateur'
               : editingListing.status === 'rejected'
@@ -655,9 +662,9 @@ export function PublishListingView({
                 : 'Modification soumise à validation administrateur'}
           </p>
           {editingListing.moderationReason && (
-            <p>Message de l’administrateur : {editingListing.moderationReason}</p>
+            <p className="font-medium">Message de l’administrateur : {editingListing.moderationReason}</p>
           )}
-          <p className="text-[11px]">
+          <p className="text-xs font-medium">
             Toute modification (photos ou informations) place automatiquement l’annonce en statut
             « En attente de validation » jusqu’à l’approbation de l’administrateur.
           </p>
@@ -665,13 +672,13 @@ export function PublishListingView({
       )}
 
       {error && (
-        <div className="mb-5 p-3.5 rounded-lg border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 text-xs text-red-700 dark:text-red-300">
+        <div className="mb-5 p-4 rounded-2xl border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 text-sm font-medium text-red-700 dark:text-red-300">
           {error}
         </div>
       )}
 
       {successMsg && (
-        <div className="mb-5 p-3.5 rounded-lg border border-emerald-200 dark:border-emerald-900/60 bg-emerald-50 dark:bg-emerald-950/40 text-xs text-emerald-700 dark:text-emerald-300">
+        <div className="mb-5 p-4 rounded-2xl border border-emerald-200 dark:border-emerald-900/60 bg-emerald-50 dark:bg-emerald-950/40 text-sm font-medium text-emerald-700 dark:text-emerald-300">
           {successMsg}
         </div>
       )}
@@ -679,7 +686,7 @@ export function PublishListingView({
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Property Type Selector Cards */}
         <div>
-          <span className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-2">
+          <span className="block text-[13px] font-semibold text-slate-700 dark:text-slate-200 mb-2">
             Catégorie du bien immobilier
           </span>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
@@ -695,14 +702,14 @@ export function PublishListingView({
                       setAvailableSpots('2');
                     }
                   }}
-                  className={`p-3 rounded-lg border text-left transition-colors cursor-pointer ${
+                  className={`p-3.5 rounded-xl border text-left transition-colors cursor-pointer ${
                     active
-                      ? 'border-teal-600 bg-teal-50/70 dark:bg-teal-950/50'
+                      ? 'border-teal-500 bg-teal-50/75 dark:bg-teal-950/55'
                       : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
                   }`}
                 >
-                  <p className="text-xs font-semibold text-slate-900 dark:text-white">{pt.label}</p>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
+                  <p className="text-sm font-bold text-slate-900 dark:text-white">{pt.label}</p>
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1 leading-snug">
                     {pt.description}
                   </p>
                 </button>
@@ -712,7 +719,7 @@ export function PublishListingView({
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+          <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
             Titre de l’annonce
           </label>
           <input
@@ -722,19 +729,19 @@ export function PublishListingView({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Ex. Chambre unique carrelée douche interne à Ali Dan Sofo ou Maison à partager Zone UDM"
-            className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-600"
+            className="w-full min-h-[46px] px-3.5 py-2.5 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437]/80 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
           />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
               Quartier à Maradi
             </label>
             <select
               value={neighborhood}
               onChange={(e) => setNeighborhood(e.target.value)}
-              className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
+              className="w-full min-h-[46px] px-3.5 py-2.5 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437]/80 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
             >
               {MARADI_NEIGHBORHOODS.map((q) => (
                 <option key={q} value={q}>
@@ -745,7 +752,7 @@ export function PublishListingView({
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
               Localisation précise / repères dans le quartier
             </label>
             <input
@@ -755,7 +762,7 @@ export function PublishListingView({
               value={locationDetails}
               onChange={(e) => setLocationDetails(e.target.value)}
               placeholder="Ex. À 150 m du goudron, près du forage ou campus UDM"
-              className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-600"
+              className="w-full min-h-[46px] px-3.5 py-2.5 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437]/80 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
             />
           </div>
         </div>
@@ -763,7 +770,7 @@ export function PublishListingView({
         {/* Financial, Rooms & Capacity Row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
-            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
               {isShared ? 'Loyer / personne (FCFA)' : 'Loyer mensuel (FCFA)'}
             </label>
             <input
@@ -774,12 +781,12 @@ export function PublishListingView({
               step={500}
               value={priceFcfa}
               onChange={(e) => setPriceFcfa(e.target.value)}
-              className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white tabular-nums"
+              className="w-full min-h-[46px] px-3.5 py-2.5 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437]/80 text-slate-900 dark:text-white tabular-nums focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
               Nombre de pièces
             </label>
             <input
@@ -789,12 +796,12 @@ export function PublishListingView({
               max={30}
               value={roomsCount}
               onChange={(e) => setRoomsCount(e.target.value)}
-              className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white tabular-nums"
+              className="w-full min-h-[46px] px-3.5 py-2.5 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437]/80 text-slate-900 dark:text-white tabular-nums focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
               Caution / Avance (mois)
             </label>
             <input
@@ -803,12 +810,12 @@ export function PublishListingView({
               max={12}
               value={depositMonths}
               onChange={(e) => setDepositMonths(e.target.value)}
-              className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white tabular-nums"
+              className="w-full min-h-[46px] px-3.5 py-2.5 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437]/80 text-slate-900 dark:text-white tabular-nums focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
               {isShared ? 'Places en colocation' : 'Places / Surface (m²)'}
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -819,7 +826,7 @@ export function PublishListingView({
                 title="Places disponibles"
                 value={availableSpots}
                 onChange={(e) => setAvailableSpots(e.target.value)}
-                className="w-full px-2.5 py-2.5 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white tabular-nums"
+                className="w-full min-h-[46px] px-2.5 py-2.5 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437]/80 text-slate-900 dark:text-white tabular-nums focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
               />
               <input
                 type="number"
@@ -829,15 +836,15 @@ export function PublishListingView({
                 value={surfaceSqm}
                 onChange={(e) => setSurfaceSqm(e.target.value)}
                 placeholder="m²"
-                className="w-full px-2.5 py-2.5 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white tabular-nums"
+                className="w-full min-h-[46px] px-2.5 py-2.5 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437]/80 text-slate-900 dark:text-white tabular-nums focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
               />
             </div>
           </div>
         </div>
 
         {/* Availability */}
-        <div className="space-y-2">
-          <label className="block text-xs font-medium text-slate-700 dark:text-slate-300">
+        <div className="space-y-2.5">
+          <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-200">
             Disponibilité du logement
           </label>
           <input
@@ -847,17 +854,17 @@ export function PublishListingView({
             value={availability}
             onChange={(e) => setAvailability(e.target.value)}
             placeholder="Ex. Disponible immédiatement, à partir du 1er du mois..."
-            className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
+            className="w-full min-h-[46px] px-3.5 py-2.5 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437]/80 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
           />
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-2">
             {LISTING_AVAILABILITY_PRESETS.map((preset) => (
               <button
                 key={preset}
                 type="button"
                 onClick={() => setAvailability(preset)}
-                className={`px-2.5 py-1 text-[11px] font-medium rounded-md border cursor-pointer ${
+                className={`min-h-[38px] px-3 py-1.5 text-xs font-bold rounded-xl border transition-colors cursor-pointer ${
                   availability === preset
-                    ? 'border-teal-600 bg-teal-50 dark:bg-teal-950/50 text-teal-800 dark:text-teal-300'
+                    ? 'border-teal-500 bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300'
                     : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
                 }`}
               >
@@ -868,20 +875,20 @@ export function PublishListingView({
         </div>
 
         {/* Real-Estate Specifications */}
-        <div className="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-4">
-          <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+        <div className="pt-5 border-t border-slate-200 dark:border-slate-800 space-y-4">
+          <h3 className="font-display text-base font-bold text-slate-900 dark:text-white">
             Caractéristiques immobilières & sanitaires
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
                 Option Douche (chambre / logement)
               </label>
               <select
                 value={bathroomType}
                 onChange={(e) => handleBathroomSelect(e.target.value as BathroomType)}
-                className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
+                className="w-full min-h-[46px] px-3.5 py-2.5 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437]/80 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
               >
                 {BATHROOM_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -892,13 +899,13 @@ export function PublishListingView({
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
                 Option WC / Toilettes
               </label>
               <select
                 value={toiletType}
                 onChange={(e) => setToiletType(e.target.value as ToiletType)}
-                className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
+                className="w-full min-h-[46px] px-3.5 py-2.5 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437]/80 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
               >
                 {TOILET_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -909,13 +916,13 @@ export function PublishListingView({
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
                 Ameublement
               </label>
               <select
                 value={furnished}
                 onChange={(e) => setFurnished(e.target.value as FurnishedType)}
-                className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
+                className="w-full min-h-[46px] px-3.5 py-2.5 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437]/80 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
               >
                 {FURNISHED_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -926,13 +933,13 @@ export function PublishListingView({
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
                 Eau & Électricité (SEEN / NIGELEC)
               </label>
               <select
                 value={waterElectricity}
                 onChange={(e) => setWaterElectricity(e.target.value as WaterElectricityType)}
-                className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
+                className="w-full min-h-[46px] px-3.5 py-2.5 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437]/80 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
               >
                 {UTILITY_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -944,13 +951,13 @@ export function PublishListingView({
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
               Profil de locataire / colocataire souhaité
             </label>
             <select
               value={roommatePreference}
               onChange={(e) => setRoommatePreference(e.target.value as RoommatePreference)}
-              className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
+              className="w-full min-h-[46px] px-3.5 py-2.5 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437]/80 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
             >
               {ROOMMATE_PREFERENCES.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -962,7 +969,7 @@ export function PublishListingView({
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+          <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
             Description détaillée du logement
           </label>
           <textarea
@@ -971,12 +978,12 @@ export function PublishListingView({
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Précisez la proximité avec l’UDM ou les axes goudronnés, l’état du carrelage/plafond, les espaces communs..."
-            className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
+            className="w-full px-3.5 py-2.5 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437]/80 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+          <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
             Conditions du bail & règles de vie (optionnel)
           </label>
           <input
@@ -985,15 +992,15 @@ export function PublishListingView({
             value={houseRules}
             onChange={(e) => setHouseRules(e.target.value)}
             placeholder="Ex. Cour calme après 22h, durée minimum 6 mois, entretien partagé..."
-            className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
+            className="w-full min-h-[46px] px-3.5 py-2.5 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437]/80 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
           />
         </div>
 
         <div>
-          <span className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-2">
+          <span className="block text-[13px] font-semibold text-slate-700 dark:text-slate-200 mb-2">
             Équipements & atouts immobiliers
           </span>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
             {AMENITIES_OPTIONS.map((item) => {
               const active = amenities.includes(item);
               return (
@@ -1001,13 +1008,13 @@ export function PublishListingView({
                   key={item}
                   type="button"
                   onClick={() => toggleAmenity(item)}
-                  className={`flex items-center gap-2 px-3 py-2 text-xs font-medium rounded-lg border transition-colors cursor-pointer text-left ${
+                  className={`min-h-[44px] flex items-center gap-2 px-3 py-2 text-xs font-semibold rounded-xl border transition-colors cursor-pointer text-left ${
                     active
-                      ? 'border-teal-600 bg-teal-50 dark:bg-teal-950/50 text-teal-800 dark:text-teal-300'
+                      ? 'border-teal-500 bg-teal-50 dark:bg-teal-950/55 text-teal-800 dark:text-teal-300'
                       : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
                   }`}
                 >
-                  <Check className={`w-3.5 h-3.5 shrink-0 ${active ? 'opacity-100' : 'opacity-20'}`} />
+                  <Check className={`w-4 h-4 shrink-0 ${active ? 'opacity-100' : 'opacity-25'}`} />
                   <span className="truncate">{item}</span>
                 </button>
               );
@@ -1016,14 +1023,14 @@ export function PublishListingView({
         </div>
 
         {/* Real Photo Upload & Camera / URL Section */}
-        <div className="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-3">
+        <div className="pt-5 border-t border-slate-200 dark:border-slate-800 space-y-3.5">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+              <h3 className="font-display text-base font-bold text-slate-900 dark:text-white">
                 Photos réelles du logement ({photos.length}/{BLUEPRINT_LIMITS.MAX_PHOTOS})
                 {!isAdmin && ' — Au moins 1 photo obligatoire'}
               </h3>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
                 Ajoutez des photos nettes de la pièce, de la cour ou de la douche. Optimisation auto 3G/4G.
               </p>
             </div>
@@ -1031,7 +1038,7 @@ export function PublishListingView({
               <button
                 type="button"
                 onClick={() => setShowPhotoUrlInput((v) => !v)}
-                className="inline-flex items-center gap-1.5 text-xs font-medium text-teal-700 dark:text-teal-400 hover:underline cursor-pointer whitespace-nowrap"
+                className="min-h-[38px] inline-flex items-center gap-1.5 text-xs font-bold text-teal-700 dark:text-teal-300 hover:underline cursor-pointer whitespace-nowrap"
               >
                 <Link2 className="w-3.5 h-3.5" />
                 <span>{showPhotoUrlInput ? 'Masquer le champ lien' : 'Ajouter par lien URL'}</span>
@@ -1046,12 +1053,12 @@ export function PublishListingView({
                 value={photoUrlDraft}
                 onChange={(e) => setPhotoUrlDraft(e.target.value)}
                 placeholder="https://exemple.com/photo-chambre.jpg"
-                className="flex-1 px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
+                className="flex-1 min-h-[44px] px-3.5 py-2 text-sm font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437]/80 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
               />
               <button
                 type="button"
                 onClick={handleAddPhotoByUrl}
-                className="px-4 py-2 text-xs font-semibold text-white bg-[#0A2540] hover:bg-slate-800 dark:bg-teal-600 dark:hover:bg-teal-700 rounded-lg cursor-pointer whitespace-nowrap"
+                className="min-h-[44px] px-4 py-2 text-xs font-bold text-white bg-[#0B1437] hover:bg-slate-800 dark:bg-[#93A3FF] dark:text-[#0B1437] dark:hover:bg-[#A6B3FF] rounded-xl cursor-pointer whitespace-nowrap"
               >
                 Ajouter la photo
               </button>
@@ -1062,7 +1069,7 @@ export function PublishListingView({
             {photos.map((photoUrl, idx) => (
               <div
                 key={`${idx}-${photoUrl.slice(0, 24)}`}
-                className="relative aspect-[4/3] rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800"
+                className="relative aspect-[4/3] rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800"
               >
                 <img
                   src={photoUrl}
@@ -1071,7 +1078,7 @@ export function PublishListingView({
                   className="w-full h-full object-cover"
                 />
                 {idx === 0 ? (
-                  <span className="absolute bottom-1.5 left-1.5 px-2 py-0.5 rounded bg-slate-950/75 text-white text-[10px] font-medium">
+                  <span className="absolute bottom-2 left-2 px-2.5 py-0.5 rounded-md bg-slate-950/80 text-white text-[11px] font-bold">
                     Photo principale
                   </span>
                 ) : (
@@ -1079,7 +1086,7 @@ export function PublishListingView({
                     type="button"
                     onClick={() => handlePromotePhotoCover(idx)}
                     title="Définir comme photo principale"
-                    className="absolute bottom-1.5 left-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-950/75 hover:bg-teal-700 text-white text-[10px] font-medium cursor-pointer"
+                    className="absolute bottom-2 left-2 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-slate-950/80 hover:bg-teal-700 text-white text-[11px] font-bold cursor-pointer"
                   >
                     <ArrowUp className="w-3 h-3" />
                     <span>Couverture</span>
@@ -1089,7 +1096,7 @@ export function PublishListingView({
                   type="button"
                   onClick={() => setPhotos((prev) => prev.filter((_, i) => i !== idx))}
                   aria-label="Retirer cette photo"
-                  className="absolute top-1.5 right-1.5 p-1.5 rounded-md bg-slate-900/75 text-white hover:bg-red-600 cursor-pointer"
+                  className="min-w-[34px] min-h-[34px] flex items-center justify-center absolute top-2 right-2 rounded-lg bg-slate-900/80 text-white hover:bg-red-600 cursor-pointer"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
@@ -1098,12 +1105,12 @@ export function PublishListingView({
 
             {photos.length < BLUEPRINT_LIMITS.MAX_PHOTOS && (
               <>
-                <label className="aspect-[4/3] rounded-lg border border-dashed border-slate-300 dark:border-slate-700 hover:border-teal-600 flex flex-col items-center justify-center gap-1.5 text-xs text-slate-600 dark:text-slate-300 cursor-pointer bg-slate-50 dark:bg-slate-950 p-2 text-center">
+                <label className="aspect-[4/3] rounded-xl border border-dashed border-slate-300 dark:border-slate-700 hover:border-teal-500 flex flex-col items-center justify-center gap-1.5 text-xs text-slate-600 dark:text-slate-300 cursor-pointer bg-slate-50 dark:bg-[#0B1437]/70 p-2 text-center">
                   <ImagePlus className="w-5 h-5 text-teal-600 dark:text-teal-400" />
-                  <span className="font-medium">
+                  <span className="font-bold">
                     {uploadingPhoto ? 'Compression...' : 'Importer photos'}
                   </span>
-                  <span className="text-[11px] text-slate-400">Galerie ou fichiers</span>
+                  <span className="text-[11px] font-medium text-slate-400">Galerie ou fichiers</span>
                   <input
                     type="file"
                     accept="image/*"
@@ -1121,11 +1128,11 @@ export function PublishListingView({
                     setCameraModalMode('photo');
                     setCameraModalOpen(true);
                   }}
-                  className="aspect-[4/3] rounded-lg border border-dashed border-teal-400 dark:border-teal-700 hover:border-teal-600 flex flex-col items-center justify-center gap-1.5 text-xs text-slate-700 dark:text-slate-200 cursor-pointer bg-teal-50/40 dark:bg-teal-950/30 p-2 text-center"
+                  className="aspect-[4/3] rounded-xl border border-dashed border-teal-400 dark:border-teal-700 hover:border-teal-500 flex flex-col items-center justify-center gap-1.5 text-xs text-slate-700 dark:text-slate-200 cursor-pointer bg-teal-50/50 dark:bg-teal-950/35 p-2 text-center"
                 >
                   <Camera className="w-5 h-5 text-teal-600 dark:text-teal-400" />
-                  <span className="font-medium">Photographier la chambre</span>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                  <span className="font-bold">Photographier la chambre</span>
+                  <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
                     Caméra en direct
                   </span>
                 </button>
@@ -1135,28 +1142,28 @@ export function PublishListingView({
         </div>
 
         {/* Real Video Upload & Video Link Section */}
-        <div className="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-4">
+        <div className="pt-5 border-t border-slate-200 dark:border-slate-800 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+              <h3 className="font-display text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <Film className="w-4 h-4 text-teal-600 dark:text-teal-400" />
                 <span>
                   Vidéos de visite du logement ({videos.length}/{BLUEPRINT_LIMITS.MAX_VIDEOS})
                 </span>
               </h3>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
                 Montrez la chambre, la douche interne/externe et la cour en vidéo pour rassurer les locataires.
               </p>
             </div>
 
             {videos.length < BLUEPRINT_LIMITS.MAX_VIDEOS && (
-              <div className="inline-flex items-center p-1 bg-slate-100 dark:bg-slate-800 rounded-lg self-start">
+              <div className="inline-flex items-center p-1 bg-slate-100 dark:bg-[#0B1437] border border-slate-200/80 dark:border-slate-800 rounded-xl self-start">
                 <button
                   type="button"
                   onClick={() => setVideoInputMode('file')}
-                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer whitespace-nowrap ${
+                  className={`min-h-[38px] px-3 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
                     videoInputMode === 'file'
-                      ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
+                      ? 'bg-white dark:bg-[#1E293B] text-slate-900 dark:text-white shadow-xs'
                       : 'text-slate-600 dark:text-slate-300'
                   }`}
                 >
@@ -1165,9 +1172,9 @@ export function PublishListingView({
                 <button
                   type="button"
                   onClick={() => setVideoInputMode('url')}
-                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer whitespace-nowrap ${
+                  className={`min-h-[38px] px-3 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
                     videoInputMode === 'url'
-                      ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
+                      ? 'bg-white dark:bg-[#1E293B] text-slate-900 dark:text-white shadow-xs'
                       : 'text-slate-600 dark:text-slate-300'
                   }`}
                 >
@@ -1178,9 +1185,9 @@ export function PublishListingView({
           </div>
 
           {videos.length < BLUEPRINT_LIMITS.MAX_VIDEOS && (
-            <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60 space-y-3">
+            <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-[#0B1437]/70 space-y-3">
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
                   Légende de la vidéo (optionnel)
                 </label>
                 <input
@@ -1189,19 +1196,19 @@ export function PublishListingView({
                   value={videoTitleDraft}
                   onChange={(e) => setVideoTitleDraft(e.target.value)}
                   placeholder="Ex. Visite chambre, douche interne et cour"
-                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                  className="w-full min-h-[44px] px-3.5 py-2 text-sm font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
                 />
               </div>
 
               {videoInputMode === 'file' ? (
                 <div className="space-y-3">
                   {videoProgress !== null ? (
-                    <div className="p-3.5 rounded-lg border border-teal-200 dark:border-teal-800 bg-white dark:bg-slate-900 space-y-2">
+                    <div className="p-3.5 rounded-xl border border-teal-200 dark:border-teal-800 bg-white dark:bg-[#0F172A] space-y-2">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="font-medium text-slate-800 dark:text-slate-200">
+                        <span className="font-semibold text-slate-800 dark:text-slate-200">
                           Optimisation vidéo pour lecture rapide 3G/4G...
                         </span>
-                        <span className="font-mono font-semibold text-teal-700 dark:text-teal-400 tabular-nums">
+                        <span className="font-mono font-bold text-teal-700 dark:text-teal-400 tabular-nums">
                           {videoProgress}%
                         </span>
                       </div>
@@ -1215,7 +1222,7 @@ export function PublishListingView({
                         <button
                           type="button"
                           onClick={() => videoAbortRef.current?.abort()}
-                          className="text-xs text-red-600 dark:text-red-400 hover:underline cursor-pointer"
+                          className="text-xs font-bold text-red-600 dark:text-red-400 hover:underline cursor-pointer"
                         >
                           Annuler le traitement
                         </button>
@@ -1229,13 +1236,13 @@ export function PublishListingView({
                           setCameraModalMode('video');
                           setCameraModalOpen(true);
                         }}
-                        className="flex items-center justify-center gap-2 px-3.5 py-3 rounded-lg border border-dashed border-teal-400 dark:border-teal-700 hover:border-teal-600 bg-teal-50/40 dark:bg-teal-950/30 text-xs font-semibold text-teal-800 dark:text-teal-300 cursor-pointer"
+                        className="min-h-[48px] flex items-center justify-center gap-2 px-3.5 py-3 rounded-xl border border-dashed border-teal-400 dark:border-teal-700 hover:border-teal-500 bg-teal-50/50 dark:bg-teal-950/35 text-xs font-bold text-teal-800 dark:text-teal-300 cursor-pointer"
                       >
                         <Camera className="w-4 h-4 shrink-0" />
                         <span>Filmer la chambre en direct</span>
                       </button>
 
-                      <label className="flex items-center justify-center gap-2 px-3.5 py-3 rounded-lg border border-dashed border-slate-300 dark:border-slate-700 hover:border-teal-600 bg-white dark:bg-slate-900 text-xs font-medium text-slate-700 dark:text-slate-200 cursor-pointer">
+                      <label className="min-h-[48px] flex items-center justify-center gap-2 px-3.5 py-3 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 hover:border-teal-500 bg-white dark:bg-[#0F172A] text-xs font-semibold text-slate-700 dark:text-slate-200 cursor-pointer">
                         <Video className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
                         <span>Importer une vidéo</span>
                         <input
@@ -1246,7 +1253,7 @@ export function PublishListingView({
                         />
                       </label>
 
-                      <label className="flex items-center justify-center gap-2 px-3.5 py-3 rounded-lg border border-dashed border-slate-300 dark:border-slate-700 hover:border-teal-600 bg-white dark:bg-slate-900 text-xs font-medium text-slate-700 dark:text-slate-200 cursor-pointer">
+                      <label className="min-h-[48px] flex items-center justify-center gap-2 px-3.5 py-3 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 hover:border-teal-500 bg-white dark:bg-[#0F172A] text-xs font-semibold text-slate-700 dark:text-slate-200 cursor-pointer">
                         <Film className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
                         <span>Caméra téléphone</span>
                         <input
@@ -1259,7 +1266,7 @@ export function PublishListingView({
                       </label>
                     </div>
                   )}
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
                     Les vidéos de votre appareil sont automatiquement compressées en extrait léger
                     (jusqu’à 12 s) pour un chargement rapide. Pour une visite longue, utilisez l’onglet
                     « Lien vidéo ».
@@ -1272,14 +1279,14 @@ export function PublishListingView({
                     value={videoUrlDraft}
                     onChange={(e) => setVideoUrlDraft(e.target.value)}
                     placeholder="https://youtube.com/watch?v=... ou lien TikTok / Drive / MP4"
-                    className="flex-1 px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                    className="flex-1 min-h-[44px] px-3.5 py-2 text-sm font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
                   />
                   <button
                     type="button"
                     onClick={handleAddVideoUrl}
-                    className="inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-[#0A2540] hover:bg-slate-800 dark:bg-teal-600 dark:hover:bg-teal-700 rounded-lg cursor-pointer whitespace-nowrap"
+                    className="min-h-[44px] inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-[#0B1437] hover:bg-slate-800 dark:bg-[#93A3FF] dark:text-[#0B1437] dark:hover:bg-[#A6B3FF] rounded-xl cursor-pointer whitespace-nowrap"
                   >
-                    <Plus className="w-3.5 h-3.5" />
+                    <Plus className="w-4 h-4" />
                     <span>Ajouter la vidéo</span>
                   </button>
                 </div>
@@ -1292,9 +1299,9 @@ export function PublishListingView({
               {videos.map((vid, idx) => (
                 <div
                   key={vid.id}
-                  className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden flex flex-col"
+                  className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0B1437]/80 overflow-hidden flex flex-col"
                 >
-                  <div className="relative aspect-video bg-slate-900 flex items-center justify-center">
+                  <div className="relative aspect-video bg-slate-950 flex items-center justify-center">
                     {vid.sourceType === 'clip' && vid.dataUrl ? (
                       <video
                         src={vid.dataUrl}
@@ -1304,18 +1311,18 @@ export function PublishListingView({
                         className="w-full h-full object-contain"
                       />
                     ) : vid.sourceType === 'clip' ? (
-                      <span className="text-xs text-slate-400">Chargement de l’aperçu vidéo...</span>
+                      <span className="text-xs font-medium text-slate-400">Chargement de l’aperçu vidéo...</span>
                     ) : (
                       <div className="p-4 text-center space-y-1">
                         <Film className="w-7 h-7 text-teal-400 mx-auto" />
-                        <p className="text-xs font-medium text-white truncate max-w-[240px]">
+                        <p className="text-xs font-semibold text-white truncate max-w-[240px]">
                           {vid.url}
                         </p>
                       </div>
                     )}
                   </div>
 
-                  <div className="p-3 flex items-center justify-between gap-2 border-t border-slate-200 dark:border-slate-800">
+                  <div className="p-3.5 flex items-center justify-between gap-2 border-t border-slate-200 dark:border-slate-800">
                     <div className="min-w-0 flex-1">
                       <input
                         type="text"
@@ -1329,9 +1336,9 @@ export function PublishListingView({
                           )
                         }
                         aria-label="Titre de la vidéo"
-                        className="w-full text-xs font-semibold text-slate-900 dark:text-white bg-transparent border-b border-transparent focus:border-teal-600 focus:outline-none pb-0.5"
+                        className="w-full text-xs font-bold text-slate-900 dark:text-white bg-transparent border-b border-transparent focus:border-teal-500 focus:outline-none pb-0.5"
                       />
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 tabular-nums">
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5 tabular-nums">
                         {vid.sourceType === 'clip' ? 'Clip optimisé' : 'Lien externe'}
                         <span className="mx-1.5" aria-hidden="true">
                           ·
@@ -1343,7 +1350,7 @@ export function PublishListingView({
                       type="button"
                       onClick={() => handleRemoveVideo(idx)}
                       aria-label="Retirer cette vidéo"
-                      className="p-1.5 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 cursor-pointer shrink-0"
+                      className="min-w-[38px] min-h-[38px] flex items-center justify-center rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 cursor-pointer shrink-0"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -1357,10 +1364,10 @@ export function PublishListingView({
         {/* Private Depositor & Verification Coordinates */}
         <div className="pt-5 border-t border-slate-200 dark:border-slate-800 space-y-4">
           <div className="space-y-1">
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+            <h3 className="font-display text-base font-bold text-slate-900 dark:text-white">
               Informations obligatoires du déposant (confidentielles)
             </h3>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed">
               Vos coordonnées personnelles ne sont jamais affichées publiquement sur le site. Elles
               servent uniquement à la vérification par l’administrateur GidaColocs avant
               publication.
@@ -1375,14 +1382,14 @@ export function PublishListingView({
                   key={opt.value}
                   type="button"
                   onClick={() => setDepositorStatus(opt.value)}
-                  className={`p-3 rounded-lg border text-left transition-colors cursor-pointer ${
+                  className={`p-3.5 rounded-xl border text-left transition-colors cursor-pointer ${
                     active
-                      ? 'border-teal-600 bg-teal-50/70 dark:bg-teal-950/50'
+                      ? 'border-teal-500 bg-teal-50/75 dark:bg-teal-950/55'
                       : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
                   }`}
                 >
-                  <p className="text-xs font-semibold text-slate-900 dark:text-white">{opt.label}</p>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
+                  <p className="text-sm font-bold text-slate-900 dark:text-white">{opt.label}</p>
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1 leading-snug">
                     {opt.description}
                   </p>
                 </button>
@@ -1392,7 +1399,7 @@ export function PublishListingView({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
                 Nom et prénom du déposant
               </label>
               <input
@@ -1402,12 +1409,12 @@ export function PublishListingView({
                 value={contactName}
                 onChange={(e) => setContactName(e.target.value)}
                 placeholder="Ex. Moussa Abdoulaye"
-                className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
+                className="w-full min-h-[46px] px-3.5 py-2.5 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437]/80 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
                 Quartier ou adresse du déposant
               </label>
               <input
@@ -1417,12 +1424,12 @@ export function PublishListingView({
                 value={depositorAddress}
                 onChange={(e) => setDepositorAddress(e.target.value)}
                 placeholder="Ex. Sabon Gari, près du marché"
-                className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
+                className="w-full min-h-[46px] px-3.5 py-2.5 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437]/80 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
                 Numéro de téléphone principal
               </label>
               <input
@@ -1432,12 +1439,12 @@ export function PublishListingView({
                 value={contactPhone}
                 onChange={(e) => setContactPhone(e.target.value)}
                 placeholder="70000000"
-                className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white tabular-nums"
+                className="w-full min-h-[46px] px-3.5 py-2.5 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437]/80 text-slate-900 dark:text-white tabular-nums focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
                 Numéro WhatsApp (si différent)
               </label>
               <input
@@ -1446,13 +1453,13 @@ export function PublishListingView({
                 value={contactWhatsapp}
                 onChange={(e) => setContactWhatsapp(e.target.value)}
                 placeholder="Optionnel si identique au téléphone"
-                className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white tabular-nums"
+                className="w-full min-h-[46px] px-3.5 py-2.5 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437]/80 text-slate-900 dark:text-white tabular-nums focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
               {depositorStatus === 'proprietaire'
                 ? 'Précision ou justificatif complémentaire (optionnel)'
                 : 'Justificatif / explication de votre autorisation à proposer ce logement (obligatoire)'}
@@ -1468,31 +1475,31 @@ export function PublishListingView({
                   ? 'Ex. Propriétaire résidant sur place, visite possible tous les jours...'
                   : 'Ex. Mandaté par le propriétaire Elh. Issoufou (lien familial ou accord direct pour louer la chambre)...'
               }
-              className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
+              className="w-full px-3.5 py-2.5 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437]/80 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
             />
           </div>
         </div>
 
         {isAdmin && !editingListing && (
-          <label className="flex items-center gap-2 text-xs font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
+          <label className="flex items-center gap-2.5 text-sm font-semibold text-slate-700 dark:text-slate-200 cursor-pointer">
             <input
               type="checkbox"
               checked={publishImmediately}
               onChange={(e) => setPublishImmediately(e.target.checked)}
-              className="rounded border-slate-300 text-teal-600 focus:ring-teal-600"
+              className="w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-600"
             />
             <span>Publier immédiatement avec le badge « Vérifié GidaColocs » (Admin uniquement)</span>
           </label>
         )}
 
-        <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <p className="text-[11px] text-slate-500 dark:text-slate-400">
+        <div className="pt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
             Publication gratuite · Aucun paiement requis
           </p>
           <button
             type="submit"
             disabled={saving || uploadingPhoto || videoProgress !== null}
-            className="px-6 py-2.5 text-sm font-semibold text-white bg-[#0A2540] hover:bg-slate-800 dark:bg-teal-600 dark:hover:bg-teal-700 disabled:opacity-60 rounded-lg transition-colors cursor-pointer whitespace-nowrap"
+            className="min-h-[48px] px-6 py-2.5 text-[15px] font-bold text-white bg-[#0B1437] hover:bg-slate-800 dark:bg-[#93A3FF] dark:text-[#0B1437] dark:hover:bg-[#A6B3FF] disabled:opacity-60 rounded-xl shadow-sm transition-colors cursor-pointer whitespace-nowrap"
           >
             {saving
               ? 'Envoi en cours...'
@@ -1504,6 +1511,7 @@ export function PublishListingView({
           </button>
         </div>
       </form>
+      </div>
 
       <CameraCaptureModal
         open={cameraModalOpen}
