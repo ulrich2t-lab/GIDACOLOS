@@ -1,5 +1,20 @@
 {
   "entities": {
+    "AdminRecord": {
+      "title": "AdminRecord",
+      "description": "Authorized administrator registry document provisioned strictly by a verified Google owner.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "role": { "type": "string", "enum": ["admin"] },
+        "label": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "maxLength": 200 },
+        "phone": { "type": "string", "maxLength": 40 },
+        "createdBy": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "role", "createdBy", "updatedAt"]
+    },
     "PlatformConfig": {
       "title": "PlatformConfig",
       "description": "Global Qolock Maradi tariffs, WhatsApp support numbers, student WhatsApp group link, and Mobile Money coordinates.",
@@ -619,6 +634,10 @@
     }
   },
   "firestore": {
+    "/admins/{adminId}": {
+      "schema": { "$ref": "#/entities/AdminRecord" },
+      "description": "Server-enforced administrator authorization records."
+    },
     "/platformConfig/{configId}": {
       "schema": { "$ref": "#/entities/PlatformConfig" },
       "description": "Global platform pricing, WhatsApp community link, and contact settings."

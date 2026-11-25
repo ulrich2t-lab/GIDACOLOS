@@ -2,22 +2,30 @@ import React, { createContext, useCallback, useContext, useEffect, useRef, useSt
 import { deleteApp, initializeApp, type FirebaseApp } from 'firebase/app';
 import {
   createUserWithEmailAndPassword,
+  EmailAuthProvider,
   getAuth,
+  getRedirectResult,
   GoogleAuthProvider,
+  linkWithCredential,
   linkWithPhoneNumber,
   onAuthStateChanged,
+  reauthenticateWithPopup,
   RecaptchaVerifier,
   signInWithEmailAndPassword,
   signInWithPhoneNumber,
   signInWithPopup,
+  signInWithRedirect,
   signOut,
+  updatePassword,
   updateProfile,
   type ConfirmationResult,
   type User,
 } from 'firebase/auth';
 import {
+  collection,
   doc,
   getDoc,
+  getDocs,
   serverTimestamp,
   setDoc,
   updateDoc,
@@ -66,12 +74,27 @@ export interface PendingPhoneOtpState {
   mode: 'signin' | 'link';
 }
 
+export interface AdminCodeConfigResult {
+  ok: boolean;
+  message: string;
+  phoneCodeProvisioned?: boolean;
+}
+
+export interface AdminRegistryItem {
+  uid: string;
+  label?: string;
+  email?: string;
+  phone?: string;
+}
+
 interface AuthContextValue {
   user: User | null;
   profile: UserProfile | null;
   privatePhone: string;
   verifiedPhones: string[];
   isAdmin: boolean;
+  isVerifiedOwner: boolean;
+  hasPasswordAdminLinked: boolean;
   adminUidMissingDoc: boolean;
   isSuspended: boolean;
   authReady: boolean;
@@ -89,9 +112,14 @@ interface AuthContextValue {
     rawWhatsAppPhone?: string,
     preferredAccountType?: AccountType,
   ) => Promise<boolean>;
-  signInWithGoogleSelectAccount: () => Promise<void>;
+  signInWithGoogleSelectAccount: (options?: { redirectToAdmin?: boolean }) => Promise<boolean>;
   signInWithWhatsApp: (input: WhatsAppAuthInput) => Promise<boolean>;
-  signInAdminWithPhonePassword: (rawPhone: string, password: string) => Promise<boolean>;
+  signInAdminWithPhonePassword: (rawIdentifier: string, password: string) => Promise<boolean>;
+  configureAdminAccessCode: (input: {
+    newCode: string;
+    previousPhoneCode?: string;
+  }) => Promise<AdminCodeConfigResult>;
+  listAdminRegistry: () => Promise<AdminRegistryItem[]>;
   sendPhoneOtp: (input: SendPhoneOtpInput) => Promise<boolean>;
   confirmPhoneOtp: (code: string) => Promise<boolean>;
   sendAdditionalPhoneOtp: (
@@ -110,10 +138,10 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 function resolveInitialTheme(): 'light' | 'dark' {
-  if (typeof window === 'undefined') return 'light';
+  if (typeof window === 'undefined') return 'dark';
   const stored = window.localStorage.getItem('qolock-theme');
   if (stored === 'dark' || stored === 'light') return stored;
-  return 'light';
+  return 'dark';
 }
 
 export function isSyntheticWhatsAppEmail(email?: string | null): boolean {
@@ -144,16 +172,51 @@ async function verifyOwnerEmailHash(email?: string | null): Promise<boolean> {
   return (ADMIN_EMAIL_SHA256_LIST as readonly string[]).includes(hex);
 }
 
+export const ADMIN_REDIRECT_SESSION_KEY = 'gidacolocs_pending_admin_view';
+const ADMIN_RATE_LIMIT_KEY = 'gidacolocs_admin_code_rl_v1';
+const ADMIN_MAX_ATTEMPTS = 5;
+const ADMIN_LOCKOUT_MS = 60_000;
+
+interface AdminRateState {
+  failures: number;
+  lockedUntil: number;
+}
+
+function readAdminRateState(): AdminRateState {
+  if (typeof window === 'undefined') return { failures: 0, lockedUntil: 0 };
+  try {
+    const raw = window.sessionStorage.getItem(ADMIN_RATE_LIMIT_KEY);
+    if (!raw) return { failures: 0, lockedUntil: 0 };
+    const parsed = JSON.parse(raw) as Partial<AdminRateState>;
+    return {
+      failures: typeof parsed.failures === 'number' ? parsed.failures : 0,
+      lockedUntil: typeof parsed.lockedUntil === 'number' ? parsed.lockedUntil : 0,
+    };
+  } catch {
+    return { failures: 0, lockedUntil: 0 };
+  }
+}
+
+function writeAdminRateState(state: AdminRateState): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.sessionStorage.setItem(ADMIN_RATE_LIMIT_KEY, JSON.stringify(state));
+  } catch {
+    // Ignore storage quota issues
+  }
+}
+
 function translateGoogleAuthError(error: unknown): string | null {
   const code = getFirebaseAuthErrorCode(error);
   if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
     return null;
   }
   if (code === 'auth/popup-blocked') {
-    return 'La fenêtre Google a été bloquée par votre navigateur. Autorisez les fenêtres contextuelles ou connectez-vous avec votre numéro de téléphone.';
+    return 'La fenêtre Google a été bloquée par votre navigateur. Autorisez les fenêtres contextuelles ou utilisez la connexion par code administrateur.';
   }
   if (code === 'auth/unauthorized-domain') {
-    return 'Ce domaine n’est pas autorisé pour la connexion Google. Utilisez la connexion par téléphone ou contactez l’assistance.';
+    const host = typeof window !== 'undefined' ? window.location.hostname : 'ce domaine';
+    return `Le domaine « ${host} » n’est pas encore autorisé dans Firebase Authentication (Domaines autorisés). Ajoutez « ${host} » dans la console Firebase ou connectez-vous via votre code administrateur.`;
   }
   if (code === 'auth/network-request-failed') {
     return 'Connexion Internet indisponible. Vérifiez votre réseau et réessayez.';
@@ -404,6 +467,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
+    void getRedirectResult(auth).catch((error) => {
+      const msg = translateGoogleAuthError(error);
+      if (msg) setAuthError(msg);
+    });
+  }, []);
+
+  useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       const seq = ++authSyncSeqRef.current;
 
@@ -427,10 +497,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (seq !== authSyncSeqRef.current) return;
 
         let ownerMatched = false;
+        let isGoogleProvider = false;
         if (firebaseUser.emailVerified && firebaseUser.email) {
           try {
             const tokenResult = await firebaseUser.getIdTokenResult();
-            const isGoogleProvider =
+            isGoogleProvider =
               tokenResult?.signInProvider === 'google.com' ||
               firebaseUser.providerData.some((p) => p?.providerId === 'google.com');
             if (isGoogleProvider) {
@@ -447,6 +518,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           hasAdminDoc = adminSnap.exists();
         } catch {
           hasAdminDoc = false;
+        }
+
+        if (ownerMatched && !hasAdminDoc && isGoogleProvider) {
+          try {
+            const cleanOwnerEmail = sanitizeText(
+              (firebaseUser.email || '').toLowerCase(),
+              BLUEPRINT_LIMITS.EMAIL_MAX,
+            );
+            const cleanOwnerLabel = sanitizeText(
+              firebaseUser.displayName || 'Propriétaire GidaColocs',
+              100,
+            );
+            await setDoc(doc(db, 'admins', firebaseUser.uid), {
+              uid: firebaseUser.uid,
+              role: 'admin',
+              label: cleanOwnerLabel,
+              email: cleanOwnerEmail,
+              createdBy: firebaseUser.uid,
+              updatedAt: serverTimestamp(),
+            });
+            hasAdminDoc = true;
+          } catch {
+            // Owner remains authorized via verified Google token claims
+          }
         }
         if (seq !== authSyncSeqRef.current) return;
 
@@ -493,6 +588,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setAuthModalOpen(false);
         return true;
       } catch (error) {
+        const errCode = getFirebaseAuthErrorCode(error);
+        const isStandaloneWindow = typeof window !== 'undefined' && window.self === window.top;
+        if (errCode === 'auth/popup-blocked' && isStandaloneWindow) {
+          try {
+            await signInWithRedirect(auth, googleProvider);
+            return true;
+          } catch (redirectError) {
+            const redirectMsg = translateGoogleAuthError(redirectError);
+            if (redirectMsg) setAuthError(redirectMsg);
+          }
+        }
         pendingWhatsAppPhoneRef.current = '';
         pendingAccountTypeRef.current = null;
         const msg = translateGoogleAuthError(error);
@@ -505,22 +611,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [],
   );
 
-  const signInWithGoogleSelectAccount = useCallback(async () => {
-    setAuthError(null);
-    setWhatsappProviderSetupHint(false);
-    setPhoneProviderSetupHint(false);
-    try {
+  const signInWithGoogleSelectAccount = useCallback(
+    async (options?: { redirectToAdmin?: boolean }): Promise<boolean> => {
+      setAuthError(null);
+      setWhatsappProviderSetupHint(false);
+      setPhoneProviderSetupHint(false);
       const selectorProvider = new GoogleAuthProvider();
       selectorProvider.setCustomParameters({ prompt: 'select_account' });
-      await signInWithPopup(auth, selectorProvider);
-      setAuthModalOpen(false);
-    } catch (error) {
-      const msg = translateGoogleAuthError(error);
-      if (msg) {
-        setAuthError(msg);
+      try {
+        await signInWithPopup(auth, selectorProvider);
+        setAuthModalOpen(false);
+        return true;
+      } catch (error) {
+        const errCode = getFirebaseAuthErrorCode(error);
+        const isStandaloneWindow = typeof window !== 'undefined' && window.self === window.top;
+        if (errCode === 'auth/popup-blocked' && isStandaloneWindow) {
+          try {
+            if (options?.redirectToAdmin && typeof window !== 'undefined') {
+              window.sessionStorage.setItem(ADMIN_REDIRECT_SESSION_KEY, '1');
+            }
+            await signInWithRedirect(auth, selectorProvider);
+            return true;
+          } catch (redirectError) {
+            if (typeof window !== 'undefined') {
+              window.sessionStorage.removeItem(ADMIN_REDIRECT_SESSION_KEY);
+            }
+            const redirectMsg = translateGoogleAuthError(redirectError);
+            if (redirectMsg) setAuthError(redirectMsg);
+            return false;
+          }
+        }
+        const msg = translateGoogleAuthError(error);
+        if (msg) {
+          setAuthError(msg);
+        }
+        return false;
       }
-    }
-  }, []);
+    },
+    [],
+  );
 
   const signInWithWhatsApp = useCallback(
     async ({
@@ -646,11 +775,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setWhatsappProviderSetupHint(false);
       setPhoneProviderSetupHint(false);
 
+      const rateState = readAdminRateState();
+      const now = Date.now();
+      if (rateState.lockedUntil > now) {
+        const waitSec = Math.ceil((rateState.lockedUntil - now) / 1000);
+        setAuthError(
+          `Sécurité anti-intrusion active : patientez ${waitSec}s avant une nouvelle tentative par code.`,
+        );
+        return false;
+      }
+
       const trimmed = rawIdentifier.trim();
       const isEmailInput = trimmed.includes('@');
       let targetEmail = RESERVED_ADMIN_AUTH_EMAIL;
 
-      if (isEmailInput) {
+      if (!trimmed) {
+        targetEmail = RESERVED_ADMIN_AUTH_EMAIL;
+        pendingWhatsAppPhoneRef.current = RESERVED_ADMIN_PHONE;
+      } else if (isEmailInput) {
         const lowerEmail = trimmed.toLowerCase();
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lowerEmail)) {
           setAuthError('Adresse e-mail administrateur invalide.');
@@ -662,7 +804,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const e164 = normalizeE164Phone(trimmed, '+229');
         if (e164 !== RESERVED_ADMIN_PHONE) {
           setAuthError(
-            'Identifiant administrateur non autorisé. Saisissez le numéro administrateur ou votre e-mail administrateur.',
+            'Identifiant administrateur non autorisé. Saisissez le numéro administrateur, votre e-mail administrateur, ou laissez vide pour le code principal.',
           );
           return false;
         }
@@ -671,7 +813,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (!password || password.length < 6) {
-        setAuthError('Saisissez votre mot de passe administrateur.');
+        setAuthError('Saisissez votre code d’accès administrateur (6 caractères minimum).');
         return false;
       }
 
@@ -691,15 +833,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (isEmailInput) {
             await signOut(auth);
             setAuthError(
-              `Ce compte (${targetEmail}) n’a pas de document d’autorisation dans admins/${cred.user.uid} (base ai-studio-5de74dcc-9250-46f1-84bb-3203c62095b4).`,
+              `Ce compte (${targetEmail}) n’a pas encore d’autorisation administrateur dans Firestore (/admins/${cred.user.uid}). Connectez-vous d’abord une fois avec Google administrateur.`,
             );
             return false;
           }
           setAuthError(
-            'Connexion réussie sur Firebase Auth, mais le document administrateur côté serveur (/admins/{uid}) n’est pas encore activé pour cet UID.',
+            'Code reconnu sur Firebase Auth, mais le document administrateur côté serveur (/admins/{uid}) n’est pas encore activé pour cet UID.',
           );
           return false;
         }
+        writeAdminRateState({ failures: 0, lockedUntil: 0 });
         return true;
       } catch (error: unknown) {
         pendingWhatsAppPhoneRef.current = '';
@@ -711,16 +854,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           errCode === 'auth/wrong-password' ||
           errCode === 'auth/user-not-found'
         ) {
-          setAuthError(
-            `Compte non trouvé ou mot de passe incorrect dans Firebase Authentication (projet gen-lang-client-0070181226) pour ${targetEmail} (${errCode}). Vérifiez que cet utilisateur existe dans Authentication > Users ou utilisez « Connexion Google propriétaire ».`,
-          );
+          const nextFailures = rateState.failures + 1;
+          if (nextFailures >= ADMIN_MAX_ATTEMPTS) {
+            writeAdminRateState({
+              failures: 0,
+              lockedUntil: Date.now() + ADMIN_LOCKOUT_MS,
+            });
+            setAuthError(
+              'Trop de tentatives incorrectes. Par sécurité, patientez 60 secondes ou utilisez « Connexion Google administrateur ».',
+            );
+          } else {
+            writeAdminRateState({ failures: nextFailures, lockedUntil: 0 });
+            setAuthError(
+              targetEmail === RESERVED_ADMIN_AUTH_EMAIL && !trimmed
+                ? 'Code d’accès incorrect ou non encore configuré. Connectez-vous d’abord avec Google administrateur pour définir votre code dans Paramètres.'
+                : `Identifiant ou code d’accès incorrect pour ${targetEmail}. Vérifiez votre saisie ou connectez-vous via Google administrateur.`,
+            );
+          }
         } else if (errCode === 'auth/too-many-requests') {
           setAuthError('Trop de tentatives. Patientez quelques instants avant de réessayer.');
         } else if (errCode === 'auth/network-request-failed') {
           setAuthError('Connexion Internet indisponible. Vérifiez votre réseau et réessayez.');
         } else if (errCode === 'auth/operation-not-allowed') {
           setAuthError(
-            'Le fournisseur E-mail/Mot de passe n’est pas activé dans Firebase Authentication.',
+            'Le fournisseur E-mail/Mot de passe doit être activé dans Firebase Authentication pour autoriser la connexion par code.',
           );
         } else if (errCode === 'auth/user-disabled') {
           setAuthError('Ce compte administrateur a été désactivé dans Firebase.');
@@ -736,6 +893,190 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     },
     [],
   );
+
+  const configureAdminAccessCode = useCallback(
+    async ({
+      newCode,
+      previousPhoneCode,
+    }: {
+      newCode: string;
+      previousPhoneCode?: string;
+    }): Promise<AdminCodeConfigResult> => {
+      if (!user || !isVerifiedOwner || !user.email) {
+        return {
+          ok: false,
+          message:
+            'Connectez-vous avec votre compte Google propriétaire autorisé pour définir le code d’accès administrateur.',
+        };
+      }
+
+      const cleanCode = newCode.trim();
+      if (cleanCode.length < 8 || cleanCode.length > 64) {
+        return {
+          ok: false,
+          message: 'Le code administrateur doit contenir entre 8 et 64 caractères.',
+        };
+      }
+
+      const cleanOwnerEmail = sanitizeText(user.email.toLowerCase(), BLUEPRINT_LIMITS.EMAIL_MAX);
+
+      try {
+        await setDoc(doc(db, 'admins', user.uid), {
+          uid: user.uid,
+          role: 'admin',
+          label: sanitizeText(user.displayName || 'Propriétaire GidaColocs', 100),
+          email: cleanOwnerEmail,
+          createdBy: user.uid,
+          updatedAt: serverTimestamp(),
+        });
+        setAdminDocExists(true);
+      } catch (err) {
+        return {
+          ok: false,
+          message: formatFirestoreErrorMessage(
+            err,
+            'Impossible d’enregistrer l’autorisation administrateur dans Firestore.',
+          ),
+        };
+      }
+
+      const hasPasswordProvider = user.providerData.some((p) => p?.providerId === 'password');
+      try {
+        if (!hasPasswordProvider) {
+          const cred = EmailAuthProvider.credential(cleanOwnerEmail, cleanCode);
+          await linkWithCredential(user, cred);
+        } else {
+          await updatePassword(user, cleanCode);
+        }
+      } catch (error) {
+        const errCode = getFirebaseAuthErrorCode(error);
+        if (errCode === 'auth/requires-recent-login') {
+          try {
+            const reauthProvider = new GoogleAuthProvider();
+            reauthProvider.setCustomParameters({ prompt: 'select_account' });
+            await reauthenticateWithPopup(user, reauthProvider);
+            if (!hasPasswordProvider) {
+              await linkWithCredential(user, EmailAuthProvider.credential(cleanOwnerEmail, cleanCode));
+            } else {
+              await updatePassword(user, cleanCode);
+            }
+          } catch (reauthErr) {
+            return {
+              ok: false,
+              message:
+                translateGoogleAuthError(reauthErr) ||
+                'Re-authentification Google requise pour modifier le code d’accès.',
+            };
+          }
+        } else if (errCode === 'auth/operation-not-allowed') {
+          return {
+            ok: false,
+            message:
+              'Activez le fournisseur « E-mail/Mot de passe » dans Firebase Console > Authentication > Sign-in method.',
+          };
+        } else {
+          return {
+            ok: false,
+            message:
+              error instanceof Error
+                ? error.message
+                : 'Impossible d’enregistrer le code d’accès administrateur.',
+          };
+        }
+      }
+
+      let phoneCodeProvisioned = false;
+      let secApp: FirebaseApp | null = null;
+      try {
+        secApp = initializeApp(auth.app.options, `qolock_admin_code_${Date.now()}`);
+        const secAuth = getAuth(secApp);
+        try {
+          const secCred = await createUserWithEmailAndPassword(
+            secAuth,
+            RESERVED_ADMIN_AUTH_EMAIL,
+            cleanCode,
+          );
+          await setDoc(doc(db, 'admins', secCred.user.uid), {
+            uid: secCred.user.uid,
+            role: 'admin',
+            label: 'Code administrateur principal',
+            email: RESERVED_ADMIN_AUTH_EMAIL,
+            phone: RESERVED_ADMIN_PHONE,
+            createdBy: user.uid,
+            updatedAt: serverTimestamp(),
+          });
+          phoneCodeProvisioned = true;
+        } catch (secErr) {
+          const secCode = getFirebaseAuthErrorCode(secErr);
+          if (secCode === 'auth/email-already-in-use' && previousPhoneCode?.trim()) {
+            const secCred = await signInWithEmailAndPassword(
+              secAuth,
+              RESERVED_ADMIN_AUTH_EMAIL,
+              previousPhoneCode.trim(),
+            );
+            await updatePassword(secCred.user, cleanCode);
+            await setDoc(doc(db, 'admins', secCred.user.uid), {
+              uid: secCred.user.uid,
+              role: 'admin',
+              label: 'Code administrateur principal',
+              email: RESERVED_ADMIN_AUTH_EMAIL,
+              phone: RESERVED_ADMIN_PHONE,
+              createdBy: user.uid,
+              updatedAt: serverTimestamp(),
+            });
+            phoneCodeProvisioned = true;
+          }
+        }
+      } catch {
+        // Non-blocking: owner email + code already active
+      } finally {
+        if (secApp) {
+          try {
+            await signOut(getAuth(secApp));
+          } catch {
+            // Ignore secondary signOut cleanup errors
+          }
+          try {
+            await deleteApp(secApp);
+          } catch {
+            // Ignore secondary delete cleanup errors
+          }
+        }
+      }
+
+      return {
+        ok: true,
+        phoneCodeProvisioned,
+        message: phoneCodeProvisioned
+          ? `Code administrateur activé pour ${cleanOwnerEmail}, le numéro ${RESERVED_ADMIN_PHONE} et la connexion par code direct.`
+          : `Code administrateur activé pour ${cleanOwnerEmail}. Vous pouvez vous connecter avec ${cleanOwnerEmail} et ce code.`,
+      };
+    },
+    [isVerifiedOwner, user],
+  );
+
+  const listAdminRegistry = useCallback(async (): Promise<AdminRegistryItem[]> => {
+    if (!user) return [];
+    try {
+      const snap = await getDocs(collection(db, 'admins'));
+      return snap.docs.map((d) => {
+        const data = d.data() as {
+          uid?: string;
+          label?: string;
+          email?: string;
+          phone?: string;
+        };
+        return {
+          uid: data.uid || d.id,
+          label: data.label,
+          email: data.email,
+          phone: data.phone,
+        };
+      });
+    } catch {
+      return [];
+    }
+  }, [user]);
 
   const sendPhoneOtp = useCallback(
     async ({
@@ -1093,6 +1434,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const isAdmin = Boolean(
     user && ((user.emailVerified && isVerifiedOwner) || adminDocExists),
   );
+  const hasPasswordAdminLinked = Boolean(
+    user && user.providerData.some((p) => p?.providerId === 'password'),
+  );
   const adminUidMissingDoc = Boolean(
     user &&
       !isAdmin &&
@@ -1109,6 +1453,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         privatePhone,
         verifiedPhones,
         isAdmin,
+        isVerifiedOwner,
+        hasPasswordAdminLinked,
         adminUidMissingDoc,
         isSuspended,
         authReady,
@@ -1126,6 +1472,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signInWithGoogleSelectAccount,
         signInWithWhatsApp,
         signInAdminWithPhonePassword,
+        configureAdminAccessCode,
+        listAdminRegistry,
         sendPhoneOtp,
         confirmPhoneOtp,
         sendAdditionalPhoneOtp,

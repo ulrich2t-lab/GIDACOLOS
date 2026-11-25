@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   collection,
   collectionGroup,
@@ -37,7 +37,12 @@ import {
   OFFICIAL_WHATSAPP_GROUP_URL,
 } from './lib/constants';
 import { buildWhatsAppUrl, formatFcfa } from './lib/formatters';
-import { AuthProvider, isSyntheticWhatsAppEmail, useAuth } from './context/AuthContext';
+import {
+  ADMIN_REDIRECT_SESSION_KEY,
+  AuthProvider,
+  isSyntheticWhatsAppEmail,
+  useAuth,
+} from './context/AuthContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Avatar } from './components/Avatar';
 import { BrandLogo } from './components/BrandLogo';
@@ -97,7 +102,19 @@ function GidaColocsPlatform() {
     signOutUser,
   } = useAuth();
 
-  const [activeView, setActiveView] = useState<ViewTab>('home');
+  const [activeView, setActiveView] = useState<ViewTab>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        if (window.sessionStorage.getItem(ADMIN_REDIRECT_SESSION_KEY) === '1') {
+          window.sessionStorage.removeItem(ADMIN_REDIRECT_SESSION_KEY);
+          return 'admin';
+        }
+      } catch {
+        // Ignore sessionStorage restrictions
+      }
+    }
+    return 'home';
+  });
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [selectedConfirmation, setSelectedConfirmation] = useState<RentalConfirmation | null>(null);
   const [editingListing, setEditingListing] = useState<Listing | null>(null);
@@ -111,7 +128,19 @@ function GidaColocsPlatform() {
   const [adminPassword, setAdminPassword] = useState('');
   const [showAdminPassword, setShowAdminPassword] = useState(false);
   const [adminSigningIn, setAdminSigningIn] = useState(false);
+  const [adminGoogleSigningIn, setAdminGoogleSigningIn] = useState(false);
   const [adminLoginLocalError, setAdminLoginLocalError] = useState<string | null>(null);
+
+  const nigerTapCountRef = useRef(0);
+  const nigerTapTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (nigerTapTimerRef.current !== null) {
+        window.clearTimeout(nigerTapTimerRef.current);
+      }
+    };
+  }, []);
 
   const [config, setConfig] = useState<PlatformConfig>(DEFAULT_PLATFORM_CONFIG);
   const [publicListings, setPublicListings] = useState<Listing[]>([]);
@@ -719,6 +748,25 @@ function GidaColocsPlatform() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleNigerAdminTrigger = () => {
+    if (nigerTapTimerRef.current !== null) {
+      window.clearTimeout(nigerTapTimerRef.current);
+    }
+    nigerTapCountRef.current += 1;
+    if (nigerTapCountRef.current >= 3) {
+      nigerTapCountRef.current = 0;
+      nigerTapTimerRef.current = null;
+      setAdminLoginLocalError(null);
+      clearAuthError();
+      handleNavigate('admin');
+      return;
+    }
+    nigerTapTimerRef.current = window.setTimeout(() => {
+      nigerTapCountRef.current = 0;
+      nigerTapTimerRef.current = null;
+    }, 1500);
+  };
+
   const handleAdminSignOut = async () => {
     await signOutUser();
     setActiveView('home');
@@ -782,8 +830,8 @@ function GidaColocsPlatform() {
   return (
     <div className="min-h-screen flex flex-col bg-[#F8FAFC] dark:bg-[#060B1D] text-slate-900 dark:text-slate-100">
       {/* Top Navigation Bar — Compact Single Row on Mobile & 3-Zone on Desktop */}
-      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#0B1228]/95 backdrop-blur-md border-b border-slate-200/90 dark:border-slate-800/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-3">
+      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#060B1D]/90 backdrop-blur-md border-b border-slate-200/90 dark:border-indigo-400/15">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4 lg:gap-8">
           {/* Left Brand Zone */}
           <button
             type="button"
@@ -794,13 +842,13 @@ function GidaColocsPlatform() {
           </button>
 
           {/* Center Nav Zone (Desktop) */}
-          <nav aria-label="Navigation principale" className="hidden md:flex items-center gap-1">
+          <nav aria-label="Navigation principale" className="hidden md:flex items-center gap-2 lg:gap-4">
             <button
               type="button"
               onClick={() => handleNavigate('home')}
-              className={`px-3.5 py-2 text-sm font-semibold rounded-xl transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+              className={`px-3 py-2 text-sm font-semibold rounded-xl transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                 activeView === 'home'
-                  ? 'bg-slate-100 dark:bg-slate-800 text-[#0B1437] dark:text-white'
+                  ? 'bg-slate-100 dark:bg-[#111B40] text-[#0B1437] dark:text-[#93A3FF]'
                   : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
@@ -810,9 +858,9 @@ function GidaColocsPlatform() {
             <button
               type="button"
               onClick={() => handleNavigate('coloc')}
-              className={`px-3.5 py-2 text-sm font-semibold rounded-xl transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+              className={`px-3 py-2 text-sm font-semibold rounded-xl transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                 activeView === 'coloc'
-                  ? 'bg-slate-100 dark:bg-slate-800 text-[#0B1437] dark:text-white'
+                  ? 'bg-slate-100 dark:bg-[#111B40] text-[#0B1437] dark:text-[#93A3FF]'
                   : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
@@ -822,9 +870,9 @@ function GidaColocsPlatform() {
             <button
               type="button"
               onClick={() => handleNavigate('publish')}
-              className={`px-3.5 py-2 text-sm font-semibold rounded-xl transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+              className={`px-3 py-2 text-sm font-semibold rounded-xl transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                 activeView === 'publish'
-                  ? 'bg-slate-100 dark:bg-slate-800 text-[#0B1437] dark:text-white'
+                  ? 'bg-slate-100 dark:bg-[#111B40] text-[#0B1437] dark:text-[#93A3FF]'
                   : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
@@ -834,9 +882,9 @@ function GidaColocsPlatform() {
             <button
               type="button"
               onClick={() => handleNavigate('account')}
-              className={`px-3.5 py-2 text-sm font-semibold rounded-xl transition-colors whitespace-nowrap shrink-0 cursor-pointer inline-flex items-center gap-1.5 ${
+              className={`px-3 py-2 text-sm font-semibold rounded-xl transition-colors whitespace-nowrap shrink-0 cursor-pointer inline-flex items-center gap-1.5 ${
                 activeView === 'account'
-                  ? 'bg-slate-100 dark:bg-slate-800 text-[#0B1437] dark:text-white'
+                  ? 'bg-slate-100 dark:bg-[#111B40] text-[#0B1437] dark:text-[#93A3FF]'
                   : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
@@ -852,7 +900,7 @@ function GidaColocsPlatform() {
               <button
                 type="button"
                 onClick={() => handleNavigate('admin')}
-                className={`px-3.5 py-2 text-sm font-semibold rounded-xl transition-colors whitespace-nowrap shrink-0 cursor-pointer inline-flex items-center gap-1.5 ${
+                className={`px-3 py-2 text-sm font-semibold rounded-xl transition-colors whitespace-nowrap shrink-0 cursor-pointer inline-flex items-center gap-1.5 ${
                   activeView === 'admin'
                     ? 'bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300'
                     : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
@@ -876,9 +924,9 @@ function GidaColocsPlatform() {
               onClick={toggleTheme}
               aria-label={theme === 'dark' ? 'Activer le mode clair' : 'Activer le mode sombre'}
               title={theme === 'dark' ? 'Mode clair' : 'Mode sombre'}
-              className="min-w-[40px] min-h-[40px] inline-flex items-center justify-center rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors cursor-pointer"
+              className="min-w-[42px] min-h-[42px] inline-flex items-center justify-center rounded-xl text-slate-600 dark:text-slate-200 bg-slate-100/80 dark:bg-[#111B40] border border-slate-200/80 dark:border-indigo-400/20 hover:bg-slate-200/80 dark:hover:bg-[#1A2758] transition-colors cursor-pointer"
             >
-              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-300" /> : <Moon className="w-4 h-4" />}
             </button>
 
             {user ? (
@@ -886,7 +934,7 @@ function GidaColocsPlatform() {
                 <button
                   type="button"
                   onClick={() => handleNavigate('account')}
-                  className="min-h-[40px] flex items-center gap-2 text-sm font-semibold text-slate-800 dark:text-slate-100 hover:text-[#0B1437] dark:hover:text-white cursor-pointer"
+                  className="min-h-[42px] flex items-center gap-2 px-2 py-1 rounded-xl text-sm font-semibold text-slate-800 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-[#111B40] cursor-pointer transition-colors"
                 >
                   <Avatar
                     name={currentUserName}
@@ -902,7 +950,7 @@ function GidaColocsPlatform() {
                   onClick={signOutUser}
                   aria-label="Se déconnecter"
                   title="Se déconnecter"
-                  className="min-w-[40px] min-h-[40px] inline-flex items-center justify-center rounded-xl text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                  className="min-w-[42px] min-h-[42px] inline-flex items-center justify-center rounded-xl text-slate-500 hover:text-red-600 dark:text-slate-300 dark:hover:text-red-400 hover:bg-slate-100 dark:hover:bg-[#111B40] transition-colors cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
@@ -911,7 +959,7 @@ function GidaColocsPlatform() {
               <button
                 type="button"
                 onClick={openAuthModal}
-                className="min-h-[40px] inline-flex items-center gap-1.5 px-3.5 py-2 text-sm font-bold text-white bg-[#0B1437] hover:bg-slate-800 dark:bg-teal-500 dark:hover:bg-teal-400 dark:text-[#0B1437] rounded-xl transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+                className="min-h-[42px] inline-flex items-center gap-1.5 px-4 py-2 text-sm font-bold text-white bg-[#0B1437] hover:bg-slate-800 dark:bg-[#93A3FF] dark:hover:bg-[#A6B4FF] dark:text-[#0B1437] rounded-xl shadow-xs transition-colors whitespace-nowrap shrink-0 cursor-pointer"
               >
                 <LogIn className="w-4 h-4" />
                 <span>Connexion</span>
@@ -1131,16 +1179,21 @@ function GidaColocsPlatform() {
                   <form
                     onSubmit={async (e) => {
                       e.preventDefault();
-                      if (adminSigningIn) return;
+                      if (adminSigningIn || adminGoogleSigningIn) return;
                       setAdminLoginLocalError(null);
                       clearAuthError();
-                      if (!adminPassword || adminPassword.length < 6) {
-                        setAdminLoginLocalError('Saisissez votre mot de passe administrateur.');
+                      if (!adminPassword || adminPassword.trim().length < 6) {
+                        setAdminLoginLocalError(
+                          'Saisissez votre code d’accès administrateur (6 caractères minimum).',
+                        );
                         return;
                       }
                       setAdminSigningIn(true);
                       try {
-                        const ok = await signInAdminWithPhonePassword(adminPhone, adminPassword);
+                        const ok = await signInAdminWithPhonePassword(
+                          adminPhone,
+                          adminPassword.trim(),
+                        );
                         if (ok) {
                           setAdminPassword('');
                         }
@@ -1155,14 +1208,13 @@ function GidaColocsPlatform() {
                         htmlFor="admin-login-phone"
                         className="block text-[13px] font-semibold text-slate-700 dark:text-slate-300 mb-1.5"
                       >
-                        Numéro ou e-mail administrateur
+                        Identifiant admin (téléphone ou e-mail — optionnel)
                       </label>
                       <div className="relative">
                         <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                         <input
                           id="admin-login-phone"
                           type="text"
-                          required
                           autoComplete="username"
                           value={adminPhone}
                           onChange={(e) => {
@@ -1170,7 +1222,7 @@ function GidaColocsPlatform() {
                             clearAuthError();
                             setAdminPhone(e.target.value);
                           }}
-                          placeholder="70000000"
+                          placeholder="70000000 ou e-mail administrateur"
                           className="w-full min-h-[46px] pl-10 pr-3.5 py-2.5 text-[15px] font-medium tabular-nums rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
                         />
                       </div>
@@ -1181,7 +1233,7 @@ function GidaColocsPlatform() {
                         htmlFor="admin-login-password"
                         className="block text-[13px] font-semibold text-slate-700 dark:text-slate-300 mb-1.5"
                       >
-                        Mot de passe administrateur
+                        Code d’accès administrateur
                       </label>
                       <div className="relative">
                         <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -1204,8 +1256,8 @@ function GidaColocsPlatform() {
                           onClick={() => setShowAdminPassword((v) => !v)}
                           aria-label={
                             showAdminPassword
-                              ? 'Masquer le mot de passe'
-                              : 'Afficher le mot de passe'
+                              ? 'Masquer le code administrateur'
+                              : 'Afficher le code administrateur'
                           }
                           className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
                         >
@@ -1220,12 +1272,12 @@ function GidaColocsPlatform() {
 
                     <button
                       type="submit"
-                      disabled={adminSigningIn}
+                      disabled={adminSigningIn || adminGoogleSigningIn}
                       className="w-full min-h-[48px] inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-[#0B1437] hover:bg-slate-800 dark:bg-[#93A3FF] dark:text-[#0B1437] dark:hover:bg-[#A6B3FF] disabled:opacity-60 rounded-xl cursor-pointer"
                     >
-                      <Shield className="w-4 h-4" />
+                      <KeyRound className="w-4 h-4" />
                       <span>
-                        {adminSigningIn ? 'Vérification...' : 'Accéder au tableau de bord'}
+                        {adminSigningIn ? 'Vérification du code...' : 'Connexion par code'}
                       </span>
                     </button>
                   </form>
@@ -1240,8 +1292,19 @@ function GidaColocsPlatform() {
 
                   <button
                     type="button"
-                    onClick={signInWithGoogleSelectAccount}
-                    className="w-full min-h-[46px] inline-flex items-center justify-center gap-2.5 px-4 py-2.5 text-sm font-bold text-slate-800 dark:text-slate-100 bg-white dark:bg-[#0B1437] border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+                    disabled={adminSigningIn || adminGoogleSigningIn}
+                    onClick={async () => {
+                      if (adminSigningIn || adminGoogleSigningIn) return;
+                      setAdminLoginLocalError(null);
+                      clearAuthError();
+                      setAdminGoogleSigningIn(true);
+                      try {
+                        await signInWithGoogleSelectAccount({ redirectToAdmin: true });
+                      } finally {
+                        setAdminGoogleSigningIn(false);
+                      }
+                    }}
+                    className="w-full min-h-[48px] inline-flex items-center justify-center gap-2.5 px-4 py-2.5 text-sm font-bold text-slate-800 dark:text-slate-100 bg-white dark:bg-[#0B1437] border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-60 rounded-xl transition-colors cursor-pointer"
                   >
                     <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
                       <path
@@ -1261,7 +1324,11 @@ function GidaColocsPlatform() {
                         d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.99 3.14c.95-2.85 3.6-4.96 6.72-4.96Z"
                       />
                     </svg>
-                    <span>Connexion Google administrateur</span>
+                    <span>
+                      {adminGoogleSigningIn
+                        ? 'Connexion Google en cours...'
+                        : 'Connexion Google administrateur'}
+                    </span>
                   </button>
                 </>
               )}
@@ -1293,12 +1360,12 @@ function GidaColocsPlatform() {
       </main>
 
       {/* Footer (cleared above mobile bottom tab bar) */}
-      <footer className="border-t border-slate-200 dark:border-slate-800/90 bg-white dark:bg-[#0B1228] mt-12 pb-24 md:pb-8">
+      <footer className="border-t border-slate-200 dark:border-indigo-400/15 bg-white dark:bg-[#060B1D] mt-12 pb-24 md:pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
           <div className="flex items-center gap-3.5 select-none">
             <BrandLogo
               size="md"
-              subtitle="Colocation & logements vérifiés à Maradi, Niger."
+              subtitle="Plateforme de colocation & logements vérifiés à Maradi."
             />
           </div>
 
@@ -1356,16 +1423,31 @@ function GidaColocsPlatform() {
                   </>
                 )}
               </button>
-
-              <button
-                type="button"
-                onClick={() => handleNavigate('admin')}
-                aria-label="Portail sécurisé"
-                className="min-w-[40px] min-h-[40px] inline-flex items-center justify-center p-1.5 text-slate-400/60 dark:text-slate-600 hover:text-slate-600 dark:hover:text-slate-400 rounded-xl transition-colors cursor-pointer"
-              >
-                <Shield className="w-3.5 h-3.5" />
-              </button>
             </div>
+          </div>
+        </div>
+
+        <div className="border-t border-slate-100 dark:border-indigo-400/10">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+            <span>© {new Date().getFullYear()} GidaColocs · Logements &amp; colocation vérifiés.</span>
+            <p className="select-none">
+              Maradi,{' '}
+              <span
+                role="button"
+                tabIndex={0}
+                onClick={handleNigerAdminTrigger}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleNigerAdminTrigger();
+                  }
+                }}
+                className="inline-block py-1.5 px-1 -my-1.5 -mx-1 touch-manipulation select-none cursor-default rounded active:text-[#0B1437] dark:active:text-[#93A3FF]"
+              >
+                Niger
+              </span>
+              .
+            </p>
           </div>
         </div>
       </footer>
@@ -1373,19 +1455,22 @@ function GidaColocsPlatform() {
       {/* Ergonomic Mobile Bottom Navigation Bar (Thumb-Zone) */}
       <nav
         aria-label="Navigation mobile"
-        className={`md:hidden fixed bottom-0 inset-x-0 z-40 h-16 bg-white/95 dark:bg-[#0B1228]/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800/90 grid ${
+        className={`md:hidden fixed bottom-0 inset-x-0 z-40 h-16 bg-white/95 dark:bg-[#060B1D]/95 backdrop-blur-md border-t border-slate-200 dark:border-indigo-400/20 grid ${
           isAdmin ? 'grid-cols-5' : 'grid-cols-4'
         } items-center px-1`}
       >
         <button
           type="button"
           onClick={() => handleNavigate('home')}
-          className={`h-full flex flex-col items-center justify-center gap-1 text-[11px] font-bold transition-colors cursor-pointer ${
+          className={`relative h-full flex flex-col items-center justify-center gap-1 text-[11px] font-bold transition-colors cursor-pointer ${
             activeView === 'home'
               ? 'text-[#0B1437] dark:text-[#93A3FF]'
               : 'text-slate-500 dark:text-slate-400'
           }`}
         >
+          {activeView === 'home' && (
+            <span className="absolute top-0 w-7 h-0.5 rounded-full bg-[#0B1437] dark:bg-[#93A3FF]" />
+          )}
           <Building2 className="w-5 h-5" />
           <span>Logements</span>
         </button>
@@ -1393,12 +1478,15 @@ function GidaColocsPlatform() {
         <button
           type="button"
           onClick={() => handleNavigate('coloc')}
-          className={`h-full flex flex-col items-center justify-center gap-1 text-[11px] font-bold transition-colors cursor-pointer ${
+          className={`relative h-full flex flex-col items-center justify-center gap-1 text-[11px] font-bold transition-colors cursor-pointer ${
             activeView === 'coloc'
               ? 'text-[#0B1437] dark:text-[#93A3FF]'
               : 'text-slate-500 dark:text-slate-400'
           }`}
         >
+          {activeView === 'coloc' && (
+            <span className="absolute top-0 w-7 h-0.5 rounded-full bg-[#0B1437] dark:bg-[#93A3FF]" />
+          )}
           <Users className="w-5 h-5" />
           <span>Coloc</span>
         </button>
@@ -1406,12 +1494,15 @@ function GidaColocsPlatform() {
         <button
           type="button"
           onClick={() => handleNavigate('publish')}
-          className={`h-full flex flex-col items-center justify-center gap-1 text-[11px] font-bold transition-colors cursor-pointer ${
+          className={`relative h-full flex flex-col items-center justify-center gap-1 text-[11px] font-bold transition-colors cursor-pointer ${
             activeView === 'publish'
               ? 'text-teal-700 dark:text-teal-300'
               : 'text-slate-500 dark:text-slate-400'
           }`}
         >
+          {activeView === 'publish' && (
+            <span className="absolute top-0 w-7 h-0.5 rounded-full bg-teal-600 dark:bg-teal-300" />
+          )}
           <PlusCircle className="w-5 h-5" />
           <span>Publier</span>
         </button>
@@ -1419,12 +1510,15 @@ function GidaColocsPlatform() {
         <button
           type="button"
           onClick={() => handleNavigate('account')}
-          className={`h-full flex flex-col items-center justify-center gap-1 text-[11px] font-bold transition-colors cursor-pointer ${
+          className={`relative h-full flex flex-col items-center justify-center gap-1 text-[11px] font-bold transition-colors cursor-pointer ${
             activeView === 'account'
               ? 'text-[#0B1437] dark:text-[#93A3FF]'
               : 'text-slate-500 dark:text-slate-400'
           }`}
         >
+          {activeView === 'account' && (
+            <span className="absolute top-0 w-7 h-0.5 rounded-full bg-[#0B1437] dark:bg-[#93A3FF]" />
+          )}
           <User className="w-5 h-5" />
           <span>
             Espace{unreadNotificationsCount > 0 ? ` (${unreadNotificationsCount})` : ''}
@@ -1435,12 +1529,15 @@ function GidaColocsPlatform() {
           <button
             type="button"
             onClick={() => handleNavigate('admin')}
-            className={`h-full flex flex-col items-center justify-center gap-1 text-[11px] font-bold transition-colors cursor-pointer ${
+            className={`relative h-full flex flex-col items-center justify-center gap-1 text-[11px] font-bold transition-colors cursor-pointer ${
               activeView === 'admin'
                 ? 'text-teal-700 dark:text-teal-300'
                 : 'text-slate-500 dark:text-slate-400'
             }`}
           >
+            {activeView === 'admin' && (
+              <span className="absolute top-0 w-7 h-0.5 rounded-full bg-teal-600 dark:bg-teal-300" />
+            )}
             <Shield className="w-5 h-5" />
             <span>Admin{adminBadgeCount > 0 ? ` (${adminBadgeCount})` : ''}</span>
           </button>

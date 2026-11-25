@@ -220,11 +220,11 @@ export function HomeExploreView({
   return (
     <div className="space-y-10 sm:space-y-14">
       {/* Architectural Navy Geometric Hero + Elevated Search Card */}
-      <section className="hero-diamond-pattern text-white rounded-3xl border border-indigo-400/20 overflow-hidden shadow-xl shadow-slate-950/20">
-        <div className="px-5 py-7 sm:px-8 sm:py-10 lg:px-10 lg:py-12 grid grid-cols-1 lg:grid-cols-12 gap-7 lg:gap-10 items-center">
-          {/* Editorial Proposition */}
-          <div className="lg:col-span-7 space-y-5">
-            <p className="text-xs sm:text-sm font-bold uppercase tracking-wider text-teal-300">
+      <section className="hero-diamond-pattern text-white rounded-3xl border border-indigo-400/25 overflow-hidden shadow-2xl shadow-black/35">
+        <div className="px-5 py-7 sm:px-8 sm:py-10 lg:px-10 lg:py-12 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-x-10 lg:gap-y-6 items-start">
+          {/* Editorial Proposition Headline & Subtitle (Row 1 Left on Desktop, Top on Mobile) */}
+          <div className="lg:col-span-7 lg:col-start-1 lg:row-start-1 space-y-4">
+            <p className="text-xs sm:text-sm font-semibold tracking-wide text-[#93A3FF]">
               Maradi, Niger · Logements vérifiés &amp; Colocation
             </p>
 
@@ -236,47 +236,11 @@ export function HomeExploreView({
               Étudiants et jeunes actifs : trouvez votre logement ou colocation vérifiée, contactez
               en toute sécurité et évitez les longs mois d’avance.
             </p>
-
-            {/* Quick Facts & Primary Desktop/Mobile Actions */}
-            <div className="pt-1 flex flex-wrap items-center gap-x-5 gap-y-2 text-[13.5px] font-semibold text-slate-200 tabular-nums">
-              <span className="inline-flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-teal-300 shrink-0" />
-                <span>{activeAvailableCount} logements vérifiés</span>
-              </span>
-              <span className="text-slate-500" aria-hidden="true">
-                ·
-              </span>
-              <span>Dépôt gratuit (0 FCFA)</span>
-              <span className="text-slate-500" aria-hidden="true">
-                ·
-              </span>
-              <span>Pass Visite {formatFcfa(config.visitPassPrice)}</span>
-            </div>
-
-            <div className="pt-1 flex flex-wrap items-center gap-3">
-              <button
-                type="button"
-                onClick={onGoToPublish}
-                className="min-h-[46px] inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold bg-teal-400 hover:bg-teal-300 text-[#0B1437] rounded-xl transition-colors cursor-pointer whitespace-nowrap"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Publier gratuitement</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={onGoToColocation}
-                className="min-h-[46px] inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold border border-white/25 hover:bg-white/10 text-white rounded-xl transition-colors cursor-pointer whitespace-nowrap"
-              >
-                <Users className="w-4 h-4 text-indigo-300" />
-                <span>Trouver un colocataire</span>
-              </button>
-            </div>
           </div>
 
-          {/* Elevated Interactive Search Card */}
-          <div className="lg:col-span-5">
-            <div className="bg-[#111B40]/95 backdrop-blur-md border border-indigo-300/20 rounded-2xl p-5 sm:p-6 shadow-2xl shadow-black/30 space-y-4">
+          {/* Elevated Interactive Search Card (Right Column on Desktop, Immediately Below Subtitle on Mobile) */}
+          <div className="lg:col-span-5 lg:col-start-8 lg:row-start-1 lg:row-span-2 lg:self-center">
+            <div className="bg-[#0F183B]/95 backdrop-blur-xl border border-[#93A3FF]/25 rounded-2xl p-5 sm:p-6 shadow-[0_20px_50px_rgba(3,7,24,0.6)] space-y-4">
               {/* Optional Keyword Input */}
               <div className="relative">
                 <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -286,7 +250,7 @@ export function HomeExploreView({
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Mot-clé (douche interne, UDM...)"
                   aria-label="Rechercher par mot-clé"
-                  className="w-full min-h-[48px] pl-10 pr-3.5 py-2.5 text-[15px] font-medium rounded-xl border border-indigo-300/20 bg-[#0B1437]/85 text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
+                  className="w-full min-h-[48px] pl-10 pr-3.5 py-2.5 text-[15px] font-medium rounded-xl border border-indigo-300/20 bg-[#070E28]/90 text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
                 />
               </div>
 
@@ -296,7 +260,7 @@ export function HomeExploreView({
                   value={selectedNeighborhood}
                   onChange={(e) => setSelectedNeighborhood(e.target.value)}
                   aria-label="Sélectionner un quartier"
-                  className="w-full min-h-[50px] appearance-none pl-4 pr-10 py-2.5 text-[15px] font-medium rounded-xl border border-indigo-300/20 bg-[#0B1437]/85 text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF] cursor-pointer"
+                  className="w-full min-h-[50px] appearance-none pl-4 pr-10 py-2.5 text-[15px] font-medium rounded-xl border border-indigo-300/20 bg-[#070E28]/90 text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF] cursor-pointer"
                 >
                   <option value="all">Tous les quartiers</option>
                   {MARADI_NEIGHBORHOODS.map((q) => (
@@ -314,7 +278,7 @@ export function HomeExploreView({
                   value={selectedType}
                   onChange={(e) => setSelectedType(e.target.value as 'all' | PropertyType)}
                   aria-label="Sélectionner un type de logement"
-                  className="w-full min-h-[50px] appearance-none pl-4 pr-10 py-2.5 text-[15px] font-medium rounded-xl border border-indigo-300/20 bg-[#0B1437]/85 text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF] cursor-pointer"
+                  className="w-full min-h-[50px] appearance-none pl-4 pr-10 py-2.5 text-[15px] font-medium rounded-xl border border-indigo-300/20 bg-[#070E28]/90 text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF] cursor-pointer"
                 >
                   <option value="all">Tous les types</option>
                   {PROPERTY_TYPES.map((pt) => (
@@ -383,10 +347,10 @@ export function HomeExploreView({
                       onClick={() => {
                         setSelectedNeighborhood(active ? 'all' : q);
                       }}
-                      className={`min-h-[38px] px-3.5 py-1.5 text-[13px] font-semibold rounded-xl border transition-colors cursor-pointer ${
+                      className={`min-h-[38px] px-3.5 py-1.5 text-[13px] font-semibold rounded-xl border transition-colors cursor-pointer whitespace-nowrap ${
                         active
                           ? 'bg-[#93A3FF] border-[#93A3FF] text-[#0B1437]'
-                          : 'bg-[#0B1437]/70 border-indigo-300/20 text-slate-100 hover:border-indigo-300/50'
+                          : 'bg-[#070E28]/80 border-indigo-300/20 text-slate-100 hover:border-indigo-300/50'
                       }`}
                     >
                       {q}
@@ -394,6 +358,44 @@ export function HomeExploreView({
                   );
                 })}
               </div>
+            </div>
+          </div>
+
+          {/* Quick Facts & Primary CTAs (Row 2 Left on Desktop, Below Search Card on Mobile) */}
+          <div className="lg:col-span-7 lg:col-start-1 lg:row-start-2 space-y-4">
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[13.5px] font-semibold text-slate-200 tabular-nums">
+              <span className="inline-flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-teal-300 shrink-0" />
+                <span>{activeAvailableCount} logements vérifiés</span>
+              </span>
+              <span className="text-slate-500" aria-hidden="true">
+                ·
+              </span>
+              <span>Dépôt gratuit (0 FCFA)</span>
+              <span className="text-slate-500" aria-hidden="true">
+                ·
+              </span>
+              <span>Pass Visite {formatFcfa(config.visitPassPrice)}</span>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={onGoToPublish}
+                className="min-h-[46px] inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold bg-teal-400 hover:bg-teal-300 text-[#0B1437] rounded-xl transition-colors cursor-pointer whitespace-nowrap"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Publier gratuitement</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={onGoToColocation}
+                className="min-h-[46px] inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold border border-white/25 hover:bg-white/10 text-white rounded-xl transition-colors cursor-pointer whitespace-nowrap"
+              >
+                <Users className="w-4 h-4 text-[#93A3FF]" />
+                <span>Trouver un colocataire</span>
+              </button>
             </div>
           </div>
         </div>
@@ -749,10 +751,10 @@ export function HomeExploreView({
 
       {/* Roommate Finder & Community Section */}
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-7 bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-7 flex flex-col justify-between gap-6">
+        <div className="lg:col-span-7 bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-indigo-400/15 rounded-2xl p-5 sm:p-7 flex flex-col justify-between gap-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-teal-700 dark:text-teal-400">
+              <p className="text-xs font-bold tracking-wide text-teal-700 dark:text-teal-400">
                 Colocation GidaColocs
               </p>
               <h2 className="text-xl font-bold text-slate-900 dark:text-white mt-0.5">
@@ -762,7 +764,7 @@ export function HomeExploreView({
             <button
               type="button"
               onClick={onGoToColocation}
-              className="min-h-[42px] inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-[#0B1437] hover:bg-slate-800 dark:bg-teal-500 dark:hover:bg-teal-400 dark:text-[#0B1437] rounded-xl transition-colors cursor-pointer shrink-0 self-start"
+              className="min-h-[42px] inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-[#0B1437] hover:bg-slate-800 dark:bg-[#93A3FF] dark:hover:bg-[#A6B4FF] dark:text-[#0B1437] rounded-xl transition-colors cursor-pointer shrink-0 self-start whitespace-nowrap"
             >
               <Users className="w-4 h-4" />
               <span>Voir l’espace colocation</span>
@@ -806,9 +808,9 @@ export function HomeExploreView({
           )}
         </div>
 
-        <div className="lg:col-span-5 bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-7 flex flex-col justify-between gap-5">
+        <div className="lg:col-span-5 bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-indigo-400/15 rounded-2xl p-5 sm:p-7 flex flex-col justify-between gap-5">
           <div className="space-y-2">
-            <p className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+            <p className="text-xs font-bold tracking-wide text-emerald-700 dark:text-emerald-400">
               Communauté &amp; Entraide
             </p>
             <h2 className="text-xl font-bold text-slate-900 dark:text-white">
@@ -930,7 +932,7 @@ export function HomeExploreView({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           <div className="p-5 rounded-2xl border border-emerald-200 dark:border-emerald-900/60 bg-emerald-50/50 dark:bg-emerald-950/30 flex flex-col justify-between gap-4">
             <div>
-              <p className="text-xs font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-400">
+              <p className="text-xs font-bold tracking-wide text-emerald-700 dark:text-emerald-400">
                 Pour bailleurs &amp; démarcheurs
               </p>
               <h3 className="text-lg font-bold text-slate-900 dark:text-white mt-1.5">
@@ -951,9 +953,9 @@ export function HomeExploreView({
             </button>
           </div>
 
-          <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-[#0B1437] flex flex-col justify-between gap-4">
+          <div className="p-5 rounded-2xl border border-slate-200 dark:border-indigo-400/15 bg-slate-50/70 dark:bg-[#0B1437] flex flex-col justify-between gap-4">
             <div>
-              <p className="text-xs font-bold uppercase tracking-wide text-teal-700 dark:text-teal-400">
+              <p className="text-xs font-bold tracking-wide text-teal-700 dark:text-teal-400">
                 Pour étudiants &amp; locataires
               </p>
               <h3 className="text-lg font-bold text-slate-900 dark:text-white mt-1.5">
@@ -972,10 +974,10 @@ export function HomeExploreView({
             </a>
           </div>
 
-          <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-[#0B1437] flex flex-col justify-between gap-4">
+          <div className="p-5 rounded-2xl border border-slate-200 dark:border-indigo-400/15 bg-slate-50/70 dark:bg-[#0B1437] flex flex-col justify-between gap-4">
             <div>
-              <p className="text-xs font-bold uppercase tracking-wide text-indigo-700 dark:text-indigo-400">
-                Option facultative
+              <p className="text-xs font-bold tracking-wide text-indigo-700 dark:text-[#93A3FF]">
+                Option facultative (annonces approuvées)
               </p>
               <h3 className="text-lg font-bold text-slate-900 dark:text-white mt-1.5">
                 Annonce Top ·{' '}
@@ -989,7 +991,7 @@ export function HomeExploreView({
             <button
               type="button"
               onClick={onGoToPublish}
-              className="text-left text-sm font-bold text-[#0B1437] dark:text-indigo-300 hover:underline cursor-pointer"
+              className="text-left text-sm font-bold text-[#0B1437] dark:text-[#93A3FF] hover:underline cursor-pointer"
             >
               Soumettre une annonce →
             </button>

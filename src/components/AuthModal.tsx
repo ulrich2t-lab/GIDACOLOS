@@ -17,7 +17,7 @@ export function AuthModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-3.5 sm:p-5 overflow-y-auto"
+      className="fixed inset-0 z-50 bg-[#060B1D]/80 backdrop-blur-sm flex items-center justify-center p-3.5 sm:p-5 overflow-y-auto"
       role="dialog"
       aria-modal="true"
       aria-labelledby="auth-modal-title"

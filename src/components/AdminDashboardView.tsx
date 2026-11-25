@@ -27,11 +27,13 @@ import {
   Edit3,
   ExternalLink,
   Eye,
+  EyeOff,
   Film,
   History,
   Image as ImageIcon,
   KeyRound,
   Link2,
+  Lock,
   LogOut,
   MapPin,
   MessageCircle,
@@ -107,7 +109,7 @@ import {
   updateColocProfileStatus,
   updateListingAvailabilityStatus,
 } from '../lib/qolockService';
-import { useAuth } from '../context/AuthContext';
+import { useAuth, type AdminRegistryItem } from '../context/AuthContext';
 import type {
   AccountStatus,
   AccountType,
@@ -276,7 +278,17 @@ export function AdminDashboardView({
   onEditListing,
   onSignOut,
 }: AdminDashboardViewProps) {
-  const { user, profile, isAdmin, signOutUser, theme } = useAuth();
+  const {
+    user,
+    profile,
+    isAdmin,
+    isVerifiedOwner,
+    hasPasswordAdminLinked,
+    configureAdminAccessCode,
+    listAdminRegistry,
+    signOutUser,
+    theme,
+  } = useAuth();
   const [tab, setTab] = useState<AdminTab>('pending_queue');
   const [moderationCategoryFilter, setModerationCategoryFilter] =
     useState<ModerationCategoryFilter>('all');
@@ -344,6 +356,14 @@ export function AdminDashboardView({
   const [savingConfig, setSavingConfig] = useState(false);
   const [configMessage, setConfigMessage] = useState<string | null>(null);
   const [configError, setConfigError] = useState<string | null>(null);
+  const [adminNewCode, setAdminNewCode] = useState('');
+  const [adminConfirmCode, setAdminConfirmCode] = useState('');
+  const [adminPrevPhoneCode, setAdminPrevPhoneCode] = useState('');
+  const [showAdminSetupCode, setShowAdminSetupCode] = useState(false);
+  const [savingAdminCode, setSavingAdminCode] = useState(false);
+  const [adminCodeMessage, setAdminCodeMessage] = useState<string | null>(null);
+  const [adminCodeError, setAdminCodeError] = useState<string | null>(null);
+  const [adminRegistry, setAdminRegistry] = useState<AdminRegistryItem[]>([]);
   const [adminError, setAdminError] = useState<string | null>(null);
   const [adminSuccess, setAdminSuccess] = useState<string | null>(null);
   const [busyActionId, setBusyActionId] = useState<string | null>(null);
@@ -401,6 +421,17 @@ export function AdminDashboardView({
     setAirtelNumber(config.airtelNumber);
     setNitaAccount(config.nitaAccount);
   }, [config]);
+
+  useEffect(() => {
+    if (tab !== 'settings' || !isAdmin) return;
+    let cancelled = false;
+    void listAdminRegistry().then((items) => {
+      if (!cancelled) setAdminRegistry(items);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [tab, isAdmin, listAdminRegistry]);
 
   useEffect(() => {
     if (!inspectListing) {
@@ -749,6 +780,43 @@ export function AdminDashboardView({
       );
     } finally {
       setSavingConfig(false);
+    }
+  };
+
+  const handleSaveAdminCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (savingAdminCode) return;
+    setAdminCodeMessage(null);
+    setAdminCodeError(null);
+
+    const code = adminNewCode.trim();
+    if (code.length < 8) {
+      setAdminCodeError('Le code administrateur doit contenir au moins 8 caractères.');
+      return;
+    }
+    if (code !== adminConfirmCode.trim()) {
+      setAdminCodeError('Les deux saisies du code administrateur ne correspondent pas.');
+      return;
+    }
+
+    setSavingAdminCode(true);
+    try {
+      const result = await configureAdminAccessCode({
+        newCode: code,
+        previousPhoneCode: adminPrevPhoneCode.trim() || undefined,
+      });
+      if (result.ok) {
+        setAdminCodeMessage(result.message);
+        setAdminNewCode('');
+        setAdminConfirmCode('');
+        setAdminPrevPhoneCode('');
+        const updated = await listAdminRegistry();
+        setAdminRegistry(updated);
+      } else {
+        setAdminCodeError(result.message);
+      }
+    } finally {
+      setSavingAdminCode(false);
     }
   };
 
@@ -4338,46 +4406,201 @@ export function AdminDashboardView({
             </form>
           </section>
 
-          <section className="lg:col-span-5 bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-              <h3 className="text-base font-semibold text-slate-900 dark:text-white">
-                Dernières opérations
-              </h3>
-              <button
-                type="button"
-                onClick={() => setTab('history')}
-                className="text-xs font-medium text-teal-700 dark:text-teal-400 hover:underline cursor-pointer"
-              >
-                Tout voir
-              </button>
-            </div>
-            <div className="divide-y divide-slate-200 dark:divide-slate-800 max-h-[380px] overflow-y-auto">
-              {activities.length === 0 ? (
-                <p className="p-6 text-xs text-slate-500">Aucune activité enregistrée.</p>
-              ) : (
-                activities.slice(0, 12).map((act) => (
-                  <div
-                    key={act.id}
-                    className="px-6 py-3 flex items-start justify-between gap-3 text-xs"
-                  >
-                    <div>
-                      <p className="text-slate-800 dark:text-slate-200">
-                        <strong>{act.actorName}</strong> · {act.action}
-                      </p>
-                      {act.targetTitle && (
-                        <p className="text-slate-500 dark:text-slate-400 mt-0.5">
-                          {act.targetTitle}
-                        </p>
-                      )}
-                    </div>
-                    <span className="text-slate-400 tabular-nums shrink-0">
-                      {formatTimestamp(act.createdAt)}
-                    </span>
+          <div className="lg:col-span-5 space-y-6">
+            <section className="bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 rounded-xl p-6 space-y-4">
+              <div className="flex items-start gap-2.5">
+                <div className="w-9 h-9 rounded-lg bg-[#0B1437] dark:bg-[#93A3FF]/15 border border-slate-200 dark:border-indigo-400/25 flex items-center justify-center shrink-0">
+                  <KeyRound className="w-4 h-4 text-teal-400 dark:text-[#93A3FF]" />
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold text-slate-900 dark:text-white">
+                    Sécurité &amp; Code d’accès administrateur
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    Activez ou modifiez votre connexion administrateur par code secret sécurisé via Firebase Authentication.
+                  </p>
+                </div>
+              </div>
+
+              {adminRegistry.length > 0 && (
+                <div className="rounded-lg bg-slate-50 dark:bg-[#0B1437] border border-slate-200 dark:border-slate-800 p-3 space-y-1.5 text-xs">
+                  <p className="font-semibold text-slate-700 dark:text-slate-200">
+                    Accès administrateur autorisés ({adminRegistry.length})
+                  </p>
+                  <div className="space-y-1">
+                    {adminRegistry.map((item) => (
+                      <div
+                        key={item.uid}
+                        className="flex flex-wrap items-center justify-between gap-2 text-slate-600 dark:text-slate-300"
+                      >
+                        <span className="font-medium truncate">
+                          {item.label || 'Administrateur'}
+                        </span>
+                        <span className="font-mono text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                          {item.phone || item.email || item.uid}
+                        </span>
+                      </div>
+                    ))}
                   </div>
-                ))
+                </div>
               )}
-            </div>
-          </section>
+
+              {isVerifiedOwner ? (
+                <form onSubmit={handleSaveAdminCode} className="space-y-3">
+                  <div>
+                    <label
+                      htmlFor="admin-setup-new-code"
+                      className="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1"
+                    >
+                      {hasPasswordAdminLinked
+                        ? 'Nouveau code d’accès administrateur (min. 8 caractères)'
+                        : 'Définir un code d’accès administrateur (min. 8 caractères)'}
+                    </label>
+                    <div className="relative">
+                      <Lock className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <input
+                        id="admin-setup-new-code"
+                        type={showAdminSetupCode ? 'text' : 'password'}
+                        required
+                        minLength={8}
+                        maxLength={64}
+                        autoComplete="new-password"
+                        value={adminNewCode}
+                        onChange={(e) => setAdminNewCode(e.target.value)}
+                        placeholder="Ex : GidaMaradi#2026"
+                        className="w-full pl-8 pr-9 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437] text-slate-900 dark:text-white"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowAdminSetupCode((v) => !v)}
+                        aria-label={showAdminSetupCode ? 'Masquer' : 'Afficher'}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
+                      >
+                        {showAdminSetupCode ? (
+                          <EyeOff className="w-3.5 h-3.5" />
+                        ) : (
+                          <Eye className="w-3.5 h-3.5" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="admin-setup-confirm-code"
+                      className="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1"
+                    >
+                      Confirmer le code administrateur
+                    </label>
+                    <input
+                      id="admin-setup-confirm-code"
+                      type={showAdminSetupCode ? 'text' : 'password'}
+                      required
+                      minLength={8}
+                      maxLength={64}
+                      autoComplete="new-password"
+                      value={adminConfirmCode}
+                      onChange={(e) => setAdminConfirmCode(e.target.value)}
+                      placeholder="Répétez le code"
+                      className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437] text-slate-900 dark:text-white"
+                    />
+                  </div>
+
+                  {adminRegistry.some((r) => Boolean(r.phone)) && (
+                    <div>
+                      <label
+                        htmlFor="admin-setup-prev-code"
+                        className="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1"
+                      >
+                        Ancien code principal (uniquement si vous remplacez le code téléphone)
+                      </label>
+                      <input
+                        id="admin-setup-prev-code"
+                        type={showAdminSetupCode ? 'text' : 'password'}
+                        maxLength={64}
+                        value={adminPrevPhoneCode}
+                        onChange={(e) => setAdminPrevPhoneCode(e.target.value)}
+                        placeholder="Facultatif"
+                        className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437] text-slate-900 dark:text-white"
+                      />
+                    </div>
+                  )}
+
+                  {(adminCodeError || adminCodeMessage) && (
+                    <p
+                      className={`text-xs font-medium ${
+                        adminCodeError
+                          ? 'text-red-600 dark:text-red-400'
+                          : 'text-emerald-600 dark:text-emerald-400'
+                      }`}
+                    >
+                      {adminCodeError || adminCodeMessage}
+                    </p>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={savingAdminCode}
+                    className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-[#0B1437] hover:bg-slate-800 dark:bg-[#93A3FF] dark:text-[#0B1437] dark:hover:bg-[#A6B3FF] disabled:opacity-60 rounded-lg cursor-pointer"
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <span>
+                      {savingAdminCode
+                        ? 'Enregistrement sécurisé...'
+                        : hasPasswordAdminLinked
+                          ? 'Mettre à jour le code administrateur'
+                          : 'Activer la connexion par code'}
+                    </span>
+                  </button>
+                </form>
+              ) : (
+                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                  Votre accès par code est actif. Pour créer ou modifier le code d’accès administrateur, connectez-vous avec votre compte Google propriétaire autorisé.
+                </p>
+              )}
+            </section>
+
+            <section className="bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+              <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                <h3 className="text-base font-semibold text-slate-900 dark:text-white">
+                  Dernières opérations
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setTab('history')}
+                  className="text-xs font-medium text-teal-700 dark:text-teal-400 hover:underline cursor-pointer"
+                >
+                  Tout voir
+                </button>
+              </div>
+              <div className="divide-y divide-slate-200 dark:divide-slate-800 max-h-[380px] overflow-y-auto">
+                {activities.length === 0 ? (
+                  <p className="p-6 text-xs text-slate-500">Aucune activité enregistrée.</p>
+                ) : (
+                  activities.slice(0, 12).map((act) => (
+                    <div
+                      key={act.id}
+                      className="px-6 py-3 flex items-start justify-between gap-3 text-xs"
+                    >
+                      <div>
+                        <p className="text-slate-800 dark:text-slate-200">
+                          <strong>{act.actorName}</strong> · {act.action}
+                        </p>
+                        {act.targetTitle && (
+                          <p className="text-slate-500 dark:text-slate-400 mt-0.5">
+                            {act.targetTitle}
+                          </p>
+                        )}
+                      </div>
+                      <span className="text-slate-400 tabular-nums shrink-0">
+                        {formatTimestamp(act.createdAt)}
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </section>
+          </div>
         </div>
       )}
       {/* Modale de motif de refus / échec / remboursement */}
