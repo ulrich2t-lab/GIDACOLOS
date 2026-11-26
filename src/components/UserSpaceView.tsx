@@ -54,6 +54,7 @@ import {
   normalizeTransactionRefKey,
 } from '../lib/validation';
 import { analyzePhoneNumber, combinePrefixAndLocalPhone } from '../lib/phoneAuthUtils';
+import { readUrlParam, updateUrlParams } from '../lib/urlState';
 import { isSyntheticWhatsAppEmail, normalizeE164Phone, useAuth } from '../context/AuthContext';
 import { AuthPanel } from './AuthPanel';
 import { Avatar } from './Avatar';
@@ -149,7 +150,39 @@ export function UserSpaceView({
     | 'rented'
     | 'rejected'
     | 'suspended'
-  >('all');
+  >(() => {
+    const raw = readUrlParam('myFilter');
+    const valid = new Set([
+      'all',
+      'pending',
+      'in_review',
+      'needs_correction',
+      'published',
+      'reserved',
+      'rented',
+      'rejected',
+      'suspended',
+    ]);
+    return raw && valid.has(raw)
+      ? (raw as
+          | 'all'
+          | 'pending'
+          | 'in_review'
+          | 'needs_correction'
+          | 'published'
+          | 'reserved'
+          | 'rented'
+          | 'rejected'
+          | 'suspended')
+      : 'all';
+  });
+
+  useEffect(() => {
+    updateUrlParams(
+      { myFilter: listingFilter !== 'all' ? listingFilter : null },
+      'replace',
+    );
+  }, [listingFilter]);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [busyListingId, setBusyListingId] = useState<string | null>(null);
   const [listingActionError, setListingActionError] = useState<string | null>(null);

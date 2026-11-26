@@ -38,6 +38,12 @@ import {
   updateListingDetails,
 } from '../lib/qolockService';
 import { formatFirestoreErrorMessage } from '../lib/firestoreError';
+import {
+  readSessionJson,
+  readUrlParam,
+  removeSessionKey,
+  writeSessionJson,
+} from '../lib/urlState';
 import { BLUEPRINT_LIMITS } from '../lib/validation';
 import { useAuth } from '../context/AuthContext';
 import { AuthPanel } from './AuthPanel';
@@ -59,36 +65,81 @@ interface PublishListingViewProps {
   onCancelEdit?: () => void;
 }
 
+const PUBLISH_DRAFT_KEY = 'gidacolocs_publish_draft_v1';
+
+interface PublishDraftFields {
+  title?: string;
+  neighborhood?: string;
+  locationDetails?: string;
+  propertyType?: PropertyType;
+  priceFcfa?: string;
+  depositMonths?: string;
+  availableSpots?: string;
+  roomsCount?: string;
+  availability?: string;
+  bathroomType?: BathroomType;
+  toiletType?: ToiletType;
+  furnished?: FurnishedType;
+  waterElectricity?: WaterElectricityType;
+  surfaceSqm?: string;
+  roommatePreference?: RoommatePreference;
+  houseRules?: string;
+  description?: string;
+  amenities?: string[];
+  contactName?: string;
+  contactPhone?: string;
+  contactWhatsapp?: string;
+  depositorAddress?: string;
+  depositorStatus?: DepositorStatus;
+  authorizationNote?: string;
+}
+
 export function PublishListingView({
   editingListing = null,
   onSuccess,
   onCancelEdit,
 }: PublishListingViewProps) {
   const { user, profile, privatePhone, isAdmin, isSuspended, saveWhatsAppNumber } = useAuth();
+  const hasEditParam = Boolean(readUrlParam('edit'));
+  const savedDraft =
+    !editingListing && !hasEditParam
+      ? readSessionJson<PublishDraftFields>(PUBLISH_DRAFT_KEY, {})
+      : {};
 
-  const [title, setTitle] = useState('');
-  const [neighborhood, setNeighborhood] = useState<string>(MARADI_NEIGHBORHOODS[0]);
-  const [locationDetails, setLocationDetails] = useState('');
-  const [propertyType, setPropertyType] = useState<PropertyType>('chambre');
-  const [priceFcfa, setPriceFcfa] = useState('20000');
-  const [depositMonths, setDepositMonths] = useState('1');
-  const [availableSpots, setAvailableSpots] = useState('1');
-  const [roomsCount, setRoomsCount] = useState('1');
-  const [availability, setAvailability] = useState('Disponible immédiatement');
-  const [bathroomType, setBathroomType] = useState<BathroomType>('interne');
-  const [toiletType, setToiletType] = useState<ToiletType>('interne');
-  const [furnished, setFurnished] = useState<FurnishedType>('non_meuble');
-  const [waterElectricity, setWaterElectricity] =
-    useState<WaterElectricityType>('compteur_individuel');
-  const [surfaceSqm, setSurfaceSqm] = useState('16');
-  const [roommatePreference, setRoommatePreference] = useState<RoommatePreference>('etudiants');
-  const [houseRules, setHouseRules] = useState('');
-  const [description, setDescription] = useState('');
-  const [amenities, setAmenities] = useState<string[]>([
-    'Douche interne',
-    'Eau courante (SEEN)',
-    'Électricité (NIGELEC)',
-  ]);
+  const [title, setTitle] = useState(savedDraft.title || '');
+  const [neighborhood, setNeighborhood] = useState<string>(
+    savedDraft.neighborhood || MARADI_NEIGHBORHOODS[0],
+  );
+  const [locationDetails, setLocationDetails] = useState(savedDraft.locationDetails || '');
+  const [propertyType, setPropertyType] = useState<PropertyType>(
+    savedDraft.propertyType || 'chambre',
+  );
+  const [priceFcfa, setPriceFcfa] = useState(savedDraft.priceFcfa || '20000');
+  const [depositMonths, setDepositMonths] = useState(savedDraft.depositMonths || '1');
+  const [availableSpots, setAvailableSpots] = useState(savedDraft.availableSpots || '1');
+  const [roomsCount, setRoomsCount] = useState(savedDraft.roomsCount || '1');
+  const [availability, setAvailability] = useState(
+    savedDraft.availability || 'Disponible immédiatement',
+  );
+  const [bathroomType, setBathroomType] = useState<BathroomType>(
+    savedDraft.bathroomType || 'interne',
+  );
+  const [toiletType, setToiletType] = useState<ToiletType>(savedDraft.toiletType || 'interne');
+  const [furnished, setFurnished] = useState<FurnishedType>(savedDraft.furnished || 'non_meuble');
+  const [waterElectricity, setWaterElectricity] = useState<WaterElectricityType>(
+    savedDraft.waterElectricity || 'compteur_individuel',
+  );
+  const [surfaceSqm, setSurfaceSqm] = useState(savedDraft.surfaceSqm || '16');
+  const [roommatePreference, setRoommatePreference] = useState<RoommatePreference>(
+    savedDraft.roommatePreference || 'etudiants',
+  );
+  const [houseRules, setHouseRules] = useState(savedDraft.houseRules || '');
+  const [description, setDescription] = useState(savedDraft.description || '');
+  const [amenities, setAmenities] = useState<string[]>(
+    Array.isArray(savedDraft.amenities)
+      ? savedDraft.amenities
+      : ['Douche interne', 'Eau courante (SEEN)', 'Électricité (NIGELEC)'],
+  );
 
   // Photos state
   const [photos, setPhotos] = useState<string[]>([]);
@@ -104,12 +155,14 @@ export function PublishListingView({
   const [videoProgress, setVideoProgress] = useState<number | null>(null);
   const videoAbortRef = useRef<AbortController | null>(null);
 
-  const [contactName, setContactName] = useState('');
-  const [contactPhone, setContactPhone] = useState('');
-  const [contactWhatsapp, setContactWhatsapp] = useState('');
-  const [depositorAddress, setDepositorAddress] = useState('');
-  const [depositorStatus, setDepositorStatus] = useState<DepositorStatus>('proprietaire');
-  const [authorizationNote, setAuthorizationNote] = useState('');
+  const [contactName, setContactName] = useState(savedDraft.contactName || '');
+  const [contactPhone, setContactPhone] = useState(savedDraft.contactPhone || '');
+  const [contactWhatsapp, setContactWhatsapp] = useState(savedDraft.contactWhatsapp || '');
+  const [depositorAddress, setDepositorAddress] = useState(savedDraft.depositorAddress || '');
+  const [depositorStatus, setDepositorStatus] = useState<DepositorStatus>(
+    savedDraft.depositorStatus || 'proprietaire',
+  );
+  const [authorizationNote, setAuthorizationNote] = useState(savedDraft.authorizationNote || '');
   const [publishImmediately, setPublishImmediately] = useState(false);
 
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
@@ -119,6 +172,62 @@ export function PublishListingView({
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const lastLoadedListingIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (editingListing || readUrlParam('edit')) return;
+    writeSessionJson<PublishDraftFields>(PUBLISH_DRAFT_KEY, {
+      title,
+      neighborhood,
+      locationDetails,
+      propertyType,
+      priceFcfa,
+      depositMonths,
+      availableSpots,
+      roomsCount,
+      availability,
+      bathroomType,
+      toiletType,
+      furnished,
+      waterElectricity,
+      surfaceSqm,
+      roommatePreference,
+      houseRules,
+      description,
+      amenities,
+      contactName,
+      contactPhone,
+      contactWhatsapp,
+      depositorAddress,
+      depositorStatus,
+      authorizationNote,
+    });
+  }, [
+    editingListing,
+    title,
+    neighborhood,
+    locationDetails,
+    propertyType,
+    priceFcfa,
+    depositMonths,
+    availableSpots,
+    roomsCount,
+    availability,
+    bathroomType,
+    toiletType,
+    furnished,
+    waterElectricity,
+    surfaceSqm,
+    roommatePreference,
+    houseRules,
+    description,
+    amenities,
+    contactName,
+    contactPhone,
+    contactWhatsapp,
+    depositorAddress,
+    depositorStatus,
+    authorizationNote,
+  ]);
 
   useEffect(() => {
     let active = true;
@@ -594,6 +703,9 @@ export function PublishListingView({
           isAdmin && publishImmediately
             ? 'Logement publié et visible immédiatement sur l’accueil.'
             : 'Annonce soumise gratuitement ! Statut actuel : En attente de validation par l’administrateur.';
+      }
+      if (!editingListing) {
+        removeSessionKey(PUBLISH_DRAFT_KEY);
       }
       setSuccessMsg(confirmation);
       if (!privatePhone && contactPhone.trim()) {

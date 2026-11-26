@@ -59,6 +59,7 @@ import {
   submitServiceOrder,
   upsertListingColocInterest,
 } from '../lib/qolockService';
+import { readUrlParam, updateUrlParams } from '../lib/urlState';
 import { formatDurationLabel, parseVideoEmbed } from '../lib/mediaUtils';
 import {
   BLUEPRINT_LIMITS,
@@ -183,16 +184,36 @@ export function ListingDetailModal({
     setClipError(null);
     setContactError(null);
     setPrivateContact(null);
-    setUserPhone(privatePhone || '');
     if (listing) {
       setInterestBudget(String(listing.priceFcfa));
       const hasPhotos = (listing.photos?.length ?? 0) > 0;
       const hasVideos = (listing.videos?.length ?? 0) > 0;
-      setMediaTab(!hasPhotos && hasVideos ? 'videos' : 'photos');
+      const urlMedia = readUrlParam('media');
+      if (urlMedia === 'videos' && hasVideos) {
+        setMediaTab('videos');
+      } else {
+        setMediaTab(!hasPhotos && hasVideos ? 'videos' : 'photos');
+      }
     } else {
       setMediaTab('photos');
     }
-  }, [listing?.id, privatePhone, listing]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listing?.id]);
+
+  useEffect(() => {
+    if (!listing) return;
+    if (mediaTab === 'videos') {
+      updateUrlParams({ media: 'videos' }, 'replace');
+    } else if (readUrlParam('media')) {
+      updateUrlParams({ media: null }, 'replace');
+    }
+  }, [listing?.id, mediaTab, listing]);
+
+  useEffect(() => {
+    if (privatePhone) {
+      setUserPhone((prev) => prev || privatePhone);
+    }
+  }, [privatePhone]);
 
   useEffect(() => {
     if (!listing || !hasUnlockedContact) return;

@@ -19,6 +19,7 @@ import { MARADI_NEIGHBORHOODS, OFFICIAL_WHATSAPP_GROUP_URL, PROPERTY_TYPES } fro
 import { buildWhatsAppUrl, COLOC_GENDER_LABELS, formatFcfa, formatTimestamp } from '../lib/formatters';
 import { formatFirestoreErrorMessage } from '../lib/firestoreError';
 import { adminInitializeStarterListings } from '../lib/qolockService';
+import { readUrlParam, updateUrlParams } from '../lib/urlState';
 import { useAuth } from '../context/AuthContext';
 import { ListingCard } from './ListingCard';
 import type {
@@ -57,17 +58,48 @@ export function HomeExploreView({
   onGoToAccount,
 }: HomeExploreViewProps) {
   const { user, profile, isAdmin, openAuthModal } = useAuth();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedNeighborhood, setSelectedNeighborhood] = useState('all');
-  const [selectedType, setSelectedType] = useState<'all' | PropertyType>('all');
-  const [selectedBathroom, setSelectedBathroom] = useState<'all' | BathroomType>('all');
-  const [maxBudget, setMaxBudget] = useState<number>(BUDGET_MAX);
-  const [availabilityFilter, setAvailabilityFilter] = useState<'active' | 'published' | 'all'>(
-    'active',
+  const [searchQuery, setSearchQuery] = useState(() => readUrlParam('q') || '');
+  const [selectedNeighborhood, setSelectedNeighborhood] = useState(
+    () => readUrlParam('quartier') || 'all',
   );
+  const [selectedType, setSelectedType] = useState<'all' | PropertyType>(
+    () => (readUrlParam('type') as 'all' | PropertyType) || 'all',
+  );
+  const [selectedBathroom, setSelectedBathroom] = useState<'all' | BathroomType>(
+    () => (readUrlParam('douche') as 'all' | BathroomType) || 'all',
+  );
+  const [maxBudget, setMaxBudget] = useState<number>(() => {
+    const raw = Number(readUrlParam('budget'));
+    return Number.isFinite(raw) && raw >= BUDGET_MIN && raw <= BUDGET_MAX ? raw : BUDGET_MAX;
+  });
+  const [availabilityFilter, setAvailabilityFilter] = useState<'active' | 'published' | 'all'>(() => {
+    const raw = readUrlParam('dispo');
+    return raw === 'published' || raw === 'all' ? raw : 'active';
+  });
   const [visibleLimit, setVisibleLimit] = useState(PAGE_BATCH_SIZE);
   const [seeding, setSeeding] = useState(false);
   const [seedError, setSeedError] = useState<string | null>(null);
+
+  useEffect(() => {
+    updateUrlParams(
+      {
+        q: searchQuery.trim() ? searchQuery.trim() : null,
+        quartier: selectedNeighborhood !== 'all' ? selectedNeighborhood : null,
+        type: selectedType !== 'all' ? selectedType : null,
+        douche: selectedBathroom !== 'all' ? selectedBathroom : null,
+        budget: maxBudget < BUDGET_MAX ? String(maxBudget) : null,
+        dispo: availabilityFilter !== 'active' ? availabilityFilter : null,
+      },
+      'replace',
+    );
+  }, [
+    searchQuery,
+    selectedNeighborhood,
+    selectedType,
+    selectedBathroom,
+    maxBudget,
+    availabilityFilter,
+  ]);
 
   useEffect(() => {
     setVisibleLimit(PAGE_BATCH_SIZE);

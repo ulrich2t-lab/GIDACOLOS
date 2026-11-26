@@ -40,6 +40,7 @@ import {
   updateColocProfileStatus,
 } from '../lib/qolockService';
 import { BLUEPRINT_LIMITS } from '../lib/validation';
+import { readUrlParam, updateUrlParams } from '../lib/urlState';
 import { useAuth } from '../context/AuthContext';
 import { ListingCard } from './ListingCard';
 import type {
@@ -257,11 +258,31 @@ export function ColocationSpaceView({
 }: ColocationSpaceViewProps) {
   const { user, profile, isAdmin, openAuthModal } = useAuth();
 
-  const [filterNeighborhood, setFilterNeighborhood] = useState('all');
-  const [filterGender, setFilterGender] = useState<'all' | ColocGenderPreference>('all');
-  const [openThreadId, setOpenThreadId] = useState<string | null>(null);
+  const [filterNeighborhood, setFilterNeighborhood] = useState(
+    () => readUrlParam('colocQuartier') || 'all',
+  );
+  const [filterGender, setFilterGender] = useState<'all' | ColocGenderPreference>(
+    () => (readUrlParam('colocProfil') as 'all' | ColocGenderPreference) || 'all',
+  );
+  const [openThreadId, setOpenThreadId] = useState<string | null>(
+    () => readUrlParam('colocThread') || null,
+  );
 
-  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showCreateForm, setShowCreateForm] = useState(
+    () => readUrlParam('colocForm') === '1',
+  );
+
+  useEffect(() => {
+    updateUrlParams(
+      {
+        colocQuartier: filterNeighborhood !== 'all' ? filterNeighborhood : null,
+        colocProfil: filterGender !== 'all' ? filterGender : null,
+        colocThread: openThreadId || null,
+        colocForm: showCreateForm ? '1' : null,
+      },
+      'replace',
+    );
+  }, [filterNeighborhood, filterGender, openThreadId, showCreateForm]);
   const [editingProfileId, setEditingProfileId] = useState<string | null>(null);
   const [targetNeighborhood, setTargetNeighborhood] = useState<string>(MARADI_NEIGHBORHOODS[2]);
   const [desiredType, setDesiredType] = useState<ColocDesiredType>('maison_partagee');

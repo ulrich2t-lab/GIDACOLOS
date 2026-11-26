@@ -82,6 +82,12 @@ import {
 import { formatFirestoreErrorMessage } from '../lib/firestoreError';
 import { parseVideoEmbed } from '../lib/mediaUtils';
 import {
+  readSessionJson,
+  readUrlParam,
+  updateUrlParams,
+  writeSessionJson,
+} from '../lib/urlState';
+import {
   adminFetchUserPrivateInfo,
   adminInitializeStarterListings,
   adminModerateColocInterest,
@@ -167,6 +173,27 @@ type AdminTab =
   | 'users'
   | 'history'
   | 'settings';
+
+const VALID_ADMIN_TABS = new Set<AdminTab>([
+  'pending_queue',
+  'listings',
+  'availability',
+  'orders',
+  'coloc',
+  'reports',
+  'users',
+  'history',
+  'settings',
+]);
+
+function parseAdminTabParam(value: string | null): AdminTab {
+  if (value && VALID_ADMIN_TABS.has(value as AdminTab)) {
+    return value as AdminTab;
+  }
+  return 'pending_queue';
+}
+
+const ADMIN_FILTERS_STORAGE_KEY = 'gidacolocs_admin_filters_v1';
 
 interface NeighborhoodChartPoint {
   neighborhood: string;
@@ -289,17 +316,38 @@ export function AdminDashboardView({
     signOutUser,
     theme,
   } = useAuth();
-  const [tab, setTab] = useState<AdminTab>('pending_queue');
+  const savedFilters = readSessionJson<Record<string, string>>(ADMIN_FILTERS_STORAGE_KEY, {});
+  const [tab, setTabState] = useState<AdminTab>(() => parseAdminTabParam(readUrlParam('adminTab')));
+  const setTab = (nextTab: AdminTab) => {
+    setTabState(nextTab);
+    updateUrlParams(
+      { adminTab: nextTab === 'pending_queue' ? null : nextTab },
+      'push',
+    );
+  };
+
+  useEffect(() => {
+    const onPopState = () => {
+      setTabState(parseAdminTabParam(readUrlParam('adminTab')));
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
+
   const [moderationCategoryFilter, setModerationCategoryFilter] =
-    useState<ModerationCategoryFilter>('all');
+    useState<ModerationCategoryFilter>(
+      (savedFilters.moderationCategoryFilter as ModerationCategoryFilter) || 'all',
+    );
   const [moderationStatusFilter, setModerationStatusFilter] =
-    useState<ContentModerationStatus>('pending');
+    useState<ContentModerationStatus>(
+      (savedFilters.moderationStatusFilter as ContentModerationStatus) || 'pending',
+    );
   const [contentModerationTarget, setContentModerationTarget] =
     useState<ContentModerationTarget | null>(null);
   const [contentModerationReason, setContentModerationReason] = useState('');
 
   // Filters
-  const [listingSearch, setListingSearch] = useState('');
+  const [listingSearch, setListingSearch] = useState(savedFilters.listingSearch || '');
   const [listingStatusFilter, setListingStatusFilter] = useState<
     | 'all'
     | 'pending'
@@ -312,21 +360,86 @@ export function AdminDashboardView({
     | 'rented'
     | 'rejected'
     | 'suspended'
-  >('all');
+  >(
+    (savedFilters.listingStatusFilter as
+      | 'all'
+      | 'pending'
+      | 'in_review'
+      | 'needs_correction'
+      | 'top_requested'
+      | 'approved'
+      | 'published'
+      | 'reserved'
+      | 'rented'
+      | 'rejected'
+      | 'suspended') || 'all',
+  );
   const [availabilityFilter, setAvailabilityFilter] = useState<
     'all' | 'reserved' | 'rented' | 'published'
-  >('all');
-  const [orderStatusFilter, setOrderStatusFilter] = useState<'all' | OrderStatus>('all');
-  const [orderTypeFilter, setOrderTypeFilter] = useState<'all' | OrderType>('all');
-  const [reportStatusFilter, setReportStatusFilter] = useState<'all' | ReportStatus>('all');
-  const [colocStatusFilter, setColocStatusFilter] = useState<'all' | ColocProfileStatus>('all');
-  const [colocSearch, setColocSearch] = useState('');
+  >(
+    (savedFilters.availabilityFilter as 'all' | 'reserved' | 'rented' | 'published') || 'all',
+  );
+  const [orderStatusFilter, setOrderStatusFilter] = useState<'all' | OrderStatus>(
+    (savedFilters.orderStatusFilter as 'all' | OrderStatus) || 'all',
+  );
+  const [orderTypeFilter, setOrderTypeFilter] = useState<'all' | OrderType>(
+    (savedFilters.orderTypeFilter as 'all' | OrderType) || 'all',
+  );
+  const [reportStatusFilter, setReportStatusFilter] = useState<'all' | ReportStatus>(
+    (savedFilters.reportStatusFilter as 'all' | ReportStatus) || 'all',
+  );
+  const [colocStatusFilter, setColocStatusFilter] = useState<'all' | ColocProfileStatus>(
+    (savedFilters.colocStatusFilter as 'all' | ColocProfileStatus) || 'all',
+  );
+  const [colocSearch, setColocSearch] = useState(savedFilters.colocSearch || '');
   const [confirmDeleteColocId, setConfirmDeleteColocId] = useState<string | null>(null);
-  const [userSearch, setUserSearch] = useState('');
-  const [userRoleFilter, setUserRoleFilter] = useState<'all' | AccountType>('all');
-  const [userStatusFilter, setUserStatusFilter] = useState<'all' | AccountStatus>('all');
-  const [historyTypeFilter, setHistoryTypeFilter] = useState<'all' | ActivityTargetType>('all');
-  const [historySearch, setHistorySearch] = useState('');
+  const [userSearch, setUserSearch] = useState(savedFilters.userSearch || '');
+  const [userRoleFilter, setUserRoleFilter] = useState<'all' | AccountType>(
+    (savedFilters.userRoleFilter as 'all' | AccountType) || 'all',
+  );
+  const [userStatusFilter, setUserStatusFilter] = useState<'all' | AccountStatus>(
+    (savedFilters.userStatusFilter as 'all' | AccountStatus) || 'all',
+  );
+  const [historyTypeFilter, setHistoryTypeFilter] = useState<'all' | ActivityTargetType>(
+    (savedFilters.historyTypeFilter as 'all' | ActivityTargetType) || 'all',
+  );
+  const [historySearch, setHistorySearch] = useState(savedFilters.historySearch || '');
+
+  useEffect(() => {
+    writeSessionJson(ADMIN_FILTERS_STORAGE_KEY, {
+      moderationCategoryFilter,
+      moderationStatusFilter,
+      listingSearch,
+      listingStatusFilter,
+      availabilityFilter,
+      orderStatusFilter,
+      orderTypeFilter,
+      reportStatusFilter,
+      colocStatusFilter,
+      colocSearch,
+      userSearch,
+      userRoleFilter,
+      userStatusFilter,
+      historyTypeFilter,
+      historySearch,
+    });
+  }, [
+    moderationCategoryFilter,
+    moderationStatusFilter,
+    listingSearch,
+    listingStatusFilter,
+    availabilityFilter,
+    orderStatusFilter,
+    orderTypeFilter,
+    reportStatusFilter,
+    colocStatusFilter,
+    colocSearch,
+    userSearch,
+    userRoleFilter,
+    userStatusFilter,
+    historyTypeFilter,
+    historySearch,
+  ]);
 
   // Action & contact lookup states
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);

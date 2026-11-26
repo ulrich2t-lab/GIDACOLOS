@@ -37,6 +37,7 @@ import {
   OFFICIAL_WHATSAPP_GROUP_URL,
 } from './lib/constants';
 import { buildWhatsAppUrl, formatFcfa } from './lib/formatters';
+import { readUrlParam, updateUrlParams } from './lib/urlState';
 import {
   ADMIN_REDIRECT_SESSION_KEY,
   AuthProvider,
@@ -75,6 +76,15 @@ import type {
 
 type ViewTab = 'home' | 'coloc' | 'publish' | 'account' | 'admin';
 
+const VALID_VIEWS = new Set<ViewTab>(['home', 'coloc', 'publish', 'account', 'admin']);
+
+function parseViewParam(value: string | null): ViewTab {
+  if (value && VALID_VIEWS.has(value as ViewTab)) {
+    return value as ViewTab;
+  }
+  return 'home';
+}
+
 function sortByCreatedAtDesc<T extends { createdAt?: Timestamp }>(items: T[]): T[] {
   return [...items].sort((a, b) => {
     const tA = a.createdAt && typeof a.createdAt.toMillis === 'function' ? a.createdAt.toMillis() : 0;
@@ -111,6 +121,10 @@ function GidaColocsPlatform() {
         }
       } catch {
         // Ignore sessionStorage restrictions
+      }
+      const fromUrl = parseViewParam(readUrlParam('view'));
+      if (fromUrl !== 'home') {
+        return fromUrl;
       }
     }
     return 'home';
@@ -653,7 +667,14 @@ function GidaColocsPlatform() {
     }
   }, [selectedListing, publicListings, myListings, allListings, isAdmin, loadingPublic]);
 
-  // Direct URL deep-linking protection (?listing=<id> or #listing=<id>):
+  // Ensure initial activeView (e.g., from OAuth redirect) stays reflected in URL
+  useEffect(() => {
+    if (activeView === 'admin' && readUrlParam('view') !== 'admin') {
+      updateUrlParams({ view: 'admin' }, 'replace');
+    }
+  }, [activeView]);
+
+  // Direct URL deep-linking & browser navigation sync (?view=..., ?listing=<id>, ?edit=<id>):
   // Only published, reserved, or rented listings open publicly (plus owner/admin). Pending/rejected/suspended never open publicly.
   useEffect(() => {
     if (typeof window === 'undefined' || loadingPublic || !authReady) return;
@@ -662,10 +683,28 @@ function GidaColocsPlatform() {
 
     const resolveDeepLink = () => {
       const url = new URL(window.location.href);
+
+      const viewFromUrl = parseViewParam(url.searchParams.get('view'));
+      setActiveView((prev) => (prev === viewFromUrl ? prev : viewFromUrl));
+
+      const editId = url.searchParams.get('edit')?.trim() || '';
+      if (viewFromUrl === 'publish' && editId && user) {
+        const editPool = isAdmin ? allListings : myListings;
+        const editMatch = editPool.find(
+          (l) => l.id === editId && (isAdmin || l.ownerId === user.uid),
+        );
+        setEditingListing(editMatch || null);
+      } else if (!editId) {
+        setEditingListing(null);
+      }
+
       const queryId = url.searchParams.get('listing')?.trim() || '';
       const hashMatch = url.hash.match(/^#listing=([a-zA-Z0-9_-]+)$/);
       const targetId = queryId || (hashMatch ? hashMatch[1] : '');
-      if (!targetId) return;
+      if (!targetId) {
+        setSelectedListing(null);
+        return;
+      }
 
       const publicMatch = publicListings.find((l) => l.id === targetId);
       const ownerMatch = user
@@ -709,34 +748,50 @@ function GidaColocsPlatform() {
 
   const handleSelectListing = (item: Listing) => {
     setSelectedListing(item);
-    if (typeof window !== 'undefined') {
-      const url = new URL(window.location.href);
-      url.searchParams.set('listing', item.id);
-      window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
-    }
+    updateUrlParams({ listing: item.id, media: null }, 'push');
   };
 
   const handleCloseListing = () => {
     setSelectedListing(null);
-    if (typeof window !== 'undefined') {
+    updateUrlParams({ listing: null, media: null }, 'replace');
+    if (typeof window !== 'undefined' && /^#listing=/.test(window.location.hash)) {
       const url = new URL(window.location.href);
-      if (url.searchParams.has('listing') || /^#listing=/.test(url.hash)) {
-        url.searchParams.delete('listing');
-        if (/^#listing=/.test(url.hash)) url.hash = '';
-        window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
-      }
+      url.hash = '';
+      window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
     }
   };
 
   const handleGoToPublish = () => {
     setEditingListing(null);
+    setSelectedListing(null);
     setActiveView('publish');
+    updateUrlParams(
+      {
+        view: 'publish',
+        edit: null,
+        listing: null,
+        media: null,
+        adminTab: null,
+      },
+      'push',
+    );
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleEditListing = (listing: Listing) => {
     setEditingListing(listing);
+    setSelectedListing(null);
     setActiveView('publish');
+    updateUrlParams(
+      {
+        view: 'publish',
+        edit: listing.id,
+        listing: null,
+        media: null,
+        adminTab: null,
+      },
+      'push',
+    );
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -744,7 +799,37 @@ function GidaColocsPlatform() {
     if (tab === 'publish') {
       setEditingListing(null);
     }
+    setSelectedListing(null);
     setActiveView(tab);
+    updateUrlParams(
+      {
+        view: tab === 'home' ? null : tab,
+        listing: null,
+        media: null,
+        edit: null,
+        ...(tab !== 'admin' ? { adminTab: null } : {}),
+        ...(tab !== 'coloc'
+          ? {
+              colocQuartier: null,
+              colocProfil: null,
+              colocThread: null,
+              colocForm: null,
+            }
+          : {}),
+        ...(tab !== 'account' ? { myFilter: null } : {}),
+        ...(tab !== 'home'
+          ? {
+              q: null,
+              quartier: null,
+              type: null,
+              douche: null,
+              budget: null,
+              dispo: null,
+            }
+          : {}),
+      },
+      'push',
+    );
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -770,12 +855,19 @@ function GidaColocsPlatform() {
   const handleAdminSignOut = async () => {
     await signOutUser();
     setActiveView('home');
-    if (typeof window !== 'undefined') {
+    updateUrlParams(
+      {
+        view: null,
+        adminTab: null,
+        listing: null,
+        media: null,
+        edit: null,
+      },
+      'replace',
+    );
+    if (typeof window !== 'undefined' && window.location.hash.toLowerCase().includes('admin')) {
       const url = new URL(window.location.href);
-      url.searchParams.delete('admin');
-      if (url.hash.toLowerCase().includes('admin')) {
-        url.hash = '';
-      }
+      url.hash = '';
       window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
     }
   };
