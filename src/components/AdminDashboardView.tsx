@@ -496,6 +496,10 @@ export function AdminDashboardView({
   const [adminRegistry, setAdminRegistry] = useState<AdminRegistryItem[]>([]);
   const [adminError, setAdminError] = useState<string | null>(null);
   const [adminSuccess, setAdminSuccess] = useState<string | null>(null);
+  const [failedActionTarget, setFailedActionTarget] = useState<{
+    id: string;
+    message: string;
+  } | null>(null);
   const [busyActionId, setBusyActionId] = useState<string | null>(null);
 
   // Payment proof & decision modal state
@@ -990,11 +994,14 @@ export function AdminDashboardView({
     setBusyActionId(actionKey);
     setAdminError(null);
     setAdminSuccess(null);
+    setFailedActionTarget(null);
     try {
       await fn();
       setAdminSuccess(successText);
     } catch (err) {
-      setAdminError(formatFirestoreErrorMessage(err, 'Impossible d’effectuer cette action.'));
+      const msg = formatFirestoreErrorMessage(err, 'Impossible d’effectuer cette action.');
+      setAdminError(msg);
+      setFailedActionTarget({ id: actionKey, message: msg });
     } finally {
       setBusyActionId(null);
     }
@@ -1827,6 +1834,14 @@ export function AdminDashboardView({
                                 </div>
                               </details>
                             )}
+                            {failedActionTarget?.id === item.id && (
+                              <div
+                                role="alert"
+                                className="mt-2 p-2.5 rounded-lg border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 text-xs font-medium text-red-700 dark:text-red-300"
+                              >
+                                {failedActionTarget.message}
+                              </div>
+                            )}
                           </div>
                         </div>
 
@@ -2473,6 +2488,14 @@ export function AdminDashboardView({
                         <p className="text-xs text-slate-400 mt-0.5 tabular-nums">
                           Décision : {item.validatedByName} ({new Date(item.validatedAtIso).toLocaleDateString('fr-FR')})
                         </p>
+                      )}
+                      {failedActionTarget?.id === item.id && (
+                        <div
+                          role="alert"
+                          className="mt-2 p-2.5 rounded-lg border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 text-xs font-medium text-red-700 dark:text-red-300"
+                        >
+                          {failedActionTarget.message}
+                        </div>
                       )}
                     </div>
 
@@ -6223,6 +6246,50 @@ export function AdminDashboardView({
               </div>
             </form>
           </div>
+        </div>
+      )}
+
+      {/* Bannière flottante persistante pour retours d'actions administrateur (même en bas de page) */}
+      {(adminError || adminSuccess) && (
+        <div className="fixed bottom-4 right-4 left-4 sm:left-auto sm:max-w-md z-[80] space-y-2 pointer-events-none">
+          {adminError && (
+            <div
+              role="alert"
+              className="pointer-events-auto p-4 rounded-2xl border border-red-300 dark:border-red-800 bg-red-50 dark:bg-[#1E0F16] text-xs font-semibold text-red-800 dark:text-red-200 shadow-xl flex items-start justify-between gap-3"
+            >
+              <div className="flex items-start gap-2.5 min-w-0">
+                <AlertTriangle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
+                <span className="leading-relaxed break-words">{adminError}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setAdminError(null);
+                  setFailedActionTarget(null);
+                }}
+                aria-label="Fermer l’alerte"
+                className="text-red-600 hover:text-red-900 dark:text-red-300 dark:hover:text-white cursor-pointer shrink-0"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+          {adminSuccess && (
+            <div className="pointer-events-auto p-3.5 rounded-2xl border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-[#0D231E] text-xs font-semibold text-emerald-800 dark:text-emerald-200 shadow-xl flex items-start justify-between gap-3">
+              <div className="flex items-start gap-2.5 min-w-0">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                <span className="leading-relaxed break-words">{adminSuccess}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setAdminSuccess(null)}
+                aria-label="Fermer la confirmation"
+                className="text-emerald-600 hover:text-emerald-900 dark:text-emerald-300 dark:hover:text-white cursor-pointer shrink-0"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

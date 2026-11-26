@@ -1,5 +1,6 @@
 import {
   deleteDoc,
+  deleteField,
   doc,
   getDoc,
   serverTimestamp,
@@ -717,60 +718,206 @@ export async function markListingAsRented(
   return updateListingAvailabilityStatus(listing, 'rented', user, actorName);
 }
 
-export async function adminModerateListing(
+const ALLOWED_LISTING_KEYS = new Set([
+  'title',
+  'description',
+  'neighborhood',
+  'locationDetails',
+  'propertyType',
+  'priceFcfa',
+  'depositMonths',
+  'availableSpots',
+  'roomsCount',
+  'availability',
+  'amenities',
+  'photos',
+  'videos',
+  'bathroomType',
+  'toiletType',
+  'furnished',
+  'waterElectricity',
+  'surfaceSqm',
+  'roommatePreference',
+  'houseRules',
+  'status',
+  'moderationReason',
+  'moderationHistory',
+  'validatedByName',
+  'validatedByEmail',
+  'validatedAtIso',
+  'isVerifiedQolock',
+  'isTop',
+  'topRequested',
+  'ownerId',
+  'ownerName',
+  'createdAt',
+  'updatedAt',
+]);
+
+const VALID_PROPERTY_TYPES = new Set<string>([
+  'chambre',
+  'maison',
+  'appartement',
+  'maison_partagee',
+  'annexe',
+  'studio',
+  'colocation',
+  'autre',
+]);
+
+const VALID_BATHROOM_TYPES = new Set<string>(['interne', 'externe', 'partagee']);
+const VALID_TOILET_TYPES = new Set<string>(['interne', 'externe']);
+const VALID_FURNISHED_TYPES = new Set<string>(['non_meuble', 'semi_meuble', 'meuble']);
+const VALID_UTILITY_TYPES = new Set<string>(['inclus', 'compteur_individuel', 'partage']);
+const VALID_ROOMMATE_PREFERENCES = new Set<string>([
+  'mixte',
+  'etudiants',
+  'femmes',
+  'hommes',
+  'jeunes_actifs',
+]);
+const VALID_LISTING_STATUSES = new Set<string>([
+  'pending',
+  'in_review',
+  'needs_correction',
+  'published',
+  'reserved',
+  'rented',
+  'rejected',
+  'suspended',
+]);
+
+function normalizeHistoryListingStatus(rawStatus: unknown): ListingStatus {
+  if (typeof rawStatus === 'string') {
+    if (rawStatus === 'approved') return 'published';
+    if (VALID_LISTING_STATUSES.has(rawStatus)) return rawStatus as ListingStatus;
+  }
+  return 'pending';
+}
+
+function sanitizeListingModerationHistory(
+  history: unknown,
+  fallbackActor: string,
+  fallbackAtIso: string,
+  maxItems: number,
+): ListingModerationEntry[] {
+  if (!Array.isArray(history)) return [];
+  return history.slice(-maxItems).map((entry) => {
+    const rec = (entry && typeof entry === 'object' ? entry : {}) as Partial<ListingModerationEntry>;
+    const entryEmail = sanitizeText(String(rec.actorEmail || ''), BLUEPRINT_LIMITS.EMAIL_MAX);
+    return {
+      status: normalizeHistoryListingStatus(rec.status),
+      reason:
+        sanitizeText(String(rec.reason || 'Mise à jour'), BLUEPRINT_LIMITS.MODERATION_REASON_MAX) ||
+        'Mise à jour',
+      actorName:
+        sanitizeText(String(rec.actorName || fallbackActor), BLUEPRINT_LIMITS.DISPLAY_NAME_MAX) ||
+        fallbackActor,
+      ...(entryEmail ? { actorEmail: entryEmail } : {}),
+      atIso: sanitizeText(String(rec.atIso || fallbackAtIso), 40) || fallbackAtIso,
+    };
+  });
+}
+
+function buildSanitizedListingLegacyPatch(
   listing: Listing,
-  decision: {
-    status?: ListingStatus;
-    reason?: string;
-    isVerifiedQolock?: boolean;
-    isTop?: boolean;
-    topRequested?: boolean;
-  },
-  adminUser: User,
-  adminName: string,
-): Promise<void> {
-  const cleanAdmin = sanitizeText(adminName || 'Administrateur', BLUEPRINT_LIMITS.DISPLAY_NAME_MAX) || 'Administrateur';
-  const rawAdminEmail = (adminUser.email || '').trim().toLowerCase();
-  const cleanAdminEmail =
-    rawAdminEmail && !/^wa\.\d+@qolock\.app$/i.test(rawAdminEmail)
-      ? sanitizeText(rawAdminEmail, BLUEPRINT_LIMITS.EMAIL_MAX)
-      : '';
-  const nextStatus = decision.status ?? listing.status;
-  const cleanReason = sanitizeText(decision.reason || '', BLUEPRINT_LIMITS.MODERATION_REASON_MAX);
-  const nowIso = new Date().toISOString().slice(0, 30);
+  fallbackActor: string,
+  fallbackAtIso: string,
+): Record<string, unknown> {
+  const patch: Record<string, unknown> = {};
 
-  const patch: Record<string, unknown> = {
-    updatedAt: serverTimestamp(),
-  };
+  for (const key of Object.keys(listing)) {
+    if (key !== 'id' && !ALLOWED_LISTING_KEYS.has(key)) {
+      patch[key] = deleteField();
+    }
+  }
 
-  // Backfill & clamp required/optional blueprint fields defensively for legacy/partial listing documents
-  if (!listing.title || typeof listing.title !== 'string' || listing.title.trim().length > BLUEPRINT_LIMITS.LISTING_TITLE_MAX) {
-    patch.title = sanitizeText(String(listing.title || 'Logement à Maradi'), BLUEPRINT_LIMITS.LISTING_TITLE_MAX) || 'Logement à Maradi';
+  if (
+    !listing.title ||
+    typeof listing.title !== 'string' ||
+    listing.title.trim().length > BLUEPRINT_LIMITS.LISTING_TITLE_MAX
+  ) {
+    patch.title =
+      sanitizeText(String(listing.title || 'Logement à Maradi'), BLUEPRINT_LIMITS.LISTING_TITLE_MAX) ||
+      'Logement à Maradi';
   }
   if (typeof listing.description !== 'string') {
     patch.description = '';
   } else if (listing.description.length > BLUEPRINT_LIMITS.LISTING_DESC_MAX) {
     patch.description = clampText(listing.description, BLUEPRINT_LIMITS.LISTING_DESC_MAX);
   }
-  if (!listing.neighborhood || typeof listing.neighborhood !== 'string' || listing.neighborhood.trim().length > BLUEPRINT_LIMITS.NEIGHBORHOOD_MAX) {
-    patch.neighborhood = sanitizeText(String(listing.neighborhood || 'Maradi Centre'), BLUEPRINT_LIMITS.NEIGHBORHOOD_MAX) || 'Maradi Centre';
+  if (
+    !listing.neighborhood ||
+    typeof listing.neighborhood !== 'string' ||
+    listing.neighborhood.trim().length > BLUEPRINT_LIMITS.NEIGHBORHOOD_MAX
+  ) {
+    patch.neighborhood =
+      sanitizeText(String(listing.neighborhood || 'Maradi Centre'), BLUEPRINT_LIMITS.NEIGHBORHOOD_MAX) ||
+      'Maradi Centre';
   }
-  if (!listing.propertyType || typeof listing.propertyType !== 'string') {
+  if (
+    listing.locationDetails !== undefined &&
+    (typeof listing.locationDetails !== 'string' ||
+      listing.locationDetails.length > BLUEPRINT_LIMITS.LOCATION_DETAILS_MAX)
+  ) {
+    patch.locationDetails = sanitizeText(
+      String(listing.locationDetails || ''),
+      BLUEPRINT_LIMITS.LOCATION_DETAILS_MAX,
+    );
+  }
+  if (typeof listing.propertyType !== 'string' || !VALID_PROPERTY_TYPES.has(listing.propertyType)) {
     patch.propertyType = 'chambre';
   }
-  if (typeof listing.priceFcfa !== 'number' || !Number.isFinite(listing.priceFcfa) || listing.priceFcfa < 0 || listing.priceFcfa > 5000000) {
+  if (
+    typeof listing.priceFcfa !== 'number' ||
+    !Number.isFinite(listing.priceFcfa) ||
+    listing.priceFcfa < 0 ||
+    listing.priceFcfa > 5000000
+  ) {
     patch.priceFcfa = Math.max(0, Math.min(5000000, Math.round(Number(listing.priceFcfa) || 0)));
   }
-  if (typeof listing.depositMonths !== 'number' || !Number.isFinite(listing.depositMonths) || listing.depositMonths < 0 || listing.depositMonths > 12) {
+  if (
+    typeof listing.depositMonths !== 'number' ||
+    !Number.isFinite(listing.depositMonths) ||
+    listing.depositMonths < 0 ||
+    listing.depositMonths > 12
+  ) {
     patch.depositMonths = Math.max(0, Math.min(12, Math.round(Number(listing.depositMonths) || 1)));
   }
-  if (typeof listing.availableSpots !== 'number' || !Number.isFinite(listing.availableSpots) || listing.availableSpots < 1 || listing.availableSpots > 20) {
+  if (
+    typeof listing.availableSpots !== 'number' ||
+    !Number.isFinite(listing.availableSpots) ||
+    listing.availableSpots < 1 ||
+    listing.availableSpots > 20
+  ) {
     patch.availableSpots = Math.max(1, Math.min(20, Math.round(Number(listing.availableSpots) || 1)));
   }
-  if (listing.roomsCount !== undefined && (typeof listing.roomsCount !== 'number' || !Number.isFinite(listing.roomsCount) || listing.roomsCount < 1 || listing.roomsCount > 30)) {
+  if (
+    listing.roomsCount !== undefined &&
+    (typeof listing.roomsCount !== 'number' ||
+      !Number.isFinite(listing.roomsCount) ||
+      listing.roomsCount < 1 ||
+      listing.roomsCount > 30)
+  ) {
     patch.roomsCount = Math.max(1, Math.min(30, Math.round(Number(listing.roomsCount) || 1)));
   }
-  if (listing.surfaceSqm !== undefined && (typeof listing.surfaceSqm !== 'number' || !Number.isFinite(listing.surfaceSqm) || listing.surfaceSqm < 0 || listing.surfaceSqm > 2000)) {
+  if (
+    listing.availability !== undefined &&
+    (typeof listing.availability !== 'string' ||
+      listing.availability.length > BLUEPRINT_LIMITS.AVAILABILITY_MAX)
+  ) {
+    patch.availability = sanitizeText(
+      String(listing.availability || 'Disponible immédiatement'),
+      BLUEPRINT_LIMITS.AVAILABILITY_MAX,
+    );
+  }
+  if (
+    listing.surfaceSqm !== undefined &&
+    (typeof listing.surfaceSqm !== 'number' ||
+      !Number.isFinite(listing.surfaceSqm) ||
+      listing.surfaceSqm < 0 ||
+      listing.surfaceSqm > 2000)
+  ) {
     patch.surfaceSqm = Math.max(0, Math.min(2000, Math.round(Number(listing.surfaceSqm) || 0)));
   }
   if (!Array.isArray(listing.amenities)) {
@@ -793,6 +940,110 @@ export async function adminModerateListing(
       patch.photos = cleanPhotos;
     }
   }
+  if (listing.videos !== undefined) {
+    if (!Array.isArray(listing.videos)) {
+      patch.videos = [];
+    } else {
+      const cleanVideos: ListingVideo[] = listing.videos
+        .slice(0, BLUEPRINT_LIMITS.MAX_VIDEOS)
+        .filter((v): v is ListingVideo => Boolean(v && typeof v === 'object'))
+        .map((v, idx) => {
+          const sourceType: 'url' | 'clip' = v.sourceType === 'clip' ? 'clip' : 'url';
+          return {
+            id: sanitizeText(String(v.id || `vid_${idx + 1}`), 64) || `vid_${idx + 1}`,
+            title: sanitizeText(String(v.title || 'Visite vidéo'), BLUEPRINT_LIMITS.VIDEO_TITLE_MAX),
+            sourceType,
+            url: sourceType === 'url' ? sanitizeText(String(v.url || ''), BLUEPRINT_LIMITS.VIDEO_URL_MAX) : '',
+            clipId: sourceType === 'clip' ? sanitizeText(String(v.clipId || ''), BLUEPRINT_LIMITS.ID_MAX) : '',
+            durationSec: Math.max(0, Math.min(3600, Math.round(Number(v.durationSec) || 0))),
+          };
+        });
+      patch.videos = cleanVideos;
+    }
+  }
+  if (
+    listing.bathroomType !== undefined &&
+    (typeof listing.bathroomType !== 'string' || !VALID_BATHROOM_TYPES.has(listing.bathroomType))
+  ) {
+    patch.bathroomType = 'interne';
+  }
+  if (
+    listing.toiletType !== undefined &&
+    (typeof listing.toiletType !== 'string' || !VALID_TOILET_TYPES.has(listing.toiletType))
+  ) {
+    patch.toiletType = 'interne';
+  }
+  if (
+    listing.furnished !== undefined &&
+    (typeof listing.furnished !== 'string' || !VALID_FURNISHED_TYPES.has(listing.furnished))
+  ) {
+    patch.furnished = 'non_meuble';
+  }
+  if (
+    listing.waterElectricity !== undefined &&
+    (typeof listing.waterElectricity !== 'string' ||
+      !VALID_UTILITY_TYPES.has(listing.waterElectricity))
+  ) {
+    patch.waterElectricity = 'compteur_individuel';
+  }
+  if (
+    listing.roommatePreference !== undefined &&
+    (typeof listing.roommatePreference !== 'string' ||
+      !VALID_ROOMMATE_PREFERENCES.has(listing.roommatePreference))
+  ) {
+    patch.roommatePreference = 'mixte';
+  }
+  if (
+    listing.houseRules !== undefined &&
+    (typeof listing.houseRules !== 'string' ||
+      listing.houseRules.length > BLUEPRINT_LIMITS.HOUSE_RULES_MAX)
+  ) {
+    patch.houseRules = clampText(String(listing.houseRules || ''), BLUEPRINT_LIMITS.HOUSE_RULES_MAX);
+  }
+  if (
+    listing.moderationReason !== undefined &&
+    (typeof listing.moderationReason !== 'string' ||
+      listing.moderationReason.length > BLUEPRINT_LIMITS.MODERATION_REASON_MAX)
+  ) {
+    patch.moderationReason = sanitizeText(
+      String(listing.moderationReason || ''),
+      BLUEPRINT_LIMITS.MODERATION_REASON_MAX,
+    );
+  }
+  if (listing.moderationHistory !== undefined) {
+    patch.moderationHistory = sanitizeListingModerationHistory(
+      listing.moderationHistory,
+      fallbackActor,
+      fallbackAtIso,
+      BLUEPRINT_LIMITS.MODERATION_HISTORY_MAX,
+    );
+  }
+  if (
+    listing.validatedByName !== undefined &&
+    (typeof listing.validatedByName !== 'string' ||
+      listing.validatedByName.length > BLUEPRINT_LIMITS.DISPLAY_NAME_MAX)
+  ) {
+    patch.validatedByName = sanitizeText(
+      String(listing.validatedByName || fallbackActor),
+      BLUEPRINT_LIMITS.DISPLAY_NAME_MAX,
+    );
+  }
+  if (
+    listing.validatedByEmail !== undefined &&
+    (typeof listing.validatedByEmail !== 'string' ||
+      listing.validatedByEmail.length > BLUEPRINT_LIMITS.EMAIL_MAX)
+  ) {
+    patch.validatedByEmail = sanitizeText(
+      String(listing.validatedByEmail || ''),
+      BLUEPRINT_LIMITS.EMAIL_MAX,
+    );
+  }
+  if (
+    listing.validatedAtIso !== undefined &&
+    (typeof listing.validatedAtIso !== 'string' || listing.validatedAtIso.length > 40)
+  ) {
+    patch.validatedAtIso = sanitizeText(String(listing.validatedAtIso || fallbackAtIso), 40);
+  }
   if (typeof listing.isVerifiedQolock !== 'boolean') {
     patch.isVerifiedQolock = false;
   }
@@ -802,9 +1053,51 @@ export async function adminModerateListing(
   if (typeof listing.topRequested !== 'boolean') {
     patch.topRequested = false;
   }
-  if (!listing.ownerName || typeof listing.ownerName !== 'string' || listing.ownerName.trim().length > BLUEPRINT_LIMITS.DISPLAY_NAME_MAX) {
-    patch.ownerName = sanitizeText(String(listing.ownerName || 'Propriétaire'), BLUEPRINT_LIMITS.DISPLAY_NAME_MAX) || 'Propriétaire';
+  if (
+    !listing.ownerName ||
+    typeof listing.ownerName !== 'string' ||
+    listing.ownerName.trim().length > BLUEPRINT_LIMITS.DISPLAY_NAME_MAX
+  ) {
+    patch.ownerName =
+      sanitizeText(String(listing.ownerName || 'Propriétaire'), BLUEPRINT_LIMITS.DISPLAY_NAME_MAX) ||
+      'Propriétaire';
   }
+
+  return patch;
+}
+
+export async function adminModerateListing(
+  listing: Listing,
+  decision: {
+    status?: ListingStatus;
+    reason?: string;
+    isVerifiedQolock?: boolean;
+    isTop?: boolean;
+    topRequested?: boolean;
+  },
+  adminUser: User,
+  adminName: string,
+): Promise<void> {
+  if (!listing.ownerId || !isValidFirestoreId(listing.ownerId) || !listing.createdAt) {
+    throw new Error(
+      'Ce document annonce est incomplet dans la base (identifiant propriétaire ou date de création manquant).',
+    );
+  }
+
+  const cleanAdmin = sanitizeText(adminName || 'Administrateur', BLUEPRINT_LIMITS.DISPLAY_NAME_MAX) || 'Administrateur';
+  const rawAdminEmail = (adminUser.email || '').trim().toLowerCase();
+  const cleanAdminEmail =
+    rawAdminEmail && !/^wa\.\d+@qolock\.app$/i.test(rawAdminEmail)
+      ? sanitizeText(rawAdminEmail, BLUEPRINT_LIMITS.EMAIL_MAX)
+      : '';
+  const nextStatus = decision.status ?? listing.status;
+  const cleanReason = sanitizeText(decision.reason || '', BLUEPRINT_LIMITS.MODERATION_REASON_MAX);
+  const nowIso = new Date().toISOString().slice(0, 30);
+
+  const patch: Record<string, unknown> = {
+    ...buildSanitizedListingLegacyPatch(listing, cleanAdmin, nowIso),
+    updatedAt: serverTimestamp(),
+  };
 
   if (typeof decision.status === 'string') {
     patch.status = decision.status;
@@ -865,21 +1158,12 @@ export async function adminModerateListing(
   }
 
   if (typeof decision.status === 'string' && decision.status !== listing.status) {
-    const sanitizedExisting: ListingModerationEntry[] = (Array.isArray(listing.moderationHistory)
-      ? listing.moderationHistory
-      : []
-    )
-      .slice(-(BLUEPRINT_LIMITS.MODERATION_HISTORY_MAX - 1))
-      .map((entry) => {
-        const entryEmail = sanitizeText(String(entry?.actorEmail || ''), BLUEPRINT_LIMITS.EMAIL_MAX);
-        return {
-          status: (entry?.status || 'pending') as ListingStatus,
-          reason: sanitizeText(String(entry?.reason || 'Mise à jour'), BLUEPRINT_LIMITS.MODERATION_REASON_MAX) || 'Mise à jour',
-          actorName: sanitizeText(String(entry?.actorName || cleanAdmin), BLUEPRINT_LIMITS.DISPLAY_NAME_MAX) || cleanAdmin,
-          ...(entryEmail ? { actorEmail: entryEmail } : {}),
-          atIso: sanitizeText(String(entry?.atIso || nowIso), 40) || nowIso,
-        };
-      });
+    const sanitizedExisting = sanitizeListingModerationHistory(
+      listing.moderationHistory,
+      cleanAdmin,
+      nowIso,
+      BLUEPRINT_LIMITS.MODERATION_HISTORY_MAX - 1,
+    );
 
     const newEntry: ListingModerationEntry = {
       status: nextStatus,
@@ -1142,25 +1426,12 @@ export async function confirmRentalForTenant(
     ) ||
     `Félicitations ${cleanTenantName} ! Votre location pour « ${cleanTitle} » (${cleanNeighborhood}) est officiellement confirmée sur GidaColocs. Bienvenue dans la communauté !`;
 
-  const sanitizedExisting: ListingModerationEntry[] = (Array.isArray(listing.moderationHistory)
-    ? listing.moderationHistory
-    : []
-  )
-    .slice(-(BLUEPRINT_LIMITS.MODERATION_HISTORY_MAX - 1))
-    .map((entry) => {
-      const entryEmail = sanitizeText(String(entry?.actorEmail || ''), BLUEPRINT_LIMITS.EMAIL_MAX);
-      return {
-        status: (entry?.status || 'published') as ListingStatus,
-        reason:
-          sanitizeText(String(entry?.reason || 'Mise à jour'), BLUEPRINT_LIMITS.MODERATION_REASON_MAX) ||
-          'Mise à jour',
-        actorName:
-          sanitizeText(String(entry?.actorName || cleanAdmin), BLUEPRINT_LIMITS.DISPLAY_NAME_MAX) ||
-          cleanAdmin,
-        ...(entryEmail ? { actorEmail: entryEmail } : {}),
-        atIso: sanitizeText(String(entry?.atIso || nowIso), 40) || nowIso,
-      };
-    });
+  const sanitizedExisting = sanitizeListingModerationHistory(
+    listing.moderationHistory,
+    cleanAdmin,
+    nowIso,
+    BLUEPRINT_LIMITS.MODERATION_HISTORY_MAX - 1,
+  );
 
   const nextHistory: ListingModerationEntry[] = [
     ...sanitizedExisting,
@@ -1202,6 +1473,7 @@ export async function confirmRentalForTenant(
   }
 
   const listingPatch: Record<string, unknown> = {
+    ...buildSanitizedListingLegacyPatch(listing, cleanAdmin, nowIso),
     status: 'rented',
     moderationReason: '',
     moderationHistory: nextHistory,
@@ -1210,68 +1482,6 @@ export async function confirmRentalForTenant(
     validatedAtIso: nowIso,
     updatedAt: serverTimestamp(),
   };
-
-  if (!listing.title || typeof listing.title !== 'string' || listing.title.trim().length > BLUEPRINT_LIMITS.LISTING_TITLE_MAX) {
-    listingPatch.title = cleanTitle;
-  }
-  if (typeof listing.description !== 'string') {
-    listingPatch.description = '';
-  } else if (listing.description.length > BLUEPRINT_LIMITS.LISTING_DESC_MAX) {
-    listingPatch.description = clampText(listing.description, BLUEPRINT_LIMITS.LISTING_DESC_MAX);
-  }
-  if (!listing.neighborhood || typeof listing.neighborhood !== 'string' || listing.neighborhood.trim().length > BLUEPRINT_LIMITS.NEIGHBORHOOD_MAX) {
-    listingPatch.neighborhood = cleanNeighborhood;
-  }
-  if (!listing.propertyType || typeof listing.propertyType !== 'string') {
-    listingPatch.propertyType = 'chambre';
-  }
-  if (typeof listing.priceFcfa !== 'number' || !Number.isFinite(listing.priceFcfa) || listing.priceFcfa < 0 || listing.priceFcfa > 5000000) {
-    listingPatch.priceFcfa = safePrice;
-  }
-  if (typeof listing.depositMonths !== 'number' || !Number.isFinite(listing.depositMonths) || listing.depositMonths < 0 || listing.depositMonths > 12) {
-    listingPatch.depositMonths = Math.max(0, Math.min(12, Math.round(Number(listing.depositMonths) || 1)));
-  }
-  if (typeof listing.availableSpots !== 'number' || !Number.isFinite(listing.availableSpots) || listing.availableSpots < 1 || listing.availableSpots > 20) {
-    listingPatch.availableSpots = Math.max(1, Math.min(20, Math.round(Number(listing.availableSpots) || 1)));
-  }
-  if (listing.roomsCount !== undefined && (typeof listing.roomsCount !== 'number' || !Number.isFinite(listing.roomsCount) || listing.roomsCount < 1 || listing.roomsCount > 30)) {
-    listingPatch.roomsCount = Math.max(1, Math.min(30, Math.round(Number(listing.roomsCount) || 1)));
-  }
-  if (listing.surfaceSqm !== undefined && (typeof listing.surfaceSqm !== 'number' || !Number.isFinite(listing.surfaceSqm) || listing.surfaceSqm < 0 || listing.surfaceSqm > 2000)) {
-    listingPatch.surfaceSqm = Math.max(0, Math.min(2000, Math.round(Number(listing.surfaceSqm) || 0)));
-  }
-  if (!Array.isArray(listing.amenities)) {
-    listingPatch.amenities = [];
-  } else {
-    const cleanAmenities = listing.amenities
-      .filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
-      .slice(0, BLUEPRINT_LIMITS.MAX_AMENITIES);
-    if (cleanAmenities.length !== listing.amenities.length) {
-      listingPatch.amenities = cleanAmenities;
-    }
-  }
-  if (!Array.isArray(listing.photos)) {
-    listingPatch.photos = [];
-  } else {
-    const cleanPhotos = listing.photos
-      .filter((p): p is string => typeof p === 'string' && p.length > 0 && p.length <= 220000)
-      .slice(0, BLUEPRINT_LIMITS.MAX_PHOTOS);
-    if (cleanPhotos.length !== listing.photos.length) {
-      listingPatch.photos = cleanPhotos;
-    }
-  }
-  if (typeof listing.isVerifiedQolock !== 'boolean') {
-    listingPatch.isVerifiedQolock = false;
-  }
-  if (typeof listing.isTop !== 'boolean') {
-    listingPatch.isTop = false;
-  }
-  if (typeof listing.topRequested !== 'boolean') {
-    listingPatch.topRequested = false;
-  }
-  if (!listing.ownerName || typeof listing.ownerName !== 'string' || listing.ownerName.trim().length > BLUEPRINT_LIMITS.DISPLAY_NAME_MAX) {
-    listingPatch.ownerName = cleanOwnerName;
-  }
 
   try {
     await updateDoc(doc(db, 'listings', listing.id), listingPatch);

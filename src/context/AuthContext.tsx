@@ -500,10 +500,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         let isGoogleProvider = false;
         if (firebaseUser.emailVerified && firebaseUser.email) {
           try {
-            const tokenResult = await firebaseUser.getIdTokenResult();
-            isGoogleProvider =
-              tokenResult?.signInProvider === 'google.com' ||
-              firebaseUser.providerData.some((p) => p?.providerId === 'google.com');
+            const tokenResult = await firebaseUser.getIdTokenResult(true);
+            isGoogleProvider = tokenResult?.signInProvider === 'google.com';
             if (isGoogleProvider) {
               ownerMatched = await verifyOwnerEmailHash(firebaseUser.email);
             }
@@ -539,8 +537,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               updatedAt: serverTimestamp(),
             });
             hasAdminDoc = true;
-          } catch {
-            // Owner remains authorized via verified Google token claims
+          } catch (adminProvisionErr) {
+            console.warn('Could not auto-provision /admins/{uid} doc for Google owner:', adminProvisionErr);
           }
         }
         if (seq !== authSyncSeqRef.current) return;
@@ -821,6 +819,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       try {
         const cred = await signInWithEmailAndPassword(auth, targetEmail, password);
+        await cred.user.getIdTokenResult(true);
         let hasAdminDoc = false;
         try {
           const adminSnap = await getDoc(doc(db, 'admins', cred.user.uid));
@@ -830,15 +829,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         setAdminDocExists(hasAdminDoc);
         if (!hasAdminDoc) {
-          if (isEmailInput) {
-            await signOut(auth);
-            setAuthError(
-              `Ce compte (${targetEmail}) n’a pas encore d’autorisation administrateur dans Firestore (/admins/${cred.user.uid}). Connectez-vous d’abord une fois avec Google administrateur.`,
-            );
-            return false;
-          }
+          await signOut(auth);
           setAuthError(
-            'Code reconnu sur Firebase Auth, mais le document administrateur côté serveur (/admins/{uid}) n’est pas encore activé pour cet UID.',
+            isEmailInput
+              ? `Ce compte (${targetEmail}) n’a pas encore d’autorisation administrateur dans Firestore (/admins/${cred.user.uid}). Connectez-vous d’abord avec Google administrateur pour l’activer.`
+              : 'Code reconnu sur Firebase Auth, mais le document administrateur côté serveur (/admins/{uid}) n’est pas encore activé. Connectez-vous d’abord via Google administrateur et enregistrez le code dans Paramètres.',
           );
           return false;
         }
