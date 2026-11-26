@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Area,
   AreaChart,
@@ -43,6 +43,7 @@ import {
   RotateCcw,
   Save,
   Search,
+  Settings,
   ShieldCheck,
   Star,
   Trash2,
@@ -187,8 +188,14 @@ const VALID_ADMIN_TABS = new Set<AdminTab>([
 ]);
 
 function parseAdminTabParam(value: string | null): AdminTab {
-  if (value && VALID_ADMIN_TABS.has(value as AdminTab)) {
-    return value as AdminTab;
+  if (!value) return 'pending_queue';
+  const normalized = value.trim().toLowerCase();
+  if (normalized === 'validation' || normalized === 'moderation') return 'pending_queue';
+  if (normalized === 'parametres' || normalized === 'paramètres' || normalized === 'config') {
+    return 'settings';
+  }
+  if (VALID_ADMIN_TABS.has(normalized as AdminTab)) {
+    return normalized as AdminTab;
   }
   return 'pending_queue';
 }
@@ -311,12 +318,14 @@ export function AdminDashboardView({
     isAdmin,
     isVerifiedOwner,
     hasPasswordAdminLinked,
+    signInWithGoogleSelectAccount,
     configureAdminAccessCode,
     listAdminRegistry,
     signOutUser,
     theme,
   } = useAuth();
   const savedFilters = readSessionJson<Record<string, string>>(ADMIN_FILTERS_STORAGE_KEY, {});
+  const workspaceRef = useRef<HTMLDivElement | null>(null);
   const [tab, setTabState] = useState<AdminTab>(() => parseAdminTabParam(readUrlParam('adminTab')));
   const setTab = (nextTab: AdminTab) => {
     setTabState(nextTab);
@@ -324,6 +333,14 @@ export function AdminDashboardView({
       { adminTab: nextTab === 'pending_queue' ? null : nextTab },
       'push',
     );
+  };
+  const navigateToTab = (nextTab: AdminTab, scrollToWorkspace = true) => {
+    setTab(nextTab);
+    if (scrollToWorkspace && typeof window !== 'undefined') {
+      window.requestAnimationFrame(() => {
+        workspaceRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
   };
 
   useEffect(() => {
@@ -999,7 +1016,24 @@ export function AdminDashboardView({
     }
   };
 
+  const openInspectListingModal = (listing: Listing) => {
+    setAdminError(null);
+    setAdminSuccess(null);
+    setInspectListing(listing);
+  };
+
+  const markRelatedAlertsRead = (targetId: string) => {
+    const ids = adminAlerts
+      .filter((a) => !a.read && a.listingId === targetId)
+      .map((a) => a.id);
+    if (ids.length > 0) {
+      void markAllAdminAlertsRead(ids).catch(() => {});
+    }
+  };
+
   const openConfirmRentalModal = (listing: Listing) => {
+    setAdminError(null);
+    setAdminSuccess(null);
     setConfirmRentalTarget(listing);
     setRentalTenantId('');
     setRentalTenantSearch('');
@@ -1149,6 +1183,30 @@ export function AdminDashboardView({
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => navigateToTab('pending_queue')}
+            className={`min-h-[42px] inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl cursor-pointer whitespace-nowrap transition-colors ${
+              tab === 'pending_queue'
+                ? 'bg-teal-400 text-[#0B1437] shadow-xs'
+                : 'text-white bg-white/15 hover:bg-white/25 border border-white/20'
+            }`}
+          >
+            <ShieldCheck className="w-4 h-4" />
+            <span>Validation ({totalPendingModerationCount})</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => navigateToTab('settings')}
+            className={`min-h-[42px] inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl cursor-pointer whitespace-nowrap transition-colors ${
+              tab === 'settings'
+                ? 'bg-teal-400 text-[#0B1437] shadow-xs'
+                : 'text-white bg-white/15 hover:bg-white/25 border border-white/20'
+            }`}
+          >
+            <Settings className="w-4 h-4" />
+            <span>Paramètres</span>
+          </button>
           {allListings.length === 0 && (
             <button
               type="button"
@@ -1269,7 +1327,7 @@ export function AdminDashboardView({
             onClick={() => {
               setModerationCategoryFilter('all');
               setModerationStatusFilter('pending');
-              setTab('pending_queue');
+              navigateToTab('pending_queue');
             }}
             className="text-left p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0B1437]/70 hover:border-teal-500 dark:hover:border-[#93A3FF] transition-colors cursor-pointer"
           >
@@ -1291,7 +1349,7 @@ export function AdminDashboardView({
             onClick={() => {
               setOrderStatusFilter('pending');
               setOrderTypeFilter('all');
-              setTab('orders');
+              navigateToTab('orders');
             }}
             className="text-left p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0B1437]/70 hover:border-teal-500 dark:hover:border-[#93A3FF] transition-colors cursor-pointer"
           >
@@ -1307,7 +1365,7 @@ export function AdminDashboardView({
             type="button"
             onClick={() => {
               setListingStatusFilter('top_requested');
-              setTab('listings');
+              navigateToTab('listings');
             }}
             className="text-left p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0B1437]/70 hover:border-teal-500 dark:hover:border-[#93A3FF] transition-colors cursor-pointer"
           >
@@ -1323,7 +1381,7 @@ export function AdminDashboardView({
             type="button"
             onClick={() => {
               setReportStatusFilter('open');
-              setTab('reports');
+              navigateToTab('reports');
             }}
             className="text-left p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0B1437]/70 hover:border-teal-500 dark:hover:border-[#93A3FF] transition-colors cursor-pointer"
           >
@@ -1341,238 +1399,70 @@ export function AdminDashboardView({
         </div>
       </section>
 
-      {/* Data Visualization Analytics Grid (Recharts) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Chart 1: Volume d'annonces par quartier */}
-        <section className="lg:col-span-7 bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800/90 rounded-2xl p-6 flex flex-col justify-between gap-4 shadow-xs">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <h3 className="text-base font-display font-bold text-slate-900 dark:text-white">
-                Volume d’annonces par quartier
-              </h3>
-              <p className="text-[13px] font-medium text-slate-500 dark:text-slate-400 mt-0.5">
-                Répartition des biens immobiliers sur les zones de Maradi
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-slate-600 dark:text-slate-300">
-              <span className="inline-flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-sm bg-[#0D9488]" />
-                <span>Disponibles</span>
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-sm bg-[#D97706]" />
-                <span>Réservés</span>
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-sm bg-[#64748B]" />
-                <span>En attente</span>
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <span
-                  className="w-2.5 h-2.5 rounded-sm"
-                  style={{ backgroundColor: rentedBarColor }}
-                />
-                <span>Pris / Loués</span>
-              </span>
-            </div>
-          </div>
-
-          <div className="h-[270px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={neighborhoodChartData}
-                margin={{ top: 8, right: 8, left: -18, bottom: 20 }}
-                barCategoryGap="24%"
-              >
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridStrokeColor} />
-                <XAxis
-                  dataKey="shortName"
-                  tick={{ fill: axisTickColor, fontSize: 11 }}
-                  axisLine={{ stroke: gridStrokeColor }}
-                  tickLine={false}
-                  interval={0}
-                  angle={-18}
-                  textAnchor="end"
-                  height={46}
-                />
-                <YAxis
-                  allowDecimals={false}
-                  tick={{ fill: axisTickColor, fontSize: 11 }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <Tooltip
-                  cursor={{ fill: isDark ? 'rgba(148, 163, 184, 0.08)' : 'rgba(10, 37, 64, 0.04)' }}
-                  content={({ active, payload }) => {
-                    if (!active || !payload || payload.length === 0) return null;
-                    const point = payload[0].payload as NeighborhoodChartPoint;
-                    return (
-                      <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0F172A] px-3.5 py-2.5 shadow-md text-xs space-y-1">
-                        <p className="font-bold text-slate-900 dark:text-white">
-                          {point.neighborhood}
-                        </p>
-                        <p className="text-teal-700 dark:text-teal-400 tabular-nums">
-                          Disponibles : {point.published}
-                        </p>
-                        <p className="text-amber-600 dark:text-amber-400 tabular-nums">
-                          Réservés : {point.reserved}
-                        </p>
-                        <p className="text-slate-500 dark:text-slate-400 tabular-nums">
-                          En attente : {point.pending}
-                        </p>
-                        <p className="text-slate-700 dark:text-slate-300 tabular-nums">
-                          Pris / Loués : {point.rented}
-                        </p>
-                        {point.avgPrice > 0 && (
-                          <p className="pt-1 border-t border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 tabular-nums">
-                            Loyer moyen : {formatFcfa(point.avgPrice)}
-                          </p>
-                        )}
-                      </div>
-                    );
-                  }}
-                />
-                <Bar dataKey="published" stackId="a" fill="#0D9488" radius={[0, 0, 0, 0]} />
-                <Bar dataKey="reserved" stackId="a" fill="#D97706" radius={[0, 0, 0, 0]} />
-                <Bar dataKey="pending" stackId="a" fill="#64748B" radius={[0, 0, 0, 0]} />
-                <Bar dataKey="rented" stackId="a" fill={rentedBarColor} radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </section>
-
-        {/* Chart 2: Évolution des inscriptions d'utilisateurs */}
-        <section className="lg:col-span-5 bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800/90 rounded-2xl p-6 flex flex-col justify-between gap-4 shadow-xs">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <h3 className="text-base font-display font-bold text-slate-900 dark:text-white">
-                Évolution des inscriptions
-              </h3>
-              <p className="text-[13px] font-medium text-slate-500 dark:text-slate-400 mt-0.5 tabular-nums">
-                {tenantUsersCount} locataire{tenantUsersCount > 1 ? 's' : ''} ·{' '}
-                {landlordUsersCount} bailleur{landlordUsersCount > 1 ? 's' : ''}
-              </p>
-            </div>
-            <span className="text-xs font-bold text-teal-700 dark:text-teal-400 tabular-nums">
-              {allUsers.length} inscrit{allUsers.length > 1 ? 's' : ''}
-            </span>
-          </div>
-
-          {userGrowthChartData.length === 0 ? (
-            <div className="h-[270px] flex items-center justify-center text-[13px] font-medium text-slate-500 dark:text-slate-400 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
-              Les courbes apparaîtront dès les premières inscriptions.
-            </div>
-          ) : (
-            <div className="h-[270px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
-                  data={userGrowthChartData}
-                  margin={{ top: 8, right: 12, left: -18, bottom: 20 }}
-                >
-                  <defs>
-                    <linearGradient id="gidaColocsUsersGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#0D9488" stopOpacity={0.28} />
-                      <stop offset="95%" stopColor="#0D9488" stopOpacity={0.02} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridStrokeColor} />
-                  <XAxis
-                    dataKey="dateLabel"
-                    tick={{ fill: axisTickColor, fontSize: 11 }}
-                    axisLine={{ stroke: gridStrokeColor }}
-                    tickLine={false}
-                    height={46}
-                  />
-                  <YAxis
-                    allowDecimals={false}
-                    tick={{ fill: axisTickColor, fontSize: 11 }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <Tooltip
-                    content={({ active, payload }) => {
-                      if (!active || !payload || payload.length === 0) return null;
-                      const pt = payload[0].payload as UserGrowthChartPoint;
-                      return (
-                        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0F172A] px-3.5 py-2.5 shadow-md text-xs space-y-1">
-                          <p className="font-bold text-slate-900 dark:text-white">
-                            {pt.dateLabel}
-                          </p>
-                          <p className="text-teal-700 dark:text-teal-400 tabular-nums">
-                            Total cumulé : {pt.cumul} utilisateur{pt.cumul > 1 ? 's' : ''}
-                          </p>
-                          <p className="text-slate-600 dark:text-slate-300 tabular-nums">
-                            Nouvelles inscriptions : +{pt.nouveaux}
-                          </p>
-                          {(pt.tenants > 0 || pt.landlords > 0) && (
-                            <p className="text-slate-500 dark:text-slate-400 tabular-nums">
-                              {pt.tenants} locataire(s) · {pt.landlords} bailleur(s)
-                            </p>
-                          )}
-                        </div>
-                      );
-                    }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="cumul"
-                    stroke="#0D9488"
-                    strokeWidth={2.5}
-                    fillOpacity={1}
-                    fill="url(#gidaColocsUsersGradient)"
-                    dot={{ r: 3.5, fill: '#0D9488', strokeWidth: 0 }}
-                    activeDot={{ r: 5, fill: '#0B1437', stroke: '#0D9488', strokeWidth: 2 }}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          )}
-        </section>
-      </div>
-
-      {/* Navigation Tabs */}
-      <div className="flex items-center gap-1.5 p-1.5 bg-slate-200/75 dark:bg-[#0F172A] border border-slate-200/60 dark:border-slate-800/90 rounded-2xl overflow-x-auto">
-        {(
-          [
-            ['pending_queue', `Modération des publications (${totalPendingModerationCount})`],
-            ['listings', `Annonces (${allListings.length})`],
+      {/* Navigation Tabs + Workspace */}
+      <div ref={workspaceRef} className="space-y-6 scroll-mt-20">
+        <div className="flex flex-wrap items-center gap-1.5 p-1.5 bg-slate-200/75 dark:bg-[#0F172A] border border-slate-200/60 dark:border-slate-800/90 rounded-2xl">
+          {(
             [
-              'availability',
-              `Réservations & Locations (${reservedListingsCount + rentedListingsCount + allRentalConfirmations.length + visitReservations.length})`,
-            ],
-            ['orders', `Paiements & Commissions (${allOrders.length})`],
-            ['coloc', `Colocations (${allColocProfiles.length})`],
-            ['reports', `Réclamations (${allReports.length + allColocReports.length})`],
-            ['users', `Utilisateurs (${allUsers.length})`],
-            ['history', `Historique (${activities.length})`],
-            ['settings', 'Paramètres'],
-          ] as const
-        ).map(([key, label]) => (
-          <button
-            key={key}
-            type="button"
-            onClick={() => setTab(key)}
-            className={`min-h-[40px] px-4 py-2 text-xs font-bold rounded-xl whitespace-nowrap cursor-pointer transition-colors ${
-              tab === key
-                ? 'bg-white dark:bg-[#0B1437] text-slate-900 dark:text-white shadow-xs border border-slate-200/80 dark:border-indigo-400/25'
-                : 'text-slate-600 dark:text-slate-300'
-            }`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+              ['pending_queue', `Validation (${totalPendingModerationCount})`],
+              ['listings', `Annonces (${allListings.length})`],
+              [
+                'availability',
+                `Locations (${reservedListingsCount + rentedListingsCount + allRentalConfirmations.length + visitReservations.length})`,
+              ],
+              ['orders', `Paiements (${allOrders.length})`],
+              ['coloc', `Colocations (${allColocProfiles.length})`],
+              ['reports', `Réclamations (${allReports.length + allColocReports.length})`],
+              ['users', `Utilisateurs (${allUsers.length})`],
+              ['history', `Historique (${activities.length})`],
+              ['settings', 'Paramètres'],
+            ] as const
+          ).map(([key, label]) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setTab(key)}
+              className={`min-h-[38px] inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-xl whitespace-nowrap cursor-pointer transition-colors ${
+                tab === key
+                  ? 'bg-white dark:bg-[#0B1437] text-slate-900 dark:text-white shadow-xs border border-slate-200/80 dark:border-indigo-400/25'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              {key === 'settings' && <Settings className="w-3.5 h-3.5" />}
+              <span>{label}</span>
+            </button>
+          ))}
+        </div>
 
-      {adminError && (
-        <div className="p-4 rounded-2xl border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 text-[13px] font-medium text-red-700 dark:text-red-300">
-          {adminError}
-        </div>
-      )}
-      {adminSuccess && (
-        <div className="p-3.5 rounded-xl border border-emerald-200 dark:border-emerald-900/60 bg-emerald-50 dark:bg-emerald-950/40 text-xs text-emerald-700 dark:text-emerald-300">
-          {adminSuccess}
-        </div>
-      )}
+        {adminError && (
+          <div
+            role="alert"
+            className="p-4 rounded-2xl border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 text-[13px] font-medium text-red-700 dark:text-red-300 flex items-start justify-between gap-3"
+          >
+            <span>{adminError}</span>
+            <button
+              type="button"
+              onClick={() => setAdminError(null)}
+              aria-label="Fermer l’alerte"
+              className="text-red-500 hover:text-red-800 dark:hover:text-red-200 cursor-pointer shrink-0"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+        {adminSuccess && (
+          <div className="p-3.5 rounded-xl border border-emerald-200 dark:border-emerald-900/60 bg-emerald-50 dark:bg-emerald-950/40 text-xs text-emerald-700 dark:text-emerald-300 flex items-start justify-between gap-3">
+            <span>{adminSuccess}</span>
+            <button
+              type="button"
+              onClick={() => setAdminSuccess(null)}
+              aria-label="Fermer la confirmation"
+              className="text-emerald-600 hover:text-emerald-900 dark:hover:text-emerald-200 cursor-pointer shrink-0"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
 
       {/* Tab 0: Modération centralisée des publications & Alertes */}
       {tab === 'pending_queue' && (
@@ -1654,7 +1544,7 @@ export function AdminDashboardView({
                             type="button"
                             onClick={() => {
                               if (!alert.read) void markAdminAlertRead(alert.id).catch(() => {});
-                              setInspectListing(linkedListing);
+                              openInspectListingModal(linkedListing);
                             }}
                             className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-white bg-[#0B1437] hover:bg-slate-800 dark:bg-[#93A3FF] dark:text-[#0B1437] dark:hover:bg-[#A6B3FF] rounded-lg cursor-pointer"
                           >
@@ -1943,7 +1833,7 @@ export function AdminDashboardView({
                         <div className="flex flex-wrap items-center gap-2 shrink-0">
                           <button
                             type="button"
-                            onClick={() => setInspectListing(item)}
+                            onClick={() => openInspectListingModal(item)}
                             className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold text-white bg-[#0B1437] hover:bg-slate-800 dark:bg-[#93A3FF] dark:text-[#0B1437] dark:hover:bg-[#A6B3FF] rounded-lg cursor-pointer"
                           >
                             <Eye className="w-3.5 h-3.5" />
@@ -1983,8 +1873,8 @@ export function AdminDashboardView({
                               onClick={() =>
                                 void runAdminAction(
                                   item.id,
-                                  () =>
-                                    adminModerateListing(
+                                  async () => {
+                                    await adminModerateListing(
                                       item,
                                       {
                                         status: 'published',
@@ -1993,14 +1883,16 @@ export function AdminDashboardView({
                                       },
                                       user,
                                       adminName,
-                                    ),
+                                    );
+                                    markRelatedAlertsRead(item.id);
+                                  },
                                   'Annonce approuvée et publiée publiquement.',
                                 )
                               }
                               className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 rounded-lg cursor-pointer"
                             >
                               <Check className="w-3.5 h-3.5" />
-                              <span>Approuver</span>
+                              <span>{busyActionId === item.id ? 'Validation...' : 'Approuver'}</span>
                             </button>
                           )}
 
@@ -2008,6 +1900,7 @@ export function AdminDashboardView({
                             type="button"
                             disabled={busyActionId === item.id}
                             onClick={() => {
+                              setAdminError(null);
                               setListingModerationTarget({
                                 listing: item,
                                 nextStatus: 'needs_correction',
@@ -2024,6 +1917,7 @@ export function AdminDashboardView({
                               type="button"
                               disabled={busyActionId === item.id}
                               onClick={() => {
+                                setAdminError(null);
                                 setListingModerationTarget({
                                   listing: item,
                                   nextStatus: 'rejected',
@@ -2089,27 +1983,30 @@ export function AdminDashboardView({
                               onClick={() =>
                                 void runAdminAction(
                                   actKey,
-                                  () =>
-                                    adminModerateColocProfile(
+                                  async () => {
+                                    await adminModerateColocProfile(
                                       cp,
                                       'approved',
                                       'Profil colocataire validé et publié',
                                       user,
                                       adminName,
-                                    ),
+                                    );
+                                    markRelatedAlertsRead(cp.id);
+                                  },
                                   'Profil colocataire approuvé.',
                                 )
                               }
                               className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 rounded-lg cursor-pointer"
                             >
                               <Check className="w-3.5 h-3.5" />
-                              <span>Approuver</span>
+                              <span>{busyActionId === actKey ? 'Validation...' : 'Approuver'}</span>
                             </button>
                           )}
                           <button
                             type="button"
                             disabled={busyActionId === actKey}
                             onClick={() => {
+                              setAdminError(null);
                               setContentModerationTarget({
                                 kind: 'coloc_profile',
                                 item: cp,
@@ -2126,6 +2023,7 @@ export function AdminDashboardView({
                               type="button"
                               disabled={busyActionId === actKey}
                               onClick={() => {
+                                setAdminError(null);
                                 setContentModerationTarget({
                                   kind: 'coloc_profile',
                                   item: cp,
@@ -2193,27 +2091,32 @@ export function AdminDashboardView({
                               onClick={() =>
                                 void runAdminAction(
                                   actKey,
-                                  () =>
-                                    adminModerateColocInterest(
+                                  async () => {
+                                    await adminModerateColocInterest(
                                       interest,
                                       'approved',
                                       'Demande de colocation validée et publiée',
                                       user,
                                       adminName,
-                                    ),
+                                    );
+                                    if (interest.listingId) {
+                                      markRelatedAlertsRead(interest.listingId);
+                                    }
+                                  },
                                   'Demande de colocation approuvée.',
                                 )
                               }
                               className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 rounded-lg cursor-pointer"
                             >
                               <Check className="w-3.5 h-3.5" />
-                              <span>Approuver</span>
+                              <span>{busyActionId === actKey ? 'Validation...' : 'Approuver'}</span>
                             </button>
                           )}
                           <button
                             type="button"
                             disabled={busyActionId === actKey}
                             onClick={() => {
+                              setAdminError(null);
                               setContentModerationTarget({
                                 kind: 'coloc_interest',
                                 item: interest,
@@ -2230,6 +2133,7 @@ export function AdminDashboardView({
                               type="button"
                               disabled={busyActionId === actKey}
                               onClick={() => {
+                                setAdminError(null);
                                 setContentModerationTarget({
                                   kind: 'coloc_interest',
                                   item: interest,
@@ -2291,27 +2195,30 @@ export function AdminDashboardView({
                               onClick={() =>
                                 void runAdminAction(
                                   actKey,
-                                  () =>
-                                    adminModerateListingReview(
+                                  async () => {
+                                    await adminModerateListingReview(
                                       review,
                                       'approved',
                                       'Avis conforme et publié par l’administrateur',
                                       user,
                                       adminName,
-                                    ),
+                                    );
+                                    markRelatedAlertsRead(review.listingId);
+                                  },
                                   'Avis public approuvé.',
                                 )
                               }
                               className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 rounded-lg cursor-pointer"
                             >
                               <Check className="w-3.5 h-3.5" />
-                              <span>Approuver</span>
+                              <span>{busyActionId === actKey ? 'Validation...' : 'Approuver'}</span>
                             </button>
                           )}
                           <button
                             type="button"
                             disabled={busyActionId === actKey}
                             onClick={() => {
+                              setAdminError(null);
                               setContentModerationTarget({
                                 kind: 'review',
                                 item: review,
@@ -2328,6 +2235,7 @@ export function AdminDashboardView({
                               type="button"
                               disabled={busyActionId === actKey}
                               onClick={() => {
+                                setAdminError(null);
                                 setContentModerationTarget({
                                   kind: 'review',
                                   item: review,
@@ -2393,27 +2301,32 @@ export function AdminDashboardView({
                               onClick={() =>
                                 void runAdminAction(
                                   actKey,
-                                  () =>
-                                    adminModerateColocMessage(
+                                  async () => {
+                                    await adminModerateColocMessage(
                                       msg,
                                       'approved',
                                       'Commentaire public validé par l’administrateur',
                                       user,
                                       adminName,
-                                    ),
+                                    );
+                                    if (msg.profileId) {
+                                      markRelatedAlertsRead(msg.profileId);
+                                    }
+                                  },
                                   'Commentaire colocation approuvé.',
                                 )
                               }
                               className="inline-flex items-center gap-1 px-3 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 rounded-lg cursor-pointer"
                             >
                               <Check className="w-3.5 h-3.5" />
-                              <span>Approuver</span>
+                              <span>{busyActionId === actKey ? 'Validation...' : 'Approuver'}</span>
                             </button>
                           )}
                           <button
                             type="button"
                             disabled={busyActionId === actKey}
                             onClick={() => {
+                              setAdminError(null);
                               setContentModerationTarget({
                                 kind: 'coloc_message',
                                 item: msg,
@@ -2430,6 +2343,7 @@ export function AdminDashboardView({
                               type="button"
                               disabled={busyActionId === actKey}
                               onClick={() => {
+                                setAdminError(null);
                                 setContentModerationTarget({
                                   kind: 'coloc_message',
                                   item: msg,
@@ -2565,7 +2479,7 @@ export function AdminDashboardView({
                     <div className="flex flex-wrap items-center gap-2 shrink-0">
                       <button
                         type="button"
-                        onClick={() => setInspectListing(item)}
+                        onClick={() => openInspectListingModal(item)}
                         className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg cursor-pointer"
                       >
                         <Eye className="w-3.5 h-3.5" />
@@ -2580,8 +2494,8 @@ export function AdminDashboardView({
                             onClick={() =>
                               void runAdminAction(
                                 item.id,
-                                () =>
-                                  adminModerateListing(
+                                async () => {
+                                  await adminModerateListing(
                                     item,
                                     {
                                       status: 'published',
@@ -2590,19 +2504,22 @@ export function AdminDashboardView({
                                     },
                                     user,
                                     adminName,
-                                  ),
+                                  );
+                                  markRelatedAlertsRead(item.id);
+                                },
                                 'Annonce approuvée et publiée.',
                               )
                             }
                             className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 rounded-lg cursor-pointer"
                           >
                             <Check className="w-3.5 h-3.5" />
-                            <span>Approuver</span>
+                            <span>{busyActionId === item.id ? 'Validation...' : 'Approuver'}</span>
                           </button>
                           <button
                             type="button"
                             disabled={busyActionId === item.id}
                             onClick={() => {
+                              setAdminError(null);
                               setListingModerationTarget({
                                 listing: item,
                                 nextStatus: 'needs_correction',
@@ -2617,6 +2534,7 @@ export function AdminDashboardView({
                             type="button"
                             disabled={busyActionId === item.id}
                             onClick={() => {
+                              setAdminError(null);
                               setListingModerationTarget({ listing: item, nextStatus: 'rejected' });
                               setListingModerationReason('');
                             }}
@@ -4667,9 +4585,19 @@ export function AdminDashboardView({
                   </button>
                 </form>
               ) : (
-                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                  Votre accès par code est actif. Pour créer ou modifier le code d’accès administrateur, connectez-vous avec votre compte Google propriétaire autorisé.
-                </p>
+                <div className="space-y-3">
+                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                    Votre accès par code est actif. Pour créer ou modifier le code d’accès administrateur, connectez-vous avec votre compte Google propriétaire autorisé.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => void signInWithGoogleSelectAccount({ redirectToAdmin: true })}
+                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold text-white bg-[#0B1437] hover:bg-slate-800 dark:bg-[#93A3FF] dark:text-[#0B1437] dark:hover:bg-[#A6B3FF] rounded-lg cursor-pointer"
+                  >
+                    <ShieldCheck className="w-4 h-4" />
+                    <span>Se connecter avec Google propriétaire</span>
+                  </button>
+                </div>
               )}
             </section>
 
@@ -4680,7 +4608,7 @@ export function AdminDashboardView({
                 </h3>
                 <button
                   type="button"
-                  onClick={() => setTab('history')}
+                  onClick={() => navigateToTab('history')}
                   className="text-xs font-medium text-teal-700 dark:text-teal-400 hover:underline cursor-pointer"
                 >
                   Tout voir
@@ -4716,6 +4644,197 @@ export function AdminDashboardView({
           </div>
         </div>
       )}
+      </div>
+
+      {/* Data Visualization Analytics Grid (Recharts) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Chart 1: Volume d'annonces par quartier */}
+        <section className="lg:col-span-7 bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800/90 rounded-2xl p-6 flex flex-col justify-between gap-4 shadow-xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h3 className="text-base font-display font-bold text-slate-900 dark:text-white">
+                Volume d’annonces par quartier
+              </h3>
+              <p className="text-[13px] font-medium text-slate-500 dark:text-slate-400 mt-0.5">
+                Répartition des biens immobiliers sur les zones de Maradi
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-slate-600 dark:text-slate-300">
+              <span className="inline-flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-sm bg-[#0D9488]" />
+                <span>Disponibles</span>
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-sm bg-[#D97706]" />
+                <span>Réservés</span>
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-sm bg-[#64748B]" />
+                <span>En attente</span>
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span
+                  className="w-2.5 h-2.5 rounded-sm"
+                  style={{ backgroundColor: rentedBarColor }}
+                />
+                <span>Pris / Loués</span>
+              </span>
+            </div>
+          </div>
+
+          <div className="h-[270px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={neighborhoodChartData}
+                margin={{ top: 8, right: 8, left: -18, bottom: 20 }}
+                barCategoryGap="24%"
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridStrokeColor} />
+                <XAxis
+                  dataKey="shortName"
+                  tick={{ fill: axisTickColor, fontSize: 11 }}
+                  axisLine={{ stroke: gridStrokeColor }}
+                  tickLine={false}
+                  interval={0}
+                  angle={-18}
+                  textAnchor="end"
+                  height={46}
+                />
+                <YAxis
+                  allowDecimals={false}
+                  tick={{ fill: axisTickColor, fontSize: 11 }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip
+                  cursor={{ fill: isDark ? 'rgba(148, 163, 184, 0.08)' : 'rgba(10, 37, 64, 0.04)' }}
+                  content={({ active, payload }) => {
+                    if (!active || !payload || payload.length === 0) return null;
+                    const point = payload[0].payload as NeighborhoodChartPoint;
+                    return (
+                      <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0F172A] px-3.5 py-2.5 shadow-md text-xs space-y-1">
+                        <p className="font-bold text-slate-900 dark:text-white">
+                          {point.neighborhood}
+                        </p>
+                        <p className="text-teal-700 dark:text-teal-400 tabular-nums">
+                          Disponibles : {point.published}
+                        </p>
+                        <p className="text-amber-600 dark:text-amber-400 tabular-nums">
+                          Réservés : {point.reserved}
+                        </p>
+                        <p className="text-slate-500 dark:text-slate-400 tabular-nums">
+                          En attente : {point.pending}
+                        </p>
+                        <p className="text-slate-700 dark:text-slate-300 tabular-nums">
+                          Pris / Loués : {point.rented}
+                        </p>
+                        {point.avgPrice > 0 && (
+                          <p className="pt-1 border-t border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 tabular-nums">
+                            Loyer moyen : {formatFcfa(point.avgPrice)}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  }}
+                />
+                <Bar dataKey="published" stackId="a" fill="#0D9488" radius={[0, 0, 0, 0]} />
+                <Bar dataKey="reserved" stackId="a" fill="#D97706" radius={[0, 0, 0, 0]} />
+                <Bar dataKey="pending" stackId="a" fill="#64748B" radius={[0, 0, 0, 0]} />
+                <Bar dataKey="rented" stackId="a" fill={rentedBarColor} radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </section>
+
+        {/* Chart 2: Évolution des inscriptions d'utilisateurs */}
+        <section className="lg:col-span-5 bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800/90 rounded-2xl p-6 flex flex-col justify-between gap-4 shadow-xs">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h3 className="text-base font-display font-bold text-slate-900 dark:text-white">
+                Évolution des inscriptions
+              </h3>
+              <p className="text-[13px] font-medium text-slate-500 dark:text-slate-400 mt-0.5 tabular-nums">
+                {tenantUsersCount} locataire{tenantUsersCount > 1 ? 's' : ''} ·{' '}
+                {landlordUsersCount} bailleur{landlordUsersCount > 1 ? 's' : ''}
+              </p>
+            </div>
+            <span className="text-xs font-bold text-teal-700 dark:text-teal-400 tabular-nums">
+              {allUsers.length} inscrit{allUsers.length > 1 ? 's' : ''}
+            </span>
+          </div>
+
+          {userGrowthChartData.length === 0 ? (
+            <div className="h-[270px] flex items-center justify-center text-[13px] font-medium text-slate-500 dark:text-slate-400 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
+              Les courbes apparaîtront dès les premières inscriptions.
+            </div>
+          ) : (
+            <div className="h-[270px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart
+                  data={userGrowthChartData}
+                  margin={{ top: 8, right: 12, left: -18, bottom: 20 }}
+                >
+                  <defs>
+                    <linearGradient id="gidaColocsUsersGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#0D9488" stopOpacity={0.28} />
+                      <stop offset="95%" stopColor="#0D9488" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridStrokeColor} />
+                  <XAxis
+                    dataKey="dateLabel"
+                    tick={{ fill: axisTickColor, fontSize: 11 }}
+                    axisLine={{ stroke: gridStrokeColor }}
+                    tickLine={false}
+                    height={46}
+                  />
+                  <YAxis
+                    allowDecimals={false}
+                    tick={{ fill: axisTickColor, fontSize: 11 }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip
+                    content={({ active, payload }) => {
+                      if (!active || !payload || payload.length === 0) return null;
+                      const pt = payload[0].payload as UserGrowthChartPoint;
+                      return (
+                        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0F172A] px-3.5 py-2.5 shadow-md text-xs space-y-1">
+                          <p className="font-bold text-slate-900 dark:text-white">
+                            {pt.dateLabel}
+                          </p>
+                          <p className="text-teal-700 dark:text-teal-400 tabular-nums">
+                            Total cumulé : {pt.cumul} utilisateur{pt.cumul > 1 ? 's' : ''}
+                          </p>
+                          <p className="text-slate-600 dark:text-slate-300 tabular-nums">
+                            Nouvelles inscriptions : +{pt.nouveaux}
+                          </p>
+                          {(pt.tenants > 0 || pt.landlords > 0) && (
+                            <p className="text-slate-500 dark:text-slate-400 tabular-nums">
+                              {pt.tenants} locataire(s) · {pt.landlords} bailleur(s)
+                            </p>
+                          )}
+                        </div>
+                      );
+                    }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="cumul"
+                    stroke="#0D9488"
+                    strokeWidth={2.5}
+                    fillOpacity={1}
+                    fill="url(#gidaColocsUsersGradient)"
+                    dot={{ r: 3.5, fill: '#0D9488', strokeWidth: 0 }}
+                    activeDot={{ r: 5, fill: '#0B1437', stroke: '#0D9488', strokeWidth: 2 }}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </section>
+      </div>
+
       {/* Modale de motif de refus / échec / remboursement */}
       {orderActionTarget && (
         <div className="fixed inset-0 z-50 bg-[#060B1D]/75 backdrop-blur-sm flex items-center justify-center p-4">
@@ -5301,6 +5420,15 @@ export function AdminDashboardView({
                 </div>
               )}
 
+              {adminError && (
+                <div
+                  role="alert"
+                  className="p-3 rounded-lg border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 text-xs font-medium text-red-700 dark:text-red-300"
+                >
+                  {adminError}
+                </div>
+              )}
+
               {/* Actions complètes depuis l'inspection */}
               <div className="flex flex-wrap items-center justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
                 <button
@@ -5348,6 +5476,7 @@ export function AdminDashboardView({
                       type="button"
                       onClick={() => {
                         const target = inspectListing;
+                        setAdminError(null);
                         setInspectListing(null);
                         setListingModerationTarget({
                           listing: target,
@@ -5379,6 +5508,7 @@ export function AdminDashboardView({
                             user,
                             adminName,
                           );
+                          markRelatedAlertsRead(inspectListing.id);
                           setInspectListing(null);
                         },
                         'Annonce approuvée et publiée.',
@@ -5387,7 +5517,11 @@ export function AdminDashboardView({
                     className="inline-flex items-center gap-1 px-3.5 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 rounded-lg cursor-pointer"
                   >
                     <Check className="w-3.5 h-3.5" />
-                    <span>Approuver & Publier</span>
+                    <span>
+                      {busyActionId === inspectListing.id
+                        ? 'Validation en cours...'
+                        : 'Approuver & Publier'}
+                    </span>
                   </button>
                 )}
 
@@ -5398,6 +5532,7 @@ export function AdminDashboardView({
                     type="button"
                     onClick={() => {
                       const target = inspectListing;
+                      setAdminError(null);
                       setInspectListing(null);
                       setListingModerationTarget({ listing: target, nextStatus: 'rejected' });
                       setListingModerationReason('');
@@ -5416,6 +5551,7 @@ export function AdminDashboardView({
                     type="button"
                     onClick={() => {
                       const target = inspectListing;
+                      setAdminError(null);
                       setInspectListing(null);
                       setListingModerationTarget({ listing: target, nextStatus: 'suspended' });
                       setListingModerationReason('');
@@ -5592,6 +5728,14 @@ export function AdminDashboardView({
                   className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437] text-slate-900 dark:text-white"
                 />
               </div>
+              {adminError && (
+                <div
+                  role="alert"
+                  className="p-3 rounded-lg border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 text-xs font-medium text-red-700 dark:text-red-300"
+                >
+                  {adminError}
+                </div>
+              )}
               <div className="flex items-center justify-end gap-2">
                 <button
                   type="button"
@@ -5612,7 +5756,9 @@ export function AdminDashboardView({
                       : 'bg-red-600 hover:bg-red-700'
                   }`}
                 >
-                  Confirmer la décision
+                  {busyActionId === listingModerationTarget.listing.id
+                    ? 'Enregistrement...'
+                    : 'Confirmer la décision'}
                 </button>
               </div>
             </form>
@@ -5733,6 +5879,14 @@ export function AdminDashboardView({
                   className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437] text-slate-900 dark:text-white"
                 />
               </div>
+              {adminError && (
+                <div
+                  role="alert"
+                  className="p-3 rounded-lg border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 text-xs font-medium text-red-700 dark:text-red-300"
+                >
+                  {adminError}
+                </div>
+              )}
               <div className="flex items-center justify-end gap-2">
                 <button
                   type="button"
@@ -5750,7 +5904,7 @@ export function AdminDashboardView({
                       : 'bg-red-600 hover:bg-red-700'
                   }`}
                 >
-                  Confirmer la décision
+                  {busyActionId ? 'Enregistrement...' : 'Confirmer la décision'}
                 </button>
               </div>
             </form>
@@ -5897,6 +6051,15 @@ export function AdminDashboardView({
                 NOTRE COMMUNAUTÉ WHATSAPP ».
               </div>
 
+              {adminError && (
+                <div
+                  role="alert"
+                  className="p-3 rounded-lg border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 text-xs font-medium text-red-700 dark:text-red-300"
+                >
+                  {adminError}
+                </div>
+              )}
+
               <div className="flex items-center justify-end gap-2">
                 <button
                   type="button"
@@ -5911,7 +6074,11 @@ export function AdminDashboardView({
                   className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 rounded-lg cursor-pointer"
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>Confirmer la location</span>
+                  <span>
+                    {busyActionId === `rental_${confirmRentalTarget.id}`
+                      ? 'Confirmation...'
+                      : 'Confirmer la location'}
+                  </span>
                 </button>
               </div>
             </form>

@@ -10,7 +10,13 @@ import {
 import type { User } from 'firebase/auth';
 import { db } from './firebase';
 import { handleFirestoreError, OperationType } from './firestoreError';
-import { BLUEPRINT_LIMITS, clampText, normalizeTransactionRefKey, sanitizeText } from './validation';
+import {
+  BLUEPRINT_LIMITS,
+  clampText,
+  isValidFirestoreId,
+  normalizeTransactionRefKey,
+  sanitizeText,
+} from './validation';
 import type {
   AccountStatus,
   AccountType,
@@ -724,7 +730,11 @@ export async function adminModerateListing(
   adminName: string,
 ): Promise<void> {
   const cleanAdmin = sanitizeText(adminName || 'Administrateur', BLUEPRINT_LIMITS.DISPLAY_NAME_MAX) || 'Administrateur';
-  const cleanAdminEmail = sanitizeText(adminUser.email || '', BLUEPRINT_LIMITS.EMAIL_MAX);
+  const rawAdminEmail = (adminUser.email || '').trim().toLowerCase();
+  const cleanAdminEmail =
+    rawAdminEmail && !/^wa\.\d+@qolock\.app$/i.test(rawAdminEmail)
+      ? sanitizeText(rawAdminEmail, BLUEPRINT_LIMITS.EMAIL_MAX)
+      : '';
   const nextStatus = decision.status ?? listing.status;
   const cleanReason = sanitizeText(decision.reason || '', BLUEPRINT_LIMITS.MODERATION_REASON_MAX);
   const nowIso = new Date().toISOString().slice(0, 30);
@@ -732,6 +742,70 @@ export async function adminModerateListing(
   const patch: Record<string, unknown> = {
     updatedAt: serverTimestamp(),
   };
+
+  // Backfill & clamp required/optional blueprint fields defensively for legacy/partial listing documents
+  if (!listing.title || typeof listing.title !== 'string' || listing.title.trim().length > BLUEPRINT_LIMITS.LISTING_TITLE_MAX) {
+    patch.title = sanitizeText(String(listing.title || 'Logement à Maradi'), BLUEPRINT_LIMITS.LISTING_TITLE_MAX) || 'Logement à Maradi';
+  }
+  if (typeof listing.description !== 'string') {
+    patch.description = '';
+  } else if (listing.description.length > BLUEPRINT_LIMITS.LISTING_DESC_MAX) {
+    patch.description = clampText(listing.description, BLUEPRINT_LIMITS.LISTING_DESC_MAX);
+  }
+  if (!listing.neighborhood || typeof listing.neighborhood !== 'string' || listing.neighborhood.trim().length > BLUEPRINT_LIMITS.NEIGHBORHOOD_MAX) {
+    patch.neighborhood = sanitizeText(String(listing.neighborhood || 'Maradi Centre'), BLUEPRINT_LIMITS.NEIGHBORHOOD_MAX) || 'Maradi Centre';
+  }
+  if (!listing.propertyType || typeof listing.propertyType !== 'string') {
+    patch.propertyType = 'chambre';
+  }
+  if (typeof listing.priceFcfa !== 'number' || !Number.isFinite(listing.priceFcfa) || listing.priceFcfa < 0 || listing.priceFcfa > 5000000) {
+    patch.priceFcfa = Math.max(0, Math.min(5000000, Math.round(Number(listing.priceFcfa) || 0)));
+  }
+  if (typeof listing.depositMonths !== 'number' || !Number.isFinite(listing.depositMonths) || listing.depositMonths < 0 || listing.depositMonths > 12) {
+    patch.depositMonths = Math.max(0, Math.min(12, Math.round(Number(listing.depositMonths) || 1)));
+  }
+  if (typeof listing.availableSpots !== 'number' || !Number.isFinite(listing.availableSpots) || listing.availableSpots < 1 || listing.availableSpots > 20) {
+    patch.availableSpots = Math.max(1, Math.min(20, Math.round(Number(listing.availableSpots) || 1)));
+  }
+  if (listing.roomsCount !== undefined && (typeof listing.roomsCount !== 'number' || !Number.isFinite(listing.roomsCount) || listing.roomsCount < 1 || listing.roomsCount > 30)) {
+    patch.roomsCount = Math.max(1, Math.min(30, Math.round(Number(listing.roomsCount) || 1)));
+  }
+  if (listing.surfaceSqm !== undefined && (typeof listing.surfaceSqm !== 'number' || !Number.isFinite(listing.surfaceSqm) || listing.surfaceSqm < 0 || listing.surfaceSqm > 2000)) {
+    patch.surfaceSqm = Math.max(0, Math.min(2000, Math.round(Number(listing.surfaceSqm) || 0)));
+  }
+  if (!Array.isArray(listing.amenities)) {
+    patch.amenities = [];
+  } else {
+    const cleanAmenities = listing.amenities
+      .filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+      .slice(0, BLUEPRINT_LIMITS.MAX_AMENITIES);
+    if (cleanAmenities.length !== listing.amenities.length) {
+      patch.amenities = cleanAmenities;
+    }
+  }
+  if (!Array.isArray(listing.photos)) {
+    patch.photos = [];
+  } else {
+    const cleanPhotos = listing.photos
+      .filter((p): p is string => typeof p === 'string' && p.length > 0 && p.length <= 220000)
+      .slice(0, BLUEPRINT_LIMITS.MAX_PHOTOS);
+    if (cleanPhotos.length !== listing.photos.length) {
+      patch.photos = cleanPhotos;
+    }
+  }
+  if (typeof listing.isVerifiedQolock !== 'boolean') {
+    patch.isVerifiedQolock = false;
+  }
+  if (typeof listing.isTop !== 'boolean') {
+    patch.isTop = false;
+  }
+  if (typeof listing.topRequested !== 'boolean') {
+    patch.topRequested = false;
+  }
+  if (!listing.ownerName || typeof listing.ownerName !== 'string' || listing.ownerName.trim().length > BLUEPRINT_LIMITS.DISPLAY_NAME_MAX) {
+    patch.ownerName = sanitizeText(String(listing.ownerName || 'Propriétaire'), BLUEPRINT_LIMITS.DISPLAY_NAME_MAX) || 'Propriétaire';
+  }
+
   if (typeof decision.status === 'string') {
     patch.status = decision.status;
   }
@@ -778,37 +852,57 @@ export async function adminModerateListing(
             : 'Annonce approuvée et publiée');
   }
 
-  if (typeof decision.status === 'string' && decision.status === 'published') {
-    patch.validatedByName = cleanAdmin;
-    patch.validatedByEmail = cleanAdminEmail;
-    patch.validatedAtIso = nowIso;
-  } else if (typeof decision.status === 'string' && (decision.status === 'rejected' || decision.status === 'needs_correction' || decision.status === 'suspended')) {
+  if (
+    typeof decision.status === 'string' &&
+    (decision.status === 'published' ||
+      decision.status === 'rejected' ||
+      decision.status === 'needs_correction' ||
+      decision.status === 'suspended')
+  ) {
     patch.validatedByName = cleanAdmin;
     patch.validatedByEmail = cleanAdminEmail;
     patch.validatedAtIso = nowIso;
   }
 
   if (typeof decision.status === 'string' && decision.status !== listing.status) {
-    const nextHistory: ListingModerationEntry[] = [
-      ...(listing.moderationHistory || []).slice(-(BLUEPRINT_LIMITS.MODERATION_HISTORY_MAX - 1)),
-      {
-        status: nextStatus,
-        reason: historyReason || `Statut : ${nextStatus}`,
-        actorName: cleanAdmin,
-        actorEmail: cleanAdminEmail,
-        atIso: nowIso,
-      },
-    ];
-    patch.moderationHistory = nextHistory;
+    const sanitizedExisting: ListingModerationEntry[] = (Array.isArray(listing.moderationHistory)
+      ? listing.moderationHistory
+      : []
+    )
+      .slice(-(BLUEPRINT_LIMITS.MODERATION_HISTORY_MAX - 1))
+      .map((entry) => {
+        const entryEmail = sanitizeText(String(entry?.actorEmail || ''), BLUEPRINT_LIMITS.EMAIL_MAX);
+        return {
+          status: (entry?.status || 'pending') as ListingStatus,
+          reason: sanitizeText(String(entry?.reason || 'Mise à jour'), BLUEPRINT_LIMITS.MODERATION_REASON_MAX) || 'Mise à jour',
+          actorName: sanitizeText(String(entry?.actorName || cleanAdmin), BLUEPRINT_LIMITS.DISPLAY_NAME_MAX) || cleanAdmin,
+          ...(entryEmail ? { actorEmail: entryEmail } : {}),
+          atIso: sanitizeText(String(entry?.atIso || nowIso), 40) || nowIso,
+        };
+      });
+
+    const newEntry: ListingModerationEntry = {
+      status: nextStatus,
+      reason: sanitizeText(historyReason || `Statut : ${nextStatus}`, BLUEPRINT_LIMITS.MODERATION_REASON_MAX) || `Statut : ${nextStatus}`,
+      actorName: cleanAdmin,
+      ...(cleanAdminEmail ? { actorEmail: cleanAdminEmail } : {}),
+      atIso: nowIso,
+    };
+
+    patch.moderationHistory = [...sanitizedExisting, newEntry];
   }
 
-  const batch = writeBatch(db);
-  batch.update(doc(db, 'listings', listing.id), patch);
+  try {
+    await updateDoc(doc(db, 'listings', listing.id), patch);
+  } catch (error) {
+    handleFirestoreError(error, OperationType.UPDATE, `listings/${listing.id}`);
+  }
 
   const statusChanged = typeof decision.status === 'string' && decision.status !== listing.status;
   if (
     statusChanged &&
     listing.ownerId &&
+    isValidFirestoreId(listing.ownerId) &&
     (nextStatus === 'in_review' ||
       nextStatus === 'needs_correction' ||
       nextStatus === 'published' ||
@@ -836,16 +930,14 @@ export async function adminModerateListing(
             : nextStatus === 'suspended'
               ? `Votre annonce « ${listing.title} » a été suspendue. Motif : ${historyReason}`
               : `Votre annonce « ${listing.title} » a été refusée. Motif : ${historyReason}. Vous pouvez la corriger depuis « Mon espace ».`;
-    batch.set(
-      doc(db, 'notifications', notifId),
-      buildNotificationDoc(listing.ownerId, 'listing', title, message, listing.id),
-    );
-  }
-
-  try {
-    await batch.commit();
-  } catch (error) {
-    handleFirestoreError(error, OperationType.UPDATE, `listings/${listing.id}`);
+    try {
+      await setDoc(
+        doc(db, 'notifications', notifId),
+        buildNotificationDoc(listing.ownerId, 'listing', title, message, listing.id),
+      );
+    } catch (notifError) {
+      console.warn(`Non-fatal notification write warning at notifications/${notifId}:`, notifError);
+    }
   }
 
   const activityAction =
@@ -1578,12 +1670,32 @@ function buildModerationDecisionPayload(
   const cleanAdmin =
     sanitizeText(adminName || 'Administrateur GidaColocs', BLUEPRINT_LIMITS.DISPLAY_NAME_MAX) ||
     'Administrateur GidaColocs';
-  const cleanEmail = sanitizeText((adminUser.email || '').toLowerCase(), BLUEPRINT_LIMITS.EMAIL_MAX);
+  const rawEmail = (adminUser.email || '').trim().toLowerCase();
+  const cleanEmail =
+    rawEmail && !/^wa\.\d+@qolock\.app$/i.test(rawEmail)
+      ? sanitizeText(rawEmail, BLUEPRINT_LIMITS.EMAIL_MAX)
+      : '';
   const nowIso = new Date().toISOString().slice(0, 30);
-  const cleanReason = sanitizeText(
-    decision === 'approved' ? trimmedReason || defaultApprovedReason : trimmedReason,
-    300,
-  );
+  const cleanReason =
+    sanitizeText(
+      decision === 'approved' ? trimmedReason || defaultApprovedReason : trimmedReason,
+      300,
+    ) || defaultApprovedReason;
+  const sanitizedHistory: ContentModerationEntry[] = (Array.isArray(existingHistory)
+    ? existingHistory
+    : []
+  )
+    .slice(-11)
+    .map((h) => {
+      const hEmail = sanitizeText(String(h?.actorEmail || ''), BLUEPRINT_LIMITS.EMAIL_MAX);
+      return {
+        status: (h?.status || 'pending') as ContentModerationStatus,
+        reason: sanitizeText(String(h?.reason || 'Mise à jour'), 300) || 'Mise à jour',
+        actorName: sanitizeText(String(h?.actorName || cleanAdmin), BLUEPRINT_LIMITS.DISPLAY_NAME_MAX) || cleanAdmin,
+        ...(hEmail ? { actorEmail: hEmail } : {}),
+        atIso: sanitizeText(String(h?.atIso || nowIso), 40) || nowIso,
+      };
+    });
   const entry: ContentModerationEntry = {
     status: decision,
     reason: cleanReason,
@@ -1592,7 +1704,7 @@ function buildModerationDecisionPayload(
     atIso: nowIso,
   };
   const nextHistory: ContentModerationEntry[] = [
-    ...(existingHistory || []).slice(-11),
+    ...sanitizedHistory,
     entry,
   ];
   return {
@@ -1631,7 +1743,11 @@ export async function adminModerateColocProfile(
     ...patch,
     updatedAt: serverTimestamp(),
   });
-  if (profileItem.authorId && profileItem.authorId !== adminUser.uid) {
+  if (
+    profileItem.authorId &&
+    isValidFirestoreId(profileItem.authorId) &&
+    profileItem.authorId !== adminUser.uid
+  ) {
     const notifTitle =
       decision === 'approved'
         ? 'Profil colocataire approuvé'
@@ -1686,7 +1802,11 @@ export async function adminModerateColocInterest(
     ...patch,
     updatedAt: serverTimestamp(),
   });
-  if (targetUserId && targetUserId !== adminUser.uid) {
+  if (
+    targetUserId &&
+    isValidFirestoreId(targetUserId) &&
+    targetUserId !== adminUser.uid
+  ) {
     const label = interestItem.listingTitle || interestItem.listingId;
     const notifTitle =
       decision === 'approved'
@@ -1738,7 +1858,11 @@ export async function adminModerateColocMessage(
   const path = `colocProfiles/${messageItem.profileId}/messages/${messageItem.id}`;
   const batch = writeBatch(db);
   batch.update(doc(db, 'colocProfiles', messageItem.profileId, 'messages', messageItem.id), patch);
-  if (messageItem.authorId && messageItem.authorId !== adminUser.uid) {
+  if (
+    messageItem.authorId &&
+    isValidFirestoreId(messageItem.authorId) &&
+    messageItem.authorId !== adminUser.uid
+  ) {
     const notifTitle =
       decision === 'approved'
         ? 'Commentaire colocation publié'
@@ -1789,7 +1913,11 @@ export async function adminModerateListingReview(
     ...patch,
     updatedAt: serverTimestamp(),
   });
-  if (reviewItem.authorId && reviewItem.authorId !== adminUser.uid) {
+  if (
+    reviewItem.authorId &&
+    isValidFirestoreId(reviewItem.authorId) &&
+    reviewItem.authorId !== adminUser.uid
+  ) {
     const notifTitle =
       decision === 'approved'
         ? 'Votre avis public a été approuvé'
