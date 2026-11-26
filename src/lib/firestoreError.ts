@@ -67,6 +67,27 @@ export function translateFirestoreMessage(rawMessage: string): string {
   return rawMessage;
 }
 
+function describeResourceContext(path?: string | null): string {
+  if (!path) return '';
+  if (path.startsWith('rentalConfirmations/')) return ' lors de la confirmation de location';
+  if (path.startsWith('listings/')) {
+    if (path.includes('/colocInterests/')) return ' sur la demande de colocation';
+    if (path.includes('/reviews/')) return ' sur l’avis logement';
+    if (path.includes('/private/')) return ' sur les coordonnées privées du logement';
+    return ' sur l’annonce';
+  }
+  if (path.startsWith('colocProfiles/')) {
+    if (path.includes('/messages/')) return ' sur le commentaire colocation';
+    return ' sur le profil colocation';
+  }
+  if (path.startsWith('serviceOrders/')) return ' sur la commande de paiement';
+  if (path.startsWith('notifications/')) return ' lors de l’envoi de la notification';
+  if (path.startsWith('users/')) return ' sur le compte utilisateur';
+  if (path.startsWith('admins/')) return ' sur les droits administrateur';
+  if (path.startsWith('platformConfig/')) return ' sur les paramètres de la plateforme';
+  return '';
+}
+
 export function formatFirestoreErrorMessage(
   err: unknown,
   fallback = 'Une erreur est survenue lors de l’opération.',
@@ -78,7 +99,17 @@ export function formatFirestoreErrorMessage(
   try {
     const parsed = JSON.parse(msg) as Partial<FirestoreErrorInfo>;
     if (parsed && typeof parsed.error === 'string') {
-      return translateFirestoreMessage(parsed.error);
+      const translated = translateFirestoreMessage(parsed.error);
+      const lower = parsed.error.toLowerCase();
+      if (lower.includes('permission-denied') || lower.includes('missing or insufficient permissions')) {
+        const ctx = describeResourceContext(parsed.path);
+        const providerHint =
+          !parsed.authInfo?.userId
+            ? ' Reconnectez-vous d’abord.'
+            : '';
+        return `Autorisation insuffisante${ctx}. Vérifiez que votre session administrateur est active.${providerHint}`;
+      }
+      return translated;
     }
   } catch {
     // Not JSON

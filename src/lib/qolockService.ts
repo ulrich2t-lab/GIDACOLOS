@@ -1110,55 +1110,98 @@ export async function confirmRentalForTenant(
 ): Promise<string> {
   const cleanTenantId = sanitizeText(input.tenantId, BLUEPRINT_LIMITS.ID_MAX);
   const cleanTenantName = sanitizeText(input.tenantName, BLUEPRINT_LIMITS.DISPLAY_NAME_MAX);
-  if (!cleanTenantId || !cleanTenantName) {
+  if (!cleanTenantId || !isValidFirestoreId(cleanTenantId) || !cleanTenantName) {
     throw new Error('Sélectionnez le locataire concerné pour confirmer la location.');
   }
 
   const confId = generateId('conf');
   const nowIso = new Date().toISOString().slice(0, 30);
   const cleanAdmin = sanitizeText(adminName || 'Administrateur', BLUEPRINT_LIMITS.DISPLAY_NAME_MAX) || 'Administrateur';
-  const cleanAdminEmail = sanitizeText(adminUser.email || '', BLUEPRINT_LIMITS.EMAIL_MAX);
+  const rawAdminEmail = (adminUser.email || '').trim().toLowerCase();
+  const cleanAdminEmail =
+    rawAdminEmail && !/^wa\.\d+@qolock\.app$/i.test(rawAdminEmail)
+      ? sanitizeText(rawAdminEmail, BLUEPRINT_LIMITS.EMAIL_MAX)
+      : '';
+  const cleanTitle =
+    sanitizeText(String(listing.title || 'Logement à Maradi'), BLUEPRINT_LIMITS.LISTING_TITLE_MAX) ||
+    'Logement à Maradi';
+  const cleanNeighborhood =
+    sanitizeText(String(listing.neighborhood || 'Maradi Centre'), BLUEPRINT_LIMITS.NEIGHBORHOOD_MAX) ||
+    'Maradi Centre';
+  const cleanOwnerName =
+    sanitizeText(String(listing.ownerName || 'Propriétaire'), BLUEPRINT_LIMITS.DISPLAY_NAME_MAX) ||
+    'Propriétaire';
+  const safePrice = Math.max(0, Math.min(5000000, Math.round(Number(listing.priceFcfa) || 0)));
+  const safeLandlordId =
+    listing.ownerId && isValidFirestoreId(listing.ownerId) ? listing.ownerId : adminUser.uid;
+
   const cleanWelcome =
     sanitizeText(
       input.welcomeMessage || '',
       BLUEPRINT_LIMITS.WELCOME_MESSAGE_MAX,
     ) ||
-    `Félicitations ${cleanTenantName} ! Votre location pour « ${listing.title} » (${listing.neighborhood}) est officiellement confirmée sur GidaColocs. Bienvenue dans la communauté !`;
+    `Félicitations ${cleanTenantName} ! Votre location pour « ${cleanTitle} » (${cleanNeighborhood}) est officiellement confirmée sur GidaColocs. Bienvenue dans la communauté !`;
+
+  const sanitizedExisting: ListingModerationEntry[] = (Array.isArray(listing.moderationHistory)
+    ? listing.moderationHistory
+    : []
+  )
+    .slice(-(BLUEPRINT_LIMITS.MODERATION_HISTORY_MAX - 1))
+    .map((entry) => {
+      const entryEmail = sanitizeText(String(entry?.actorEmail || ''), BLUEPRINT_LIMITS.EMAIL_MAX);
+      return {
+        status: (entry?.status || 'published') as ListingStatus,
+        reason:
+          sanitizeText(String(entry?.reason || 'Mise à jour'), BLUEPRINT_LIMITS.MODERATION_REASON_MAX) ||
+          'Mise à jour',
+        actorName:
+          sanitizeText(String(entry?.actorName || cleanAdmin), BLUEPRINT_LIMITS.DISPLAY_NAME_MAX) ||
+          cleanAdmin,
+        ...(entryEmail ? { actorEmail: entryEmail } : {}),
+        atIso: sanitizeText(String(entry?.atIso || nowIso), 40) || nowIso,
+      };
+    });
 
   const nextHistory: ListingModerationEntry[] = [
-    ...(listing.moderationHistory || []).slice(-(BLUEPRINT_LIMITS.MODERATION_HISTORY_MAX - 1)),
+    ...sanitizedExisting,
     {
       status: 'rented',
-      reason: `Location confirmée avec ${cleanTenantName}`,
+      reason:
+        sanitizeText(`Location confirmée avec ${cleanTenantName}`, BLUEPRINT_LIMITS.MODERATION_REASON_MAX) ||
+        'Location confirmée',
       actorName: cleanAdmin,
-      actorEmail: cleanAdminEmail,
+      ...(cleanAdminEmail ? { actorEmail: cleanAdminEmail } : {}),
       atIso: nowIso,
     },
   ];
 
-  const batch = writeBatch(db);
   const confPayload: Record<string, unknown> = {
     listingId: listing.id,
-    listingTitle: sanitizeText(listing.title, BLUEPRINT_LIMITS.LISTING_TITLE_MAX),
-    neighborhood: sanitizeText(listing.neighborhood, BLUEPRINT_LIMITS.NEIGHBORHOOD_MAX),
-    priceFcfa: Math.max(0, Math.round(listing.priceFcfa || 0)),
+    listingTitle: cleanTitle,
+    neighborhood: cleanNeighborhood,
+    priceFcfa: safePrice,
     tenantId: cleanTenantId,
     tenantName: cleanTenantName,
-    landlordId: listing.ownerId,
-    landlordName: sanitizeText(listing.ownerName, BLUEPRINT_LIMITS.DISPLAY_NAME_MAX) || 'Propriétaire',
+    landlordId: safeLandlordId,
+    landlordName: cleanOwnerName,
     welcomeMessage: cleanWelcome,
     confirmedById: adminUser.uid,
     confirmedByName: cleanAdmin,
-    confirmedByEmail: cleanAdminEmail,
+    ...(cleanAdminEmail ? { confirmedByEmail: cleanAdminEmail } : {}),
     confirmedAtIso: nowIso,
     createdAt: serverTimestamp(),
   };
   if (input.tenantPhone?.trim()) {
     confPayload.tenantPhone = sanitizeText(input.tenantPhone, BLUEPRINT_LIMITS.PHONE_MAX);
   }
-  batch.set(doc(db, 'rentalConfirmations', confId), confPayload);
 
-  batch.update(doc(db, 'listings', listing.id), {
+  try {
+    await setDoc(doc(db, 'rentalConfirmations', confId), confPayload);
+  } catch (error) {
+    handleFirestoreError(error, OperationType.CREATE, `rentalConfirmations/${confId}`);
+  }
+
+  const listingPatch: Record<string, unknown> = {
     status: 'rented',
     moderationReason: '',
     moderationHistory: nextHistory,
@@ -1166,45 +1209,115 @@ export async function confirmRentalForTenant(
     validatedByEmail: cleanAdminEmail,
     validatedAtIso: nowIso,
     updatedAt: serverTimestamp(),
-  });
+  };
 
-  const tenantNotifId = generateId('notif');
-  batch.set(
-    doc(db, 'notifications', tenantNotifId),
-    buildNotificationDoc(
-      cleanTenantId,
-      'listing',
-      'Location confirmée sur GidaColocs',
-      `${cleanWelcome} Rejoignez notre communauté WhatsApp depuis votre espace personnel.`,
-      confId,
-    ),
-  );
-
-  if (listing.ownerId && listing.ownerId !== cleanTenantId) {
-    const ownerNotifId = generateId('notif');
-    batch.set(
-      doc(db, 'notifications', ownerNotifId),
-      buildNotificationDoc(
-        listing.ownerId,
-        'listing',
-        'Logement confirmé comme loué',
-        `Votre logement « ${listing.title} » est désormais confirmé comme loué avec ${cleanTenantName}.`,
-        listing.id,
-      ),
-    );
+  if (!listing.title || typeof listing.title !== 'string' || listing.title.trim().length > BLUEPRINT_LIMITS.LISTING_TITLE_MAX) {
+    listingPatch.title = cleanTitle;
+  }
+  if (typeof listing.description !== 'string') {
+    listingPatch.description = '';
+  } else if (listing.description.length > BLUEPRINT_LIMITS.LISTING_DESC_MAX) {
+    listingPatch.description = clampText(listing.description, BLUEPRINT_LIMITS.LISTING_DESC_MAX);
+  }
+  if (!listing.neighborhood || typeof listing.neighborhood !== 'string' || listing.neighborhood.trim().length > BLUEPRINT_LIMITS.NEIGHBORHOOD_MAX) {
+    listingPatch.neighborhood = cleanNeighborhood;
+  }
+  if (!listing.propertyType || typeof listing.propertyType !== 'string') {
+    listingPatch.propertyType = 'chambre';
+  }
+  if (typeof listing.priceFcfa !== 'number' || !Number.isFinite(listing.priceFcfa) || listing.priceFcfa < 0 || listing.priceFcfa > 5000000) {
+    listingPatch.priceFcfa = safePrice;
+  }
+  if (typeof listing.depositMonths !== 'number' || !Number.isFinite(listing.depositMonths) || listing.depositMonths < 0 || listing.depositMonths > 12) {
+    listingPatch.depositMonths = Math.max(0, Math.min(12, Math.round(Number(listing.depositMonths) || 1)));
+  }
+  if (typeof listing.availableSpots !== 'number' || !Number.isFinite(listing.availableSpots) || listing.availableSpots < 1 || listing.availableSpots > 20) {
+    listingPatch.availableSpots = Math.max(1, Math.min(20, Math.round(Number(listing.availableSpots) || 1)));
+  }
+  if (listing.roomsCount !== undefined && (typeof listing.roomsCount !== 'number' || !Number.isFinite(listing.roomsCount) || listing.roomsCount < 1 || listing.roomsCount > 30)) {
+    listingPatch.roomsCount = Math.max(1, Math.min(30, Math.round(Number(listing.roomsCount) || 1)));
+  }
+  if (listing.surfaceSqm !== undefined && (typeof listing.surfaceSqm !== 'number' || !Number.isFinite(listing.surfaceSqm) || listing.surfaceSqm < 0 || listing.surfaceSqm > 2000)) {
+    listingPatch.surfaceSqm = Math.max(0, Math.min(2000, Math.round(Number(listing.surfaceSqm) || 0)));
+  }
+  if (!Array.isArray(listing.amenities)) {
+    listingPatch.amenities = [];
+  } else {
+    const cleanAmenities = listing.amenities
+      .filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+      .slice(0, BLUEPRINT_LIMITS.MAX_AMENITIES);
+    if (cleanAmenities.length !== listing.amenities.length) {
+      listingPatch.amenities = cleanAmenities;
+    }
+  }
+  if (!Array.isArray(listing.photos)) {
+    listingPatch.photos = [];
+  } else {
+    const cleanPhotos = listing.photos
+      .filter((p): p is string => typeof p === 'string' && p.length > 0 && p.length <= 220000)
+      .slice(0, BLUEPRINT_LIMITS.MAX_PHOTOS);
+    if (cleanPhotos.length !== listing.photos.length) {
+      listingPatch.photos = cleanPhotos;
+    }
+  }
+  if (typeof listing.isVerifiedQolock !== 'boolean') {
+    listingPatch.isVerifiedQolock = false;
+  }
+  if (typeof listing.isTop !== 'boolean') {
+    listingPatch.isTop = false;
+  }
+  if (typeof listing.topRequested !== 'boolean') {
+    listingPatch.topRequested = false;
+  }
+  if (!listing.ownerName || typeof listing.ownerName !== 'string' || listing.ownerName.trim().length > BLUEPRINT_LIMITS.DISPLAY_NAME_MAX) {
+    listingPatch.ownerName = cleanOwnerName;
   }
 
   try {
-    await batch.commit();
+    await updateDoc(doc(db, 'listings', listing.id), listingPatch);
   } catch (error) {
-    handleFirestoreError(error, OperationType.WRITE, `rentalConfirmations/${confId}`);
+    handleFirestoreError(error, OperationType.UPDATE, `listings/${listing.id}`);
+  }
+
+  const tenantNotifId = generateId('notif');
+  try {
+    await setDoc(
+      doc(db, 'notifications', tenantNotifId),
+      buildNotificationDoc(
+        cleanTenantId,
+        'listing',
+        'Location confirmée sur GidaColocs',
+        `${cleanWelcome} Rejoignez notre communauté WhatsApp depuis votre espace personnel.`,
+        confId,
+      ),
+    );
+  } catch (notifError) {
+    console.warn(`Non-fatal tenant notification warning at notifications/${tenantNotifId}:`, notifError);
+  }
+
+  if (listing.ownerId && isValidFirestoreId(listing.ownerId) && listing.ownerId !== cleanTenantId) {
+    const ownerNotifId = generateId('notif');
+    try {
+      await setDoc(
+        doc(db, 'notifications', ownerNotifId),
+        buildNotificationDoc(
+          listing.ownerId,
+          'listing',
+          'Logement confirmé comme loué',
+          `Votre logement « ${cleanTitle} » est désormais confirmé comme loué avec ${cleanTenantName}.`,
+          listing.id,
+        ),
+      );
+    } catch (notifError) {
+      console.warn(`Non-fatal owner notification warning at notifications/${ownerNotifId}:`, notifError);
+    }
   }
 
   await logPlatformActivity(
     adminUser,
     adminName,
     'Location confirmée (Pris / Loué)',
-    `${listing.title} · ${cleanTenantName}`,
+    `${cleanTitle} · ${cleanTenantName}`,
     'rental',
   );
   return confId;
