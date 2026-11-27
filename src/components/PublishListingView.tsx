@@ -74,16 +74,13 @@ interface PublishDraftFields {
   propertyType?: PropertyType;
   priceFcfa?: string;
   depositMonths?: string;
-  availableSpots?: string;
   roomsCount?: string;
   availability?: string;
   bathroomType?: BathroomType;
   toiletType?: ToiletType;
   furnished?: FurnishedType;
   waterElectricity?: WaterElectricityType;
-  surfaceSqm?: string;
   roommatePreference?: RoommatePreference;
-  houseRules?: string;
   description?: string;
   amenities?: string[];
   contactName?: string;
@@ -116,7 +113,6 @@ export function PublishListingView({
   );
   const [priceFcfa, setPriceFcfa] = useState(savedDraft.priceFcfa || '20000');
   const [depositMonths, setDepositMonths] = useState(savedDraft.depositMonths || '1');
-  const [availableSpots, setAvailableSpots] = useState(savedDraft.availableSpots || '1');
   const [roomsCount, setRoomsCount] = useState(savedDraft.roomsCount || '1');
   const [availability, setAvailability] = useState(
     savedDraft.availability || 'Disponible immédiatement',
@@ -129,11 +125,9 @@ export function PublishListingView({
   const [waterElectricity, setWaterElectricity] = useState<WaterElectricityType>(
     savedDraft.waterElectricity || 'compteur_individuel',
   );
-  const [surfaceSqm, setSurfaceSqm] = useState(savedDraft.surfaceSqm || '16');
   const [roommatePreference, setRoommatePreference] = useState<RoommatePreference>(
     savedDraft.roommatePreference || 'etudiants',
   );
-  const [houseRules, setHouseRules] = useState(savedDraft.houseRules || '');
   const [description, setDescription] = useState(savedDraft.description || '');
   const [amenities, setAmenities] = useState<string[]>(
     Array.isArray(savedDraft.amenities)
@@ -182,16 +176,13 @@ export function PublishListingView({
       propertyType,
       priceFcfa,
       depositMonths,
-      availableSpots,
       roomsCount,
       availability,
       bathroomType,
       toiletType,
       furnished,
       waterElectricity,
-      surfaceSqm,
       roommatePreference,
-      houseRules,
       description,
       amenities,
       contactName,
@@ -209,16 +200,13 @@ export function PublishListingView({
     propertyType,
     priceFcfa,
     depositMonths,
-    availableSpots,
     roomsCount,
     availability,
     bathroomType,
     toiletType,
     furnished,
     waterElectricity,
-    surfaceSqm,
     roommatePreference,
-    houseRules,
     description,
     amenities,
     contactName,
@@ -245,16 +233,13 @@ export function PublishListingView({
       );
       setPriceFcfa(String(editingListing.priceFcfa));
       setDepositMonths(String(editingListing.depositMonths));
-      setAvailableSpots(String(editingListing.availableSpots));
       setRoomsCount(String(editingListing.roomsCount ?? 1));
       setAvailability(editingListing.availability || 'Disponible immédiatement');
       setBathroomType(editingListing.bathroomType || 'interne');
       setToiletType(editingListing.toiletType || 'interne');
       setFurnished(editingListing.furnished || 'non_meuble');
       setWaterElectricity(editingListing.waterElectricity || 'compteur_individuel');
-      setSurfaceSqm(String(editingListing.surfaceSqm ?? 16));
       setRoommatePreference(editingListing.roommatePreference || 'mixte');
-      setHouseRules(editingListing.houseRules || '');
       setDescription(editingListing.description);
       setAmenities(editingListing.amenities);
       setPhotos(editingListing.photos);
@@ -323,7 +308,6 @@ export function PublishListingView({
       setRoomsCount('1');
       setAvailability('Disponible immédiatement');
       setDescription('');
-      setHouseRules('');
       setPhotos([]);
       setVideos([]);
       setRemovedClipIds([]);
@@ -635,7 +619,7 @@ export function PublishListingView({
             propertyType,
             priceFcfa: Number(priceFcfa),
             depositMonths: Number(depositMonths),
-            availableSpots: Number(availableSpots),
+            availableSpots: editingListing.availableSpots ?? 1,
             roomsCount: Number(roomsCount) || 1,
             availability,
             amenities,
@@ -646,9 +630,9 @@ export function PublishListingView({
             toiletType,
             furnished,
             waterElectricity,
-            surfaceSqm: Number(surfaceSqm),
+            surfaceSqm: editingListing.surfaceSqm ?? 0,
             roommatePreference,
-            houseRules,
+            houseRules: editingListing.houseRules ?? '',
             contactName,
             contactPhone,
             contactWhatsapp,
@@ -673,7 +657,7 @@ export function PublishListingView({
             propertyType,
             priceFcfa: Number(priceFcfa),
             depositMonths: Number(depositMonths),
-            availableSpots: Number(availableSpots),
+            availableSpots: 1,
             roomsCount: Number(roomsCount) || 1,
             availability,
             amenities,
@@ -683,9 +667,9 @@ export function PublishListingView({
             toiletType,
             furnished,
             waterElectricity,
-            surfaceSqm: Number(surfaceSqm),
+            surfaceSqm: 0,
             roommatePreference,
-            houseRules,
+            houseRules: '',
             contactName,
             contactPhone,
             contactWhatsapp,
@@ -808,12 +792,7 @@ export function PublishListingView({
                 <button
                   key={pt.value}
                   type="button"
-                  onClick={() => {
-                    setPropertyType(pt.value);
-                    if (pt.value === 'maison_partagee' && Number(availableSpots) < 2) {
-                      setAvailableSpots('2');
-                    }
-                  }}
+                  onClick={() => setPropertyType(pt.value)}
                   className={`p-3.5 rounded-xl border text-left transition-colors cursor-pointer ${
                     active
                       ? 'border-teal-500 bg-teal-50/75 dark:bg-teal-950/55'
@@ -879,8 +858,8 @@ export function PublishListingView({
           </div>
         </div>
 
-        {/* Financial, Rooms & Capacity Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Financial & Rooms Row */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
               {isShared ? 'Loyer / personne (FCFA)' : 'Loyer mensuel (FCFA)'}
@@ -924,33 +903,6 @@ export function PublishListingView({
               onChange={(e) => setDepositMonths(e.target.value)}
               className="w-full min-h-[46px] px-3.5 py-2.5 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437]/80 text-slate-900 dark:text-white tabular-nums focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
             />
-          </div>
-
-          <div>
-            <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-              {isShared ? 'Places en colocation' : 'Places / Surface (m²)'}
-            </label>
-            <div className="grid grid-cols-2 gap-2">
-              <input
-                type="number"
-                min={1}
-                max={20}
-                title="Places disponibles"
-                value={availableSpots}
-                onChange={(e) => setAvailableSpots(e.target.value)}
-                className="w-full min-h-[46px] px-2.5 py-2.5 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437]/80 text-slate-900 dark:text-white tabular-nums focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
-              />
-              <input
-                type="number"
-                min={0}
-                max={2000}
-                title="Surface en m²"
-                value={surfaceSqm}
-                onChange={(e) => setSurfaceSqm(e.target.value)}
-                placeholder="m²"
-                className="w-full min-h-[46px] px-2.5 py-2.5 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437]/80 text-slate-900 dark:text-white tabular-nums focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
-              />
-            </div>
           </div>
         </div>
 
@@ -1091,20 +1043,6 @@ export function PublishListingView({
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Précisez la proximité avec l’UDM ou les axes goudronnés, l’état du carrelage/plafond, les espaces communs..."
             className="w-full px-3.5 py-2.5 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437]/80 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
-          />
-        </div>
-
-        <div>
-          <label className="block text-[13px] font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-            Conditions du bail & règles de vie (optionnel)
-          </label>
-          <input
-            type="text"
-            maxLength={BLUEPRINT_LIMITS.HOUSE_RULES_MAX}
-            value={houseRules}
-            onChange={(e) => setHouseRules(e.target.value)}
-            placeholder="Ex. Cour calme après 22h, durée minimum 6 mois, entretien partagé..."
-            className="w-full min-h-[46px] px-3.5 py-2.5 text-[15px] font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1437]/80 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#93A3FF]"
           />
         </div>
 
