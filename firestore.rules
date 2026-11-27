@@ -28,6 +28,7 @@ service cloud.firestore {
     function isVerified() {
       return isSignedIn() && (
         request.auth.token.email_verified == true ||
+        request.auth.token.firebase.sign_in_provider == 'google.com' ||
         request.auth.token.firebase.sign_in_provider == 'password' ||
         (request.auth.token.phone_number is string && request.auth.token.phone_number.size() >= 6)
       );
@@ -39,7 +40,6 @@ service cloud.firestore {
 
     function isOwnerGoogleAdmin() {
       return isSignedIn()
-        && request.auth.token.email_verified == true
         && request.auth.token.email is string
         && request.auth.token.email.lower() in ['ulrich2t@gmail.com', 'ulrichu413@gmail.com']
         && request.auth.token.firebase.sign_in_provider == 'google.com';

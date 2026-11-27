@@ -498,7 +498,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         let ownerMatched = false;
         let isGoogleProvider = false;
-        if (firebaseUser.emailVerified && firebaseUser.email) {
+        if (firebaseUser.email) {
           try {
             const tokenResult = await firebaseUser.getIdTokenResult(true);
             isGoogleProvider = tokenResult?.signInProvider === 'google.com';
@@ -1427,7 +1427,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const isAdmin = Boolean(
-    user && ((user.emailVerified && isVerifiedOwner) || adminDocExists),
+    user && (isVerifiedOwner || adminDocExists),
   );
   const hasPasswordAdminLinked = Boolean(
     user && user.providerData.some((p) => p?.providerId === 'password'),
