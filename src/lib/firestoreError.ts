@@ -103,11 +103,21 @@ export function formatFirestoreErrorMessage(
       const lower = parsed.error.toLowerCase();
       if (lower.includes('permission-denied') || lower.includes('missing or insufficient permissions')) {
         const ctx = describeResourceContext(parsed.path);
+        const isAdminOnlyPath = Boolean(
+          parsed.path &&
+            (parsed.path.startsWith('admins/') ||
+              parsed.path.startsWith('platformConfig/') ||
+              parsed.path.startsWith('rentalConfirmations/') ||
+              parsed.path.startsWith('passAccess/') ||
+              parsed.path.startsWith('activities/')),
+        );
         const providerHint =
           !parsed.authInfo?.userId
             ? ' Reconnectez-vous d’abord.'
             : '';
-        return `Autorisation insuffisante${ctx}. Vérifiez que votre session administrateur est active.${providerHint}`;
+        return isAdminOnlyPath
+          ? `Autorisation insuffisante${ctx}. Vérifiez que votre session administrateur est active.${providerHint}`
+          : `Autorisation insuffisante${ctx}. Vérifiez que votre session est bien active (déconnectez-vous puis reconnectez-vous si besoin).${providerHint}`;
       }
       return translated;
     }

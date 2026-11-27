@@ -605,6 +605,7 @@ export function PublishListingView({
     setSaving(true);
     const actorName = profile?.displayName || user.displayName || 'Propriétaire';
     try {
+      await user.getIdToken(true).catch(() => undefined);
       let confirmation = '';
       if (editingListing) {
         const isResubmit = !isAdmin;
@@ -1540,6 +1541,12 @@ export function PublishListingView({
             />
             <span>Publier immédiatement avec le badge « Vérifié GidaColocs » (Admin uniquement)</span>
           </label>
+        )}
+
+        {error && (
+          <div className="p-4 rounded-2xl border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 text-sm font-medium text-red-700 dark:text-red-300">
+            {error}
+          </div>
         )}
 
         <div className="pt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
